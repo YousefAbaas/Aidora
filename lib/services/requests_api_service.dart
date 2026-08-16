@@ -7,9 +7,23 @@ import 'api_service.dart';
 /// RequestsApiService
 /// ─────────────────────────────────────────────────────────────────────────────
 class RequestsApiService {
-  RequestsApiService._();
+  RequestsApiService._() : _api = ApiService.instance;
+  RequestsApiService._withApi(this._api);
+
   static final RequestsApiService instance = RequestsApiService._();
-  final ApiService _api = ApiService.instance;
+
+  factory RequestsApiService.testInstance(ApiService api) =>
+      RequestsApiService._withApi(api);
+
+  // Widget-test override — injected once, affects the singleton
+  static RequestsApiService? _override;
+  static void overrideForTest(RequestsApiService svc) => _override = svc;
+  static void resetOverride()                          => _override = null;
+
+  /// The singleton, respecting any test override.
+  static RequestsApiService get effective => _override ?? instance;
+
+  final ApiService _api;
 
   // ── Dashboard summary ──────────────────────────────────────────────────────
   /// GET /api/requests/list/

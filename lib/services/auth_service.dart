@@ -3,12 +3,29 @@ import 'api_service.dart';
 import 'auth_storage.dart';
 
 class AuthService {
-  AuthService._();
+  AuthService._() : _api = ApiService.instance;
+  AuthService._withApi(this._api); // ← test seam
+
   static final AuthService instance = AuthService._();
-  final ApiService _api = ApiService.instance;
+
+  /// Creates an [AuthService] backed by a custom [ApiService].
+  /// Use in tests to inject a fake without touching the singleton.
+  factory AuthService.testInstance(ApiService api) =>
+      AuthService._withApi(api);
+
+  /// Replaces the singleton's inner [ApiService] for widget tests.
+  /// Call `AuthService.resetOverride()` in tearDown.
+  static ApiService? _override;
+  static void overrideForTest(ApiService api) => _override = api;
+  static void resetOverride()                  => _override = null;
+
+  final ApiService _api;
+
+  /// Effective API — uses override in tests, singleton otherwise
+  ApiService get _effectiveApi => _override ?? _api;
 
   Future<AuthResult> login({required String email, required String password}) async {
-    final r = await _api.post(ApiConstants.login,
+    final r = await _effectiveApi.post(ApiConstants.login,
         body: {'email': email.trim(), 'password': password});
     if (!r.isSuccess) return AuthResult.error(r.errorMessage ?? 'Login failed.');
     return _storeTokens(r.data, email);
