@@ -16,20 +16,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsController extends GetxController {
   static SettingsController get to => Get.find();
 
-  static const _kLocale  = 'locale';
-  static const _kTheme   = 'theme';
+  static const _kLocale = 'locale';
+  static const _kTheme = 'theme';
   static const _kPrivacy = 'privacy';
 
   // ── Reactive state ─────────────────────────────────────────────────────────
-  final _locale      = const Locale('en').obs;
-  final _themeMode   = ThemeMode.light.obs;
+  final _locale = const Locale('en').obs;
+  final _themeMode = ThemeMode.light.obs;
   final _privacyMode = false.obs;
 
-  Locale    get locale      => _locale.value;
-  ThemeMode get themeMode   => _themeMode.value;
-  bool      get isDark      => _themeMode.value == ThemeMode.dark;
-  bool      get isArabic    => _locale.value.languageCode == 'ar';
-  bool      get privacyMode => _privacyMode.value;
+  Locale get locale => _locale.value;
+  ThemeMode get themeMode => _themeMode.value;
+  bool get isDark => _themeMode.value == ThemeMode.dark;
+  bool get isArabic => _locale.value.languageCode == 'ar';
+  bool get privacyMode => _privacyMode.value;
 
   // ── Init ───────────────────────────────────────────────────────────────────
   @override
@@ -40,15 +40,19 @@ class SettingsController extends GetxController {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    final lang  = prefs.getString(_kLocale)  ?? 'en';
-    final theme = prefs.getString(_kTheme)   ?? 'light';
-    final priv  = prefs.getBool(_kPrivacy)   ?? false;
+    final lang = prefs.getString(_kLocale) ?? 'en';
+    final theme = prefs.getString(_kTheme) ?? 'light';
+    final priv = prefs.getBool(_kPrivacy) ?? false;
 
-    _locale.value      = Locale(lang);
-    _themeMode.value   = theme == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    _locale.value = Locale(lang);
+    _themeMode.value = theme == 'dark' ? ThemeMode.dark : ThemeMode.light;
     _privacyMode.value = priv;
 
-    Get.updateLocale(_locale.value);
+    // 💡 التعديل هنا: تأجيل Get.updateLocale لما بعد انتهاء رسم الـ Frame لمنع تعارض الاختبارات
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.updateLocale(_locale.value);
+    });
+
     _applySystemUI();
   }
 
@@ -73,11 +77,11 @@ class SettingsController extends GetxController {
 
   void _applySystemUI() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor:            Colors.transparent,
-      statusBarIconBrightness:   isDark ? Brightness.light : Brightness.dark,
-      systemNavigationBarColor:  isDark ? const Color(0xFF1A1A2E) : Colors.white,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarColor: isDark ? const Color(0xFF1A1A2E) : Colors.white,
       systemNavigationBarIconBrightness:
-                                 isDark ? Brightness.light : Brightness.dark,
+          isDark ? Brightness.light : Brightness.dark,
     ));
   }
 

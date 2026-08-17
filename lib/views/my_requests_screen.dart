@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utils/app_theme.dart';
 import 'package:get/get.dart';
+
 import '../models/request_model.dart';
 import '../services/requests_api_service.dart';
 import 'qr_scanner_screen.dart';
@@ -10,9 +10,11 @@ import 'request_details_screen.dart';
 /// GET /api/requests/list/              → all
 /// GET /api/requests/list/?status=xxx  → filtered
 ///
-/// Tabs: All | Approved | Pending | Rejected  (matches Images 3–5)
+/// Tabs: All | Approved | Pending | Rejected | Completed
 class MyRequestsScreen extends StatefulWidget {
-  const MyRequestsScreen({super.key});
+  final RequestsApiService? apiService;
+
+  const MyRequestsScreen({super.key, this.apiService});
 
   /// Call after a new request is submitted to force a data refresh.
   static void refresh() => _MyRequestsScreenState.refreshFromOutside();
@@ -23,29 +25,27 @@ class MyRequestsScreen extends StatefulWidget {
 
 class _MyRequestsScreenState extends State<MyRequestsScreen>
     with SingleTickerProviderStateMixin {
-  static const Color _green  = Color(0xFF2C5F4F);
-  static const Color _bg     = Color(0xFFF5F3ED);
-  static const Color _orange = Color(0xFFE67E22);
-  static const Color _red    = Color(0xFFE74C3C);
+  static const Color _green = Color(0xFF2C5F4F);
+  static const Color _bg = Color(0xFFF5F3ED);
 
   static _MyRequestsScreenState? _instance;
   static void refreshFromOutside() => _instance?._refreshAll();
 
   static const _tabs = [
-    {'label': 'All',       'status': 'all'},
-    {'label': 'Approved',  'status': 'approved'},
-    {'label': 'Pending',   'status': 'pending'},
-    {'label': 'Rejected',  'status': 'rejected'},
+    {'label': 'All', 'status': 'all'},
+    {'label': 'Approved', 'status': 'approved'},
+    {'label': 'Pending', 'status': 'pending'},
+    {'label': 'Rejected', 'status': 'rejected'},
     {'label': 'Completed', 'status': 'completed'},
   ];
 
   late TabController _tab;
-  final RequestsApiService _svc = RequestsApiService.instance;
+  late final RequestsApiService _svc;
 
-  final Map<String, List<RequestModel>> _items   = {};
-  final Map<String, bool>               _loaded  = {};
-  final Map<String, bool>               _loading = {};
-  final Map<String, String?>            _errors  = {};
+  final Map<String, List<RequestModel>> _items = {};
+  final Map<String, bool> _loaded = {};
+  final Map<String, bool> _loading = {};
+  final Map<String, String?> _errors = {};
   Map<String, int> _counts = {};
 
   void _refreshAll() {
@@ -59,6 +59,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
   void initState() {
     super.initState();
     _instance = this;
+    // تم التعديل لاستخدام effective لدعم Fake/Mock أثناء اختبارات الـ Widgets
+    _svc = widget.apiService ?? RequestsApiService.effective;
     _tab = TabController(length: _tabs.length, vsync: this);
     _tab.addListener(_onTabChanged);
     _loadTab('all');
@@ -79,33 +81,36 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
   }
 
   Future<void> _loadTab(String status) async {
-    setState(() { _loading[status] = true; _errors[status] = null; });
+    setState(() {
+      _loading[status] = true;
+      _errors[status] = null;
+    });
 
-    final r = await _svc.fetchRequestList(
-        status: status == 'all' ? null : status);
+    final r =
+        await _svc.fetchRequestList(status: status == 'all' ? null : status);
     if (!mounted) return;
 
     if (r.isSuccess) {
       setState(() {
-        _items[status]   = r.items;
-        _counts          = {..._counts, ...r.counts};
+        _items[status] = r.items;
+        _counts = {..._counts, ...r.counts};
         _loading[status] = false;
-        _loaded[status]  = true;
+        _loaded[status] = true;
       });
     } else {
       setState(() {
-        _errors[status]  = r.errorMessage;
+        _errors[status] = r.errorMessage;
         _loading[status] = false;
       });
     }
   }
 
   int _countFor(String status) {
-    if (status == 'all')       return _counts['All']       ?? 0;
-    if (status == 'approved')  return _counts['Approved']  ?? 0;
+    if (status == 'all') return _counts['All'] ?? 0;
+    if (status == 'approved') return _counts['Approved'] ?? 0;
     if (status == 'completed') return _counts['Completed'] ?? 0;
-    if (status == 'pending')   return _counts['Pending']   ?? 0;
-    if (status == 'rejected')  return _counts['Rejected']  ?? 0;
+    if (status == 'pending') return _counts['Pending'] ?? 0;
+    if (status == 'rejected') return _counts['Rejected'] ?? 0;
     return 0;
   }
 
@@ -125,8 +130,10 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
                 onPressed: () => Get.back(),
               ),
               const Text('My Requests',
-                  style: TextStyle(fontSize: 22,
-                      fontWeight: FontWeight.bold, color: Color(0xFF1A2E28))),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A2E28))),
             ]),
           ),
 
@@ -144,13 +151,12 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
               indicatorPadding: EdgeInsets.zero,
               labelPadding: EdgeInsets.zero,
               indicator: BoxDecoration(
-                  color: _green,
-                  borderRadius: BorderRadius.circular(20)),
+                  color: _green, borderRadius: BorderRadius.circular(20)),
               indicatorSize: TabBarIndicatorSize.tab,
               labelColor: Colors.white,
               unselectedLabelColor: Colors.grey[600],
-              labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 13),
+              labelStyle:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
               unselectedLabelStyle:
                   const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
               dividerColor: Colors.transparent,
@@ -176,10 +182,10 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
               children: _tabs.map((t) {
                 final status = t['status']!;
                 return _TabPage(
-                  status:  status,
-                  items:   _items[status] ?? [],
+                  status: status,
+                  items: _items[status] ?? [],
                   loading: _loading[status] ?? false,
-                  error:   _errors[status],
+                  error: _errors[status],
                   onRetry: () => _loadTab(status),
                   onScanQR: _handleScanQR,
                 );
@@ -192,8 +198,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
   }
 
   Future<void> _handleScanQR(RequestModel req) async {
-    final result = await Get.to(
-        () => QRScannerScreen(request: req),
+    final result = await Get.to(() => QRScannerScreen(request: req),
         transition: Transition.cupertino);
     if (result == true) {
       final status = _tabs[_tab.index]['status']!;
@@ -213,8 +218,12 @@ class _TabPage extends StatelessWidget {
   final Future<void> Function(RequestModel) onScanQR;
 
   const _TabPage({
-    required this.status, required this.items, required this.loading,
-    required this.error, required this.onRetry, required this.onScanQR,
+    required this.status,
+    required this.items,
+    required this.loading,
+    required this.error,
+    required this.onRetry,
+    required this.onScanQR,
   });
 
   @override
@@ -230,13 +239,14 @@ class _TabPage extends StatelessWidget {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.cloud_off_rounded, size: 52, color: Colors.grey[300]),
             const SizedBox(height: 12),
-            Text(error!, textAlign: TextAlign.center,
+            Text(error!,
+                textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 13, color: Colors.grey)),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: Text('retry'.tr),
+              label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2C5F4F),
                   foregroundColor: Colors.white,
@@ -261,64 +271,84 @@ class _TabPage extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       itemCount: items.length,
-      itemBuilder: (_, i) => _RequestCard(request: items[i], onScanQR: onScanQR),
+      itemBuilder: (_, i) =>
+          _RequestCard(request: items[i], onScanQR: onScanQR),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Request Card — matches Images 3, 4, 5
+// Request Card
 // ─────────────────────────────────────────────────────────────────────────────
 class _RequestCard extends StatelessWidget {
   final RequestModel request;
   final Future<void> Function(RequestModel) onScanQR;
   const _RequestCard({required this.request, required this.onScanQR});
 
-  // ── Colours per status ────────────────────────────────────────────────────
   Color get _accentColor {
     switch (request.status) {
-      case 'approved':  return const Color(0xFF27AE60);
-      case 'completed': return const Color(0xFF2980B9);
-      case 'pending':   return const Color(0xFFE67E22);
-      case 'rejected':  return const Color(0xFFE74C3C);
-      default:          return Colors.grey;
+      case 'approved':
+        return const Color(0xFF27AE60);
+      case 'completed':
+        return const Color(0xFF2980B9);
+      case 'pending':
+        return const Color(0xFFE67E22);
+      case 'rejected':
+        return const Color(0xFFE74C3C);
+      default:
+        return Colors.grey;
     }
   }
 
   Color get _badgeBg {
     switch (request.status) {
-      case 'approved':  return const Color(0xFFF0FBF4);
-      case 'completed': return const Color(0xFFEBF5FB);
-      case 'pending':   return const Color(0xFFFFF3E8);
-      case 'rejected':  return const Color(0xFFFFF5F5);
-      default:          return Colors.grey[100]!;
+      case 'approved':
+        return const Color(0xFFF0FBF4);
+      case 'completed':
+        return const Color(0xFFEBF5FB);
+      case 'pending':
+        return const Color(0xFFFFF3E8);
+      case 'rejected':
+        return const Color(0xFFFFF5F5);
+      default:
+        return Colors.grey[100]!;
     }
   }
 
   String get _label {
     switch (request.status) {
-      case 'approved':  return 'Approved';
-      case 'completed': return 'Completed';
-      case 'pending':   return 'Pending';
-      case 'rejected':  return 'Rejected';
-      default:          return request.status;
+      case 'approved':
+        return 'Approved';
+      case 'completed':
+        return 'Completed';
+      case 'pending':
+        return 'Pending';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return request.status;
     }
   }
 
   IconData get _icon {
     switch (request.status) {
-      case 'approved':  return Icons.check_circle_outline_rounded;
-      case 'completed': return Icons.done_all_rounded;
-      case 'pending':   return Icons.access_time_rounded;
-      case 'rejected':  return Icons.cancel_outlined;
-      default:          return Icons.help_outline;
+      case 'approved':
+        return Icons.check_circle_outline_rounded;
+      case 'completed':
+        return Icons.done_all_rounded;
+      case 'pending':
+        return Icons.access_time_rounded;
+      case 'rejected':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.help_outline;
     }
   }
 
-  bool get _isApproved  => request.status == 'approved';
+  bool get _isApproved => request.status == 'approved';
   bool get _isCompleted => request.status == 'completed';
-  bool get _isPending   => request.status == 'pending';
-  bool get _isRejected  => request.status == 'rejected';
+  bool get _isPending => request.status == 'pending';
+  bool get _isRejected => request.status == 'rejected';
 
   @override
   Widget build(BuildContext context) {
@@ -328,71 +358,80 @@ class _RequestCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border(left: BorderSide(color: _accentColor, width: 4)),
-        boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          // ── Status badge + REF ─────────────────────────────────────────
+          // Status badge + REF
           Row(children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                   color: _badgeBg,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: _accentColor.withOpacity(0.25))),
+                  border: Border.all(color: _accentColor.withOpacity(0.25))),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(_icon, color: _accentColor, size: 13),
                 const SizedBox(width: 5),
                 Text(_label,
-                    style: TextStyle(color: _accentColor, fontSize: 12,
+                    style: TextStyle(
+                        color: _accentColor,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700)),
               ]),
             ),
             const SizedBox(width: 10),
             Text(request.ref,
-                style: TextStyle(fontSize: 12, color: Colors.grey[400],
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[400],
                     fontWeight: FontWeight.w600)),
           ]),
 
           const SizedBox(height: 10),
 
-          // ── Service name ────────────────────────────────────────────────
+          // Service name
           Text(request.serviceName,
-              style: const TextStyle(fontSize: 17,
-                  fontWeight: FontWeight.bold, color: Color(0xFF1A2E28))),
+              style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A2E28))),
 
           const SizedBox(height: 8),
 
-          // ── Status-specific info row ────────────────────────────────────
+          // Info row
           if (_isApproved) ...[
             if (request.sector != null && request.sector!.isNotEmpty)
               _infoRow(Icons.home_outlined, request.sector!),
             if (request.approvedAt != null)
               _infoRow(Icons.schedule_rounded, request.approvedAt!),
             const SizedBox(height: 10),
-            // Approved action row
             Row(children: [
-              Text('Ready for pickup',
-                  style: TextStyle(color: const Color(0xFF27AE60),
-                      fontWeight: FontWeight.w600, fontSize: 13)),
+              const Text('Ready for pickup',
+                  style: TextStyle(
+                      color: Color(0xFF27AE60),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13)),
               const Spacer(),
               OutlinedButton(
                 onPressed: () => onScanQR(request),
                 style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF27AE60),
-                    side: const BorderSide(color: Color(0xFF27AE60), width: 1.5),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                    side:
+                        const BorderSide(color: Color(0xFF27AE60), width: 1.5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8))),
                 child: const Text('Scan QR Code',
-                    style: TextStyle(fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ]),
           ],
@@ -401,9 +440,11 @@ class _RequestCard extends StatelessWidget {
             _infoRow(Icons.access_time_rounded, request.createdAt!),
 
           if (_isCompleted)
-            _infoRow(Icons.check_circle_outline, request.receivedAt ?? 'Completed'),
+            _infoRow(
+                Icons.check_circle_outline, request.receivedAt ?? 'Completed'),
 
-          if (_isRejected && request.rejectionReason != null &&
+          if (_isRejected &&
+              request.rejectionReason != null &&
               request.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Container(
@@ -412,11 +453,11 @@ class _RequestCard extends StatelessWidget {
               decoration: BoxDecoration(
                   color: const Color(0xFFFFF5F5),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: const Color(0xFFFFCDD2))),
+                  border: Border.all(color: const Color(0xFFFFCDD2))),
               child: Text(
                 '"${request.rejectionReason}"',
-                style: const TextStyle(fontSize: 12,
+                style: const TextStyle(
+                    fontSize: 12,
                     color: Color(0xFFE74C3C),
                     fontStyle: FontStyle.italic,
                     height: 1.4),
@@ -436,15 +477,15 @@ class _RequestCard extends StatelessWidget {
                     transition: Transition.cupertino),
                 style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF2980B9),
-                    side: const BorderSide(
-                        color: Color(0xFF2980B9), width: 1.5),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 8),
+                    side:
+                        const BorderSide(color: Color(0xFF2980B9), width: 1.5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8))),
-                child: Text('details'.tr,
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w600)),
+                child: const Text('Details',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ),
           ],
@@ -454,13 +495,14 @@ class _RequestCard extends StatelessWidget {
   }
 
   Widget _infoRow(IconData icon, String text) => Padding(
-    padding: const EdgeInsets.only(top: 3),
-    child: Row(children: [
-      Icon(icon, size: 13, color: Colors.grey[400]),
-      const SizedBox(width: 5),
-      Flexible(child: Text(text,
-          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-          overflow: TextOverflow.ellipsis)),
-    ]),
-  );
+        padding: const EdgeInsets.only(top: 3),
+        child: Row(children: [
+          Icon(icon, size: 13, color: Colors.grey[400]),
+          const SizedBox(width: 5),
+          Flexible(
+              child: Text(text,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  overflow: TextOverflow.ellipsis)),
+        ]),
+      );
 }

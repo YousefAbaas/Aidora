@@ -113,7 +113,7 @@ void main() {
       expect(m.rejected, equals(1));
       expect(m.approvedRequests[0].serviceName, equals('Education'));
       expect(m.rejectedRequests[0].rejectionReason, equals('Missing docs'));
-      expect(m.refugee.fullName, equals('Ahmed'));
+      expect(m.refugee?.fullName, equals('Ahmed'));
     });
   });
 

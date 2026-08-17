@@ -203,7 +203,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
                       _isFiltered = true;
                     });
                     final result =
-                        await _service.fetchFilteredOrganizations(serviceType);
+                    await _service.fetchFilteredOrganizations(serviceType);
                     if (!mounted) return;
                     if (result.isSuccess) {
                       setState(() {
@@ -262,7 +262,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               ),
             ),
           ]),
@@ -285,7 +285,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
 }
 
 class _OrgCard extends StatelessWidget {
-  final OrgService org;
+  final OrganizationCardModel org;
   static const Color _blue = Color(0xFF1565C0);
   static const Color _green = Color(0xFF2C5F4F);
   const _OrgCard({required this.org});
@@ -296,7 +296,7 @@ class _OrgCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: context.cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -317,7 +317,7 @@ class _OrgCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[200]!),
             ),
-            child: _staticOrgLogo(org.id ?? org.name),
+            child: _staticOrgLogo((org.id ?? org.name).toString()),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -347,7 +347,7 @@ class _OrgCard extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Get.to(
-                        () => GuestOrgDetailsScreen(
+                            () => GuestOrgDetailsScreen(
                             orgId: org.id, showAddButton: false),
                         transition: Transition.cupertino),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -371,16 +371,16 @@ class _OrgCard extends StatelessWidget {
 
   Widget _chip(
       {required IconData icon,
-      required String label,
-      required Color bg,
-      required Color fg,
-      required VoidCallback onTap}) {
+        required String label,
+        required Color bg,
+        required Color fg,
+        required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration:
-            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+        BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 14, color: fg),
           const SizedBox(width: 5),

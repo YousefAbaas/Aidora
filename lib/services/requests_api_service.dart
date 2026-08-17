@@ -7,6 +7,8 @@ import 'api_service.dart';
 /// RequestsApiService
 /// ─────────────────────────────────────────────────────────────────────────────
 class RequestsApiService {
+  RequestsApiService({ApiService? api}) : _api = api ?? ApiService.instance;
+
   RequestsApiService._() : _api = ApiService.instance;
   RequestsApiService._withApi(this._api);
 
@@ -18,7 +20,7 @@ class RequestsApiService {
   // Widget-test override — injected once, affects the singleton
   static RequestsApiService? _override;
   static void overrideForTest(RequestsApiService svc) => _override = svc;
-  static void resetOverride()                          => _override = null;
+  static void resetOverride() => _override = null;
 
   /// The singleton, respecting any test override.
   static RequestsApiService get effective => _override ?? instance;
@@ -32,9 +34,9 @@ class RequestsApiService {
     final r = await _api.get(ApiConstants.requestList, requiresAuth: true);
     if (!r.isSuccess) return MyRequestsResult.error(r.errorMessage!);
     try {
-      final raw    = r.data as Map<String, dynamic>;
+      final raw = r.data as Map<String, dynamic>;
       final counts = raw['counts'] as Map<String, dynamic>? ?? {};
-      final data   = raw['data'];
+      final data = raw['data'];
 
       // Parse approved from data.Approved list
       List<ApprovedRequest> approved = [];
@@ -52,10 +54,10 @@ class RequestsApiService {
       }
 
       final model = MyRequestsModel(
-        refugee:          RefugeeInfo(fullName: ''),
-        total:            (counts['All']      as num? ?? 0).toInt(),
-        approved:         (counts['Approved'] as num? ?? 0).toInt(),
-        rejected:         (counts['Rejected'] as num? ?? 0).toInt(),
+        refugee: RefugeeInfo(fullName: ''),
+        total: (counts['All'] as num? ?? 0).toInt(),
+        approved: (counts['Approved'] as num? ?? 0).toInt(),
+        rejected: (counts['Rejected'] as num? ?? 0).toInt(),
         approvedRequests: approved,
         rejectedRequests: rejected,
       );
@@ -81,9 +83,9 @@ class RequestsApiService {
     if (!r.isSuccess) return RequestListResult.error(r.errorMessage!);
 
     try {
-      final raw    = r.data as Map<String, dynamic>;
+      final raw = r.data as Map<String, dynamic>;
       final counts = _parseCounts(raw['counts'] as Map<String, dynamic>? ?? {});
-      final items  = _parseItems(raw['data'], status);
+      final items = _parseItems(raw['data'], status);
       return RequestListResult.success(items: items, counts: counts);
     } catch (e) {
       return RequestListResult.error('Parse error: $e');
@@ -92,12 +94,12 @@ class RequestsApiService {
 
   // ── Parsers ────────────────────────────────────────────────────────────────
   Map<String, int> _parseCounts(Map<String, dynamic> m) => {
-    'All':       (m['All']       as num? ?? 0).toInt(),
-    'Approved':  (m['Approved']  as num? ?? 0).toInt(),
-    'Rejected':  (m['Rejected']  as num? ?? 0).toInt(),
-    'Pending':   (m['Pending']   as num? ?? 0).toInt(),
-    'Completed': (m['Completed'] as num? ?? 0).toInt(),
-  };
+        'All': (m['All'] as num? ?? 0).toInt(),
+        'Approved': (m['Approved'] as num? ?? 0).toInt(),
+        'Rejected': (m['Rejected'] as num? ?? 0).toInt(),
+        'Pending': (m['Pending'] as num? ?? 0).toInt(),
+        'Completed': (m['Completed'] as num? ?? 0).toInt(),
+      };
 
   List<RequestModel> _parseItems(dynamic data, String? status) {
     if (data is List) {
@@ -118,10 +120,12 @@ class RequestsApiService {
     }
     return [];
   }
+
   // ── Request details ────────────────────────────────────────────────────────
   /// GET /api/requests/<pk>/details/
   Future<RequestDetailsResult> fetchRequestDetails(int id) async {
-    final r = await _api.get(ApiConstants.requestDetails(id), requiresAuth: true);
+    final r =
+        await _api.get(ApiConstants.requestDetails(id), requiresAuth: true);
     if (!r.isSuccess) return RequestDetailsResult.error(r.errorMessage!);
     try {
       final j = r.data as Map<String, dynamic>;
@@ -136,14 +140,13 @@ class RequestsApiService {
   /// Fetches service info before showing submit form.
   Future<ServiceRequestInfoResult> fetchServiceRequestInfo(
       int orgId, int serviceId) async {
-    final r = await _api.get(
-        ApiConstants.orgServiceRequest(orgId, serviceId),
+    final r = await _api.get(ApiConstants.orgServiceRequest(orgId, serviceId),
         requiresAuth: true);
     if (!r.isSuccess) return ServiceRequestInfoResult.error(r.errorMessage!);
     try {
       final d = r.data as Map<String, dynamic>;
       return ServiceRequestInfoResult.success(
-        serviceName:        d['service_name']        as String? ?? '',
+        serviceName: d['service_name'] as String? ?? '',
         serviceDescription: d['service_description'] as String? ?? '',
       );
     } catch (e) {
@@ -155,8 +158,8 @@ class RequestsApiService {
   /// Body: {family_members, description, location}
   /// Success: {message, request_id}
   Future<SubmitRequestResult> submitServiceRequest({
-    required int    orgId,
-    required int    serviceId,
+    required int orgId,
+    required int serviceId,
     required String familyMembers,
     required String description,
     required String location,
@@ -166,22 +169,21 @@ class RequestsApiService {
       requiresAuth: true,
       body: {
         'family_members': familyMembers,
-        'description':    description,
-        'location':       location,
+        'description': description,
+        'location': location,
       },
     );
     if (!r.isSuccess) return SubmitRequestResult.error(r.errorMessage!);
     try {
       final d = r.data as Map<String, dynamic>;
       return SubmitRequestResult.success(
-        message:   d['message']    as String? ?? 'Request sent successfully',
+        message: d['message'] as String? ?? 'Request sent successfully',
         requestId: (d['request_id'] as num?)?.toInt() ?? 0,
       );
     } catch (e) {
       return SubmitRequestResult.error('Parse error: $e');
     }
   }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -189,7 +191,8 @@ class MyRequestsResult {
   final bool isSuccess;
   final MyRequestsModel? data;
   final String? errorMessage;
-  const MyRequestsResult._({required this.isSuccess, this.data, this.errorMessage});
+  const MyRequestsResult._(
+      {required this.isSuccess, this.data, this.errorMessage});
   factory MyRequestsResult.success(MyRequestsModel d) =>
       MyRequestsResult._(isSuccess: true, data: d);
   factory MyRequestsResult.error(String msg) =>
@@ -199,7 +202,7 @@ class MyRequestsResult {
 class RequestListResult {
   final bool isSuccess;
   final List<RequestModel> items;
-  final Map<String, int>   counts;
+  final Map<String, int> counts;
   final String? errorMessage;
   const RequestListResult._({
     required this.isSuccess,
@@ -209,14 +212,15 @@ class RequestListResult {
   });
   factory RequestListResult.success({
     required List<RequestModel> items,
-    required Map<String, int>   counts,
-  }) => RequestListResult._(isSuccess: true, items: items, counts: counts);
+    required Map<String, int> counts,
+  }) =>
+      RequestListResult._(isSuccess: true, items: items, counts: counts);
   factory RequestListResult.error(String msg) =>
       RequestListResult._(isSuccess: false, errorMessage: msg);
 }
 
 class ServiceRequestInfoResult {
-  final bool   isSuccess;
+  final bool isSuccess;
   final String serviceName;
   final String serviceDescription;
   final String? errorMessage;
@@ -229,18 +233,19 @@ class ServiceRequestInfoResult {
   factory ServiceRequestInfoResult.success({
     required String serviceName,
     required String serviceDescription,
-  }) => ServiceRequestInfoResult._(
-        isSuccess: true,
-        serviceName: serviceName,
-        serviceDescription: serviceDescription);
+  }) =>
+      ServiceRequestInfoResult._(
+          isSuccess: true,
+          serviceName: serviceName,
+          serviceDescription: serviceDescription);
   factory ServiceRequestInfoResult.error(String msg) =>
       ServiceRequestInfoResult._(isSuccess: false, errorMessage: msg);
 }
 
 class SubmitRequestResult {
-  final bool   isSuccess;
+  final bool isSuccess;
   final String message;
-  final int    requestId;
+  final int requestId;
   final String? errorMessage;
   const SubmitRequestResult._({
     required this.isSuccess,
@@ -248,8 +253,10 @@ class SubmitRequestResult {
     this.requestId = 0,
     this.errorMessage,
   });
-  factory SubmitRequestResult.success({required String message, required int requestId}) =>
-      SubmitRequestResult._(isSuccess: true, message: message, requestId: requestId);
+  factory SubmitRequestResult.success(
+          {required String message, required int requestId}) =>
+      SubmitRequestResult._(
+          isSuccess: true, message: message, requestId: requestId);
   factory SubmitRequestResult.error(String msg) =>
       SubmitRequestResult._(isSuccess: false, errorMessage: msg);
 }
@@ -257,13 +264,13 @@ class SubmitRequestResult {
 // ─────────────────────────────────────────────────────────────────────────────
 /// Model for GET /api/requests/<pk>/details/
 class RequestDetailModel {
-  final String  ref;
-  final String  organizationName;
+  final String ref;
+  final String organizationName;
   final String? organizationLogo;
-  final String  serviceName;
-  final String  status;
-  final String  serviceType;
-  final int?    familyMembers;
+  final String serviceName;
+  final String status;
+  final String serviceType;
+  final int? familyMembers;
   final String? createdAt;
   final String? receivedAt;
   final String? sector;
@@ -283,16 +290,16 @@ class RequestDetailModel {
 
   factory RequestDetailModel.fromJson(Map<String, dynamic> j) =>
       RequestDetailModel(
-        ref:              j['ref']?.toString()               ?? '',
+        ref: j['ref']?.toString() ?? '',
         organizationName: j['organization_name']?.toString() ?? '',
         organizationLogo: j['organization_logo']?.toString(),
-        serviceName:      j['service_name']?.toString()      ?? '',
-        status:           j['status']?.toString()            ?? '',
-        serviceType:      j['service_type']?.toString()      ?? '',
-        familyMembers:    (j['family_members'] as num?)?.toInt(),
-        createdAt:        j['created_at']?.toString(),
-        receivedAt:       j['received_at']?.toString(),
-        sector:           j['sector']?.toString(),
+        serviceName: j['service_name']?.toString() ?? '',
+        status: j['status']?.toString() ?? '',
+        serviceType: j['service_type']?.toString() ?? '',
+        familyMembers: (j['family_members'] as num?)?.toInt(),
+        createdAt: j['created_at']?.toString(),
+        receivedAt: j['received_at']?.toString(),
+        sector: j['sector']?.toString(),
       );
 }
 
@@ -300,7 +307,8 @@ class RequestDetailsResult {
   final bool isSuccess;
   final RequestDetailModel? data;
   final String? errorMessage;
-  const RequestDetailsResult._({required this.isSuccess, this.data, this.errorMessage});
+  const RequestDetailsResult._(
+      {required this.isSuccess, this.data, this.errorMessage});
   factory RequestDetailsResult.success(RequestDetailModel d) =>
       RequestDetailsResult._(isSuccess: true, data: d);
   factory RequestDetailsResult.error(String msg) =>
