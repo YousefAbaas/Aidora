@@ -3,3 +3,6 @@ android/app/build/
 android/app/.cxx/
 build/
 .dart_tool/
+# IDE
+.idea/
+*.iml
