@@ -55,7 +55,21 @@ Aidora is a cross-platform Flutter application that bridges the gap between disp
 The project consists of a Flutter client (this repository) and a Django REST Framework backend, connected through a JWT-secured API.
 
 ---
+## Screenshots
 
+<p align="center">
+  <img src="img/SecreenShots/Welcome.jpg" width="30%" alt="Aidora Welcome Screen"/>
+  <img src="img/SecreenShots/Login.jpg" width="30%" alt="Aidora Login Screen"/>
+  <img src="img/SecreenShots/ListOrganizations.jpg" width="30%" alt="Organizations List"/>
+</p>
+
+<p align="center">
+  <img src="img/SecreenShots/RequestDetails.jpg" width="30%" alt="Request Details"/>
+  <img src="img/SecreenShots/MyRequest.jpg" width="30%" alt="My Request"/>
+  <img src="img/SecreenShots/Profil.jpg" width="30%" alt="Profile"/>
+</p>
+
+---
 ## Key Features
 
 | Feature | Description |
