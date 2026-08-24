@@ -5,773 +5,786 @@
 </p>
 
 <p align="center">
-  <strong>Connecting refugees with humanitarian organizations and volunteers</strong>
+  <strong>Connecting displaced communities with humanitarian organizations and volunteers</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter" alt="Flutter" />
-  <img src="https://img.shields.io/badge/Dart-3.4+-0175C2?logo=dart" alt="Dart" />
-  <img src="https://img.shields.io/badge/Backend-Django%20REST-092E20?logo=django" alt="Django REST" />
-  <img src="https://img.shields.io/badge/Auth-Simple%20JWT-FF6B35" alt="Simple JWT" />
-  <img src="https://img.shields.io/badge/State-GetX-8B5CF6" alt="GetX" />
-  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen" alt="Version" />
-  <img src="https://img.shields.io/badge/License-Proprietary-lightgrey" alt="License" />
+  <img src="https://img.shields.io/badge/Flutter-Mobile%20%26%20Web-02569B?logo=flutter" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Dart-3.4%2B-0175C2?logo=dart" alt="Dart"/>
+  <img src="https://img.shields.io/badge/Backend-Django%20REST-092E20?logo=django" alt="Django REST"/>
+  <img src="https://img.shields.io/badge/Auth-JWT-FF6B35" alt="JWT"/>
+  <img src="https://img.shields.io/badge/State%20Management-GetX-8B5CF6" alt="GetX"/>
+  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen" alt="Version"/>
+  <img src="https://img.shields.io/badge/License-Proprietary-lightgrey" alt="License"/>
 </p>
-
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Key Features](#key-features)
-3. [User Roles](#user-roles)
-4. [Architecture](#architecture)
-   - [Project Structure](#project-structure)
-   - [Layer Diagram](#layer-diagram)
-   - [State Management](#state-management)
-   - [Authentication & Token Lifecycle](#authentication--token-lifecycle)
-   - [API Layer](#api-layer)
-   - [Navigation Flow](#navigation-flow)
-   - [Data Models](#data-models)
-   - [Static Assets Strategy](#static-assets-strategy)
-5. [Supported Organizations](#supported-organizations)
-6. [Tech Stack](#tech-stack)
-7. [Dependencies](#dependencies)
-8. [Getting Started](#getting-started)
-9. [Environment Configuration](#environment-configuration)
-10. [Backend Integration](#backend-integration)
-11. [Localization](#localization)
-12. [Testing](#testing)
-13. [Roadmap](#roadmap)
-14. [Contributing](#contributing)
-15. [License](#license)
 
 ---
 
 ## Overview
 
-Aidora is a cross-platform Flutter application that bridges the gap between displaced communities and humanitarian organizations. Refugees can submit aid requests, track their status in real time, and connect directly with verified NGOs, while organizations and volunteers get a dedicated dashboard to manage, assign, and fulfill those requests efficiently.
+**Aidora** is a cross-platform Flutter application designed to improve coordination between displaced communities, humanitarian organizations, and volunteers.
 
-The project consists of a Flutter client (this repository) and a Django REST Framework backend, connected through a JWT-secured API.
+The platform provides a structured digital workflow for discovering humanitarian services, submitting assistance requests, managing user profiles, tracking request-related activity, and supporting organization and volunteer workflows.
+
+Aidora consists of a **Flutter client** integrated with a **Django REST Framework backend** through a JWT-secured API.
+
+The application is designed with a focus on:
+
+* Clear separation between UI, application logic, models, and services
+* Secure authentication and session management
+* Reliable API communication
+* Reactive state management
+* Profile and image management
+* Humanitarian request workflows
+* Organization discovery and service navigation
+* Volunteer-oriented verification workflows
+* Automated testing and static code analysis
 
 ---
-## Screenshots
+
+## Why Aidora?
+
+Humanitarian assistance workflows can become fragmented when people need to identify available services, understand eligibility, submit requests, and communicate with organizations through disconnected channels.
+
+Aidora aims to provide a single mobile-first interface where users can:
+
+1. Discover humanitarian organizations.
+2. Explore available services.
+3. Create and manage assistance requests.
+4. Maintain their personal profile.
+5. Receive request-related notifications.
+6. Interact with volunteer and organization workflows.
+7. Verify assistance processes through QR-based workflows.
+
+The goal is to make the process more structured, accessible, and easier to manage for both beneficiaries and humanitarian teams.
+
+---
+
+## Core Capabilities
+
+| Capability              | Description                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| Authentication          | JWT-based authentication with login, registration, and token lifecycle handling |
+| OTP Verification        | PIN-based verification workflow using Pinput                                    |
+| Assistance Requests     | Create and manage humanitarian service requests                                 |
+| Organization Discovery  | Browse and search humanitarian organizations                                    |
+| Organization Profiles   | View organization information and available services                            |
+| Guest Mode              | Explore organizations without requiring authentication                          |
+| Profile Management      | Manage personal information and profile data                                    |
+| Profile Images          | Select, upload, cache, and display profile images                               |
+| Notifications           | Local notification infrastructure for application events                        |
+| QR Verification         | QR scanning workflow for volunteer operations                                   |
+| Location Data           | Store and display relevant user location information                            |
+| Multilingual UI         | Arabic and English interface support                                            |
+| Smart Search            | Search interface for discovering relevant humanitarian services                 |
+| Persistent Session Data | Local persistence using SharedPreferences                                       |
+| External Links          | Open external resources through the platform URL handler                        |
+
+---
+
+# User Roles
+
+Aidora is designed around multiple user experiences.
+
+```text
+                         ┌────────────────────┐
+                         │       Aidora       │
+                         └─────────┬──────────┘
+                                   │
+                ┌──────────────────┼──────────────────┐
+                │                  │                  │
+                ▼                  ▼                  ▼
+        ┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+        │    Refugee    │  │ Organization  │  │   Volunteer   │
+        └───────┬───────┘  └───────┬───────┘  └───────┬───────┘
+                │                  │                  │
+                ▼                  ▼                  ▼
+        Submit requests     Manage services     Process requests
+        Track activity      Organization data   QR verification
+        Manage profile      Service workflows   Request workflows
+```
+
+### Refugee / Beneficiary
+
+The beneficiary-facing workflow focuses on discovering services and requesting assistance.
+
+Typical capabilities include:
+
+* Account registration
+* Authentication
+* Profile completion
+* Organization discovery
+* Service discovery
+* Assistance request submission
+* Request tracking
+* Profile image management
+* Notifications
+
+### Organization
+
+Organizations provide humanitarian services through organization-specific workflows.
+
+Typical capabilities include:
+
+* Organization information
+* Service management workflows
+* Request management
+* Organization-specific screens
+* Reporting workflows
+
+### Volunteer
+
+Volunteer workflows focus on assisting organizations with request processing and verification.
+
+Typical capabilities include:
+
+* Volunteer profile
+* Request workflows
+* Request status handling
+* QR scanning and verification
+
+### Guest
+
+Unauthenticated users can browse public organization information and explore available services before creating an account.
+
+---
+
+# Application Architecture
+
+Aidora follows a service-oriented Flutter structure that separates presentation, models, API communication, and reusable UI components.
+
+```text
+┌─────────────────────────────────────────────┐
+│                 Flutter UI                  │
+│                                             │
+│ Screens / Views / Widgets / Navigation      │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│             State Management                │
+│                    GetX                     │
+│                                             │
+│ Controllers / Reactive State / UI Updates   │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│               Service Layer                 │
+│                                             │
+│ API Service / Auth Service / Upload Helpers │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│                 REST API                    │
+│                                             │
+│          Django REST Framework              │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│              Backend Services               │
+│                                             │
+│       Authentication / Data / Requests      │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## Project Structure
+
+The project is organized around application responsibilities rather than putting all application logic inside individual screens.
+
+```text
+lib/
+├── core/
+│   └── Application-wide infrastructure
+│
+├── models/
+│   └── API and application data models
+│
+├── services/
+│   ├── API communication
+│   ├── Authentication
+│   ├── Upload handling
+│   └── Supporting services
+│
+├── utils/
+│   ├── Theme utilities
+│   ├── Image URL handling
+│   └── Shared helpers
+│
+├── views/
+│   ├── Authentication
+│   ├── Refugee workflows
+│   ├── Organization workflows
+│   ├── Volunteer workflows
+│   └── Shared application screens
+│
+├── widgets/
+│   └── Reusable UI components
+│
+└── main.dart
+```
+
+Tests are maintained separately:
+
+```text
+test/
+├── unit/
+└── widget/
+```
+
+---
+
+# State Management
+
+Aidora uses **GetX** for reactive application state and controller-based coordination.
+
+Reactive values are used where UI state needs to respond immediately to application changes.
+
+For example, profile image changes are synchronized between the profile screen, relevant controllers, and other screens that consume the same state.
+
+This reduces unnecessary manual refresh logic and allows dependent UI components to react to state changes.
+
+---
+
+# Authentication & Session Management
+
+Authentication is handled through a JWT-based backend integration.
+
+The application contains dedicated authentication and API services rather than embedding authentication logic directly inside UI screens.
+
+The general lifecycle is:
+
+```text
+User
+ │
+ ▼
+Login / Registration
+ │
+ ▼
+Authentication API
+ │
+ ▼
+JWT credentials
+ │
+ ▼
+Local session persistence
+ │
+ ▼
+Authenticated API requests
+ │
+ ├── Token valid ───────────────► Continue request
+ │
+ └── Token expired
+          │
+          ▼
+      Refresh token
+          │
+          ▼
+      Retry request
+```
+
+Authentication-related responsibilities are primarily centralized in:
+
+```text
+lib/services/auth_service.dart
+lib/services/api_service.dart
+```
+
+This separation makes authentication easier to maintain and test independently from the UI.
+
+---
+
+# API Layer
+
+The Flutter application communicates with the backend through a dedicated service layer.
+
+Instead of allowing screens to directly implement HTTP logic, API responsibilities are centralized in service classes.
+
+This provides:
+
+* Consistent HTTP handling
+* Centralized authentication behavior
+* Easier error handling
+* Better testability
+* Reduced duplication
+* Clear separation between UI and networking
+
+The primary HTTP dependency is:
+
+```text
+http
+```
+
+The backend is implemented using:
+
+```text
+Django REST Framework
+```
+
+with JWT authentication.
+
+---
+
+# Data Models
+
+API responses are represented through dedicated Dart models.
+
+Examples include models for:
+
+* Organizations
+* Assistance requests
+* User information
+* Authentication responses
+* Service-related data
+
+Keeping API structures inside model classes makes serialization and application-level data handling more predictable.
+
+---
+
+# Profile & Image Management
+
+Aidora supports profile image selection, upload, caching, and display.
+
+The image workflow is separated into dedicated helpers and reusable UI components.
+
+Relevant dependencies include:
+
+```text
+image_picker
+cached_network_image
+```
+
+The application also contains platform-specific image handling where required.
+
+Profile image state is synchronized with reactive application state so that updated images can propagate across relevant screens without requiring unnecessary navigation or manual refresh operations.
+
+---
+
+# Notifications
+
+Aidora uses local notification infrastructure through:
+
+```text
+flutter_local_notifications
+timezone
+```
+
+This provides the foundation for displaying application-related notifications while allowing notification scheduling to be handled independently from the UI.
+
+---
+
+# QR Verification
+
+Volunteer workflows include QR scanning using:
+
+```text
+mobile_scanner
+```
+
+The scanner is integrated into the volunteer workflow to support verification-oriented interactions.
+
+---
+
+# Local Storage
+
+Aidora uses:
+
+```text
+shared_preferences
+```
+
+for lightweight persistent application data.
+
+This is suitable for values such as local session-related state and user preferences that do not require a relational database.
+
+---
+
+# Localization
+
+The application supports multilingual UI experiences, including:
+
+* Arabic
+* English
+
+The `intl` package is used for localization and formatting-related functionality.
+
+The UI is designed so that user-facing strings can be translated without embedding language-specific logic into the application flow.
+
+---
+
+# Technology Stack
+
+## Frontend
+
+| Technology   | Purpose                                       |
+| ------------ | --------------------------------------------- |
+| Flutter      | Cross-platform application framework          |
+| Dart         | Application programming language              |
+| GetX         | State management and reactive UI coordination |
+| Google Fonts | Typography                                    |
+| Flutter SVG  | SVG rendering                                 |
+| Pinput       | PIN / OTP input                               |
+| intl         | Internationalization and formatting           |
+
+## Networking & Backend Integration
+
+| Technology            | Purpose                |
+| --------------------- | ---------------------- |
+| HTTP                  | REST API communication |
+| Django REST Framework | Backend API            |
+| JWT                   | Authentication         |
+
+## Device & Platform Features
+
+| Package                     | Purpose                 |
+| --------------------------- | ----------------------- |
+| image_picker                | Image selection         |
+| cached_network_image        | Network image caching   |
+| mobile_scanner              | QR / barcode scanning   |
+| permission_handler          | Runtime permissions     |
+| flutter_local_notifications | Local notifications     |
+| timezone                    | Notification scheduling |
+| url_launcher                | External URLs           |
+
+## Local Persistence
+
+| Package            | Purpose                        |
+| ------------------ | ------------------------------ |
+| shared_preferences | Lightweight persistent storage |
+
+## Development & Testing
+
+| Package       | Purpose                     |
+| ------------- | --------------------------- |
+| flutter_test  | Flutter testing framework   |
+| Mockito       | Mocking and isolated tests  |
+| build_runner  | Code generation             |
+| flutter_lints | Static analysis and linting |
+
+---
+
+# Code Quality & Engineering
+
+Code quality is treated as part of the development workflow rather than as a final cleanup step.
+
+Recent engineering work focused on:
+
+* Hardening the API layer
+* Stabilizing Flutter integration and widget tests
+* Improving authentication handling
+* Improving API response handling
+* Strengthening image upload and URL handling
+* Synchronizing profile state across screens
+* Removing duplicate declarations
+* Resolving undefined identifiers and invalid constants
+* Cleaning unused code
+* Improving null-safety patterns
+* Maintaining separation between UI and service responsibilities
+
+The latest static analysis result is:
+
+```text
+flutter analyze
+
+No errors
+No warnings
+```
+
+The analyzer currently reports informational deprecation notices related to APIs being phased out in newer Flutter/Dart releases. These are separate from compilation errors and warnings and can be addressed as part of a future API-modernization pass.
+
+---
+
+# Testing
+
+Aidora contains both unit and widget tests.
+
+```text
+test/
+├── unit/
+│   ├── auth_service_test.dart
+│   └── models_test.dart
+│
+└── widget/
+    └── login_screen_test.dart
+```
+
+The testing strategy includes:
+
+* Authentication service testing
+* Model testing
+* Widget-level UI testing
+* HTTP behavior isolation
+* Mock-based testing with Mockito
+* Local storage isolation where required
+
+The project has also undergone work specifically targeting Flutter test stability and API-layer reliability.
+
+---
+
+# Screenshots
 
 <p align="center">
   <img src="img/SecreenShots/Welcome.jpg" width="30%" alt="Aidora Welcome Screen"/>
   <img src="img/SecreenShots/Login.jpg" width="30%" alt="Aidora Login Screen"/>
-  <img src="img/SecreenShots/ListOrganizations.jpg" width="30%" alt="Organizations List"/>
+  <img src="img/SecreenShots/ListOrganizations.jpg" width="30%" alt="Aidora Organizations"/>
 </p>
 
 <p align="center">
-  <img src="img/SecreenShots/RequestDetails.jpg" width="30%" alt="Request Details"/>
-  <img src="img/SecreenShots/MyRequest.jpg" width="30%" alt="My Request"/>
-  <img src="img/SecreenShots/Profil.jpg" width="30%" alt="Profile"/>
+  <img src="img/SecreenShots/RequestDetails.jpg" width="30%" alt="Aidora Request Details"/>
+  <img src="img/SecreenShots/MyRequest.jpg" width="30%" alt="Aidora My Requests"/>
+  <img src="img/SecreenShots/Profil.jpg" width="30%" alt="Aidora Profile"/>
 </p>
 
 ---
-## Key Features
 
-| Feature | Description |
-|---|---|
-| Secure Authentication | JWT-based login with proactive token refresh and OTP verification |
-| Aid Requests | Refugees submit help requests tied to specific organizations and services |
-| Organization Profiles | Detailed pages with mission, services, target groups, and impact gallery |
-| Real-time Notifications | Local push notifications for request status updates |
-| Location Awareness | Camp/sector location stored in the refugee profile with a map preview |
-| QR Code Verification | Volunteers scan QR codes to verify and process aid delivery |
-| Profile Management | Full refugee profile with household data, photo upload, and location |
-| Multilingual UI | Arabic and English with runtime language switching |
-| Guest Mode | Browse organizations and services without registration |
-| Smart Search | Natural-language search bar for discovering aid services |
+# Getting Started
 
----
+## Prerequisites
 
-## User Roles
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                          Aidora                          │
-├───────────────┬───────────────────┬──────────────────────┤
-│    Refugee    │   Organization    │      Volunteer       │
-├───────────────┼───────────────────┼──────────────────────┤
-│ Register /    │ Dashboard         │ Registration form    │
-│ Login         │ View requests     │ (5-step wizard)      │
-│ Complete      │ Assign to         │ View assigned tasks  │
-│ profile       │ volunteers        │ QR scan for delivery │
-│ Browse orgs   │ Manage            │ confirmation         │
-│ Submit        │ applications      │ Profile page         │
-│ requests      │ Status updates    │ Request history       │
-│ Track         │ Reports           │                       │
-│ requests      │                   │                       │
-│ View          │                   │                       │
-│ notifications │                   │                       │
-└───────────────┴───────────────────┴──────────────────────┘
-
-┌───────────────┐
-│     Guest     │
-├───────────────┤
-│ Browse orgs   │
-│ View details  │
-│ Prompted to   │
-│ log in for    │
-│ requests      │
-└───────────────┘
-```
-
----
-
-## Architecture
-
-Aidora follows a layered architecture with clear separation of concerns:
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                        UI Layer (Views)                          │
-│   Screens · Widgets · Dialogs · Bottom Sheets · Navigation Bars  │
-├──────────────────────────────────────────────────────────────────┤
-│                   State Management (GetX)                        │
-│   Controllers · Reactive State (Rx) · Dependency Injection       │
-├──────────────────────────────────────────────────────────────────┤
-│                        Service Layer                             │
-│   API Services · Auth Service · Token Manager · Notifications    │
-├──────────────────────────────────────────────────────────────────┤
-│                         Data Layer                               │
-│   Models · Auth Storage (SharedPreferences) · API Constants      │
-├──────────────────────────────────────────────────────────────────┤
-│                        Network Layer                             │
-│   HTTP Client · JWT Headers · Token Refresh · Error Handling     │
-├──────────────────────────────────────────────────────────────────┤
-│                     Backend (Django REST)                        │
-│   DRF Endpoints · Simple JWT · PostgreSQL · Media Storage         │
-└──────────────────────────────────────────────────────────────────┘
-```
-
-### Project Structure
-
-```
-lib/
-├── main.dart                        # App entry point, GetX bindings, theme, locale
-│
-├── controllers/                     # GetX controllers — reactive state
-│   ├── bottom_nav_controller.dart   # Active tab index for refugee bottom nav
-│   ├── profile_controller.dart      # Refugee profile (single reactive source of truth)
-│   ├── requests_controller.dart     # Aid request list state
-│   ├── org_controller.dart          # Organization browsing state
-│   ├── settings_controller.dart     # App settings (theme, language)
-│   ├── form_controller.dart         # Multi-step form state (volunteer wizard)
-│   ├── vol_controller.dart          # Volunteer-specific state
-│   └── controller_two.dart          # Secondary organization dashboard controller
-│
-├── models/                          # Pure Dart data models
-│   ├── organization.dart            # Static org model (id, name, subtitle, categories)
-│   ├── organization_api_model.dart  # API org models (card, detail, service)
-│   ├── service_model.dart           # Service type model {serviceType, icon}
-│   ├── request_model.dart           # Aid request model (status, org, service, timestamps)
-│   └── my_requests_model.dart       # Refugee's own request list model
-│
-├── services/                        # Business logic and external communication
-│   ├── api_constants.dart           # All API endpoint strings (single source of truth)
-│   ├── api_service.dart             # Base HTTP client with JWT injection & retry
-│   ├── auth_service.dart            # Login, register, OTP, forgot/reset password
-│   ├── auth_storage.dart            # SharedPreferences wrapper (tokens, role, userId)
-│   ├── token_manager.dart           # JWT lifecycle: proactive refresh, deduplication
-│   ├── profile_api_service.dart     # Refugee profile CRUD & image upload
-│   ├── organization_service.dart    # Org cards, details, filter, services
-│   ├── requests_api_service.dart    # Submit, list, detail, QR scan for requests
-│   ├── services_api_service.dart    # Available services by organization
-│   ├── notification_service.dart    # flutter_local_notifications setup & dispatch
-│   ├── upload_helper.dart           # Conditional import: native vs. web file upload
-│   ├── upload_helper_io.dart        # Native (iOS/Android) file upload implementation
-│   ├── upload_helper_stub.dart      # Web stub for file upload
-│   ├── platform_helper.dart         # Platform-conditional base URL selection
-│   ├── platform_helper_io.dart      # Native platform base URL (device IP / emulator)
-│   ├── platform_helper_stub.dart    # Web platform base URL
-│   ├── web_http.dart                # XHR-based HTTP for Flutter Web (CORS)
-│   └── web_http_stub.dart           # Native stub for web_http
-│
-├── views/                           # All screens, organized by role
-│   ├── splash_screen.dart           # Boot screen — checks token, routes to correct role
-│   ├── onboarding_screens.dart      # 3-page onboarding carousel (first launch)
-│   ├── selection_screen.dart        # Role selection: Refugee / Organization / Guest
-│   ├── login_screen.dart            # Login with role-aware routing on success
-│   ├── register_screen.dart         # Refugee registration (step 1)
-│   ├── signup_screen.dart           # Account creation (step 2)
-│   ├── otp_verification_screen.dart # OTP code entry with resend timer
-│   ├── forgot_password_screen.dart  # Password recovery (email entry)
-│   ├── reset_password_screen.dart   # New password form (from deep link)
-│   │
-│   ├── main_screen.dart             # Refugee bottom nav shell (Home/Requests/Profile)
-│   ├── home_screen.dart             # Refugee home: org cards, service filter, smart search
-│   ├── profile_screen.dart          # Refugee profile: avatar, household, location map
-│   ├── complete_profile_screen.dart # Guided profile completion (required for requests)
-│   ├── my_requests_screen.dart      # Tabbed request list: Pending/Approved/Completed
-│   ├── my_requests_list_screen.dart # Reusable list widget used inside my_requests_screen
-│   ├── submit_new_request_screen.dart # New aid request form (org + service + details)
-│   ├── request_details_screen.dart  # Single request detail with status timeline
-│   ├── notifications_screen.dart    # Notification inbox
-│   ├── settings_screen.dart         # App settings (language, theme)
-│   │
-│   ├── organizations_screen.dart    # Org list for logged-in refugee (static assets)
-│   ├── organization_details_screen.dart # Org detail for refugee (mission, services, impact)
-│   ├── organizations_list_screen.dart   # Org list for guests (with login prompt)
-│   ├── guest_org_details_screen.dart    # Org detail for guests (static assets + services)
-│   ├── filter_screen.dart           # Service category filter bottom sheet
-│   ├── service_request_screen.dart  # Quick service-specific request screen
-│   ├── welcome_screen.dart          # Post-login welcome screen
-│   ├── qr_scanner_screen.dart       # Camera-based QR code scanner
-│   ├── requests_dashboard_screen.dart # Admin/org request overview
-│   ├── refugee_home_screen.dart     # Alternate refugee home layout
-│   │
-│   ├── org/                         # Organization dashboard screens
-│   │   ├── org_navigation_bar.dart  # Org bottom nav shell
-│   │   ├── org_one/                 # Dashboard tab (stats, overview)
-│   │   ├── org_two/                 # Requests tab (pending, approved, rejected)
-│   │   ├── org_three/               # Tasks tab (assigned volunteer tasks)
-│   │   ├── org_four/                # Volunteer applications tab
-│   │   ├── assign_task/             # Task assignment flow
-│   │   └── update_status/           # Request status update flow
-│   │
-│   └── volunteer/                   # Volunteer screens
-│       ├── form/                    # 5-step volunteer registration wizard
-│       │   ├── volunteer_welcome.dart
-│       │   ├── page_one.dart        # Personal info
-│       │   ├── page_two.dart        # Availability
-│       │   ├── page_three.dart      # Skills
-│       │   ├── page_four.dart       # Organization preference
-│       │   └── page_five.dart       # Review & submit
-│       ├── my_request/              # Volunteer request tracking
-│       │   ├── page_request.dart    # Main volunteer home (tabbed)
-│       │   ├── approved.dart        # Approved tasks list
-│       │   ├── rejected.dart        # Rejected applications list
-│       │   └── pinput_example.dart  # PIN input utility
-│       └── navigation/              # Volunteer main navigation
-│           ├── vol_navigation_bar.dart
-│           ├── vol_home_page.dart
-│           ├── vol_all_task.dart
-│           └── vol_profile_page.dart
-│
-├── widgets/                          # Reusable UI components
-│   ├── ai_search_bar.dart           # Animated smart search input
-│   ├── net_image.dart               # Cached network image with fallback
-│   ├── org_initial_avatar.dart      # Text-based avatar fallback for organizations
-│   ├── org_logo_avatar.dart         # Circular organization logo with border
-│   ├── profile_avatar.dart          # Refugee profile photo widget
-│   ├── vol_avatar.dart              # Volunteer avatar widget
-│   ├── privacy_text.dart            # Privacy policy rich text widget
-│   ├── web_img.dart                 # Web-optimized image (XHR-based)
-│   └── web_img_stub.dart            # Native stub for web_img
-│
-└── utils/                            # App-wide utilities and constants
-    ├── app_theme.dart                # Color palette, text styles, ThemeData
-    ├── app_translations.dart         # AR/EN translation key-value maps
-    ├── icon_mapper.dart              # Service icon name → IconData mapping
-    ├── image_url_helper.dart         # URL normalization (relative → absolute)
-    ├── organizations_data.dart       # Static org list (id, name, subtitle, categories)
-    └── snack_helper.dart             # Standardized GetX snackbar helpers
-```
-
-### Layer Diagram
-
-```
-User Action
-     │
-     ▼
-┌─────────────┐   observes Rx    ┌────────────────────┐
-│    View     │◄─────────────────│   GetX Controller  │
-│  (Screen)   │──── calls ──────►│  (Business Logic)  │
-└─────────────┘                  └──────────┬─────────┘
-                                             │ calls
-                                             ▼
-                                  ┌────────────────────┐
-                                  │  Service / API      │
-                                  │  (HTTP + JWT)        │
-                                  └──────────┬─────────┘
-                                             │ JSON
-                                             ▼
-                                  ┌────────────────────┐
-                                  │   Data Model         │
-                                  │  (fromJson / toJson) │
-                                  └──────────┬─────────┘
-                                             │ persisted
-                                             ▼
-                                  ┌────────────────────┐
-                                  │ SharedPreferences    │
-                                  │  (AuthStorage)       │
-                                  └────────────────────┘
-```
-
-### State Management
-
-Aidora uses **GetX** for state management, dependency injection, and navigation.
-
-| Controller | Responsibility | Scope |
-|---|---|---|
-| `ProfileController` | Refugee profile — single reactive source of truth | Permanent (app lifetime) |
-| `BottomNavController` | Active tab index for refugee shell | Permanent |
-| `RequestsController` | Aid request list, status filters | Permanent |
-| `OrgController` | Organization list & filter state | Permanent |
-| `SettingsController` | Language, theme preferences | Permanent |
-| `FormController` | Volunteer multi-step wizard state | Per-flow |
-| `VolController` | Volunteer home & task state | Permanent |
-
-Pattern used in views:
-
-```dart
-// Reactive rebuild on any profile change
-Obx(() => Text(controller.profile.value?.name ?? ''));
-
-// One-time read (no rebuild needed)
-final profile = Get.find<ProfileController>().profile.value;
-```
-
-### Authentication & Token Lifecycle
-
-Aidora uses Django Simple JWT with an access/refresh token pair.
-
-```
-┌──────────┐   POST /api/auth/login/   ┌─────────────────┐
-│  Client  │──────────────────────────►│  Django Backend │
-│          │◄──── {access, refresh} ───│                 │
-└──────────┘                           └─────────────────┘
-      │
-      │  Store in SharedPreferences
-      ▼
-┌────────────────────────────────────────────────────────┐
-│                     TokenManager                        │
-│                                                          │
-│  On every API call:                                     │
-│  1. Decode JWT `exp` from the base64 payload             │
-│  2. If seconds_remaining < 120 → proactive refresh       │
-│  3. If 401/403 received → force refresh + retry          │
-│  4. Concurrent refresh calls → deduplicated (1 request)  │
-│  5. Refresh expired → clear storage → return to login    │
-└────────────────────────────────────────────────────────┘
-      │
-      │  AuthStorage (SharedPreferences)
-      ▼
-access_token   — injected as Bearer token on every request
-refresh_token  — used only for refresh calls
-role           — 'refugee' | 'org' | 'volunteer'
-user_id        — used for profile & volunteer QR endpoints
-```
-
-Role-based routing on splash:
-
-```
-SplashScreen boots
-   │
-   ├─ Token exists? ── No ──► OnboardingScreen
-   │
-   └─ Yes
-        ├─ role = 'refugee'   ──► MainScreen (Home tab)
-        ├─ role = 'org'       ──► OrgNavigationBar
-        └─ role = 'volunteer' ──► PageRequest
-```
-
-### API Layer
-
-All endpoints are defined in a single source of truth, `ApiConstants`:
-
-```dart
-// Base URL resolves at runtime based on platform:
-// Android emulator  → http://10.0.2.2:8000
-// iOS simulator     → http://127.0.0.1:8000
-// Real device       → http://<realDeviceIp>:8000
-// Production        → https://api.aidora.app
-
-ApiConstants.organizationCards       // GET   /api/organizations/cards/
-ApiConstants.organizationDetail(id)  // GET   /api/organizations/{id}/
-ApiConstants.login                   // POST  /api/auth/login/
-ApiConstants.createRequest(orgId)    // POST  /api/requests/{orgId}/create-request/
-ApiConstants.myRequests              // GET   /api/requests/my-requests/
-ApiConstants.completeProfile         // PATCH /api/auth/refugees/complete-profile/
-```
-
-Request flow:
-
-```
-Service.fetchData()
-   │
-   ├─ TokenManager.getValidAccessToken()   — refreshes if needed
-   │
-   ├─ http.get(url, headers: {Authorization: 'Bearer <token>'})
-   │
-   ├─ 200      ──► parse JSON → Model.fromJson() → return
-   ├─ 401      ──► TokenManager.forceRefresh() → retry once
-   └─ 4xx/5xx  ──► throw / return error result
-```
-
-### Navigation Flow
-
-```
-SplashScreen
-   │
-   └──► OnboardingScreen1 → 2 → 3
-            │
-            └──► SelectionScreen
-                    │
-        ┌───────────┼───────────────┐
-        ▼           ▼               ▼
-     Refugee    Organization       Guest
-        │           │                │
-   LoginScreen  LoginScreen  OrganizationsListScreen
-        │           │                │
-  RegisterScreen  OrgNavBar   GuestOrgDetailsScreen
-        │
-  OtpVerificationScreen
-        │
-  CompleteProfileScreen (if profile incomplete)
-        │
-        ▼
-  MainScreen (Refugee Shell)
-        │
-   ┌────┼─────────┐
-   ▼    ▼         ▼
- Home Requests  Profile
-        │
-   MyRequestsScreen
-        │
-   RequestDetailsScreen
-
-  OrganizationsScreen
-        │
-   OrganizationDetailsScreen
-        │
-   SubmitNewRequestScreen
-```
-
-### Data Models
-
-**`OrganizationCardModel`** — used in list views
-
-```dart
-{
-  id: int,           // Django primary key
-  name: String,      // e.g. "UNICEF"
-  logo: String,      // URL (unused — local assets are used instead)
-  subtitle: String,  // e.g. "Humanitarian Organization"
-}
-```
-
-**`OrganizationDetailModel`** — used in detail views
-
-```dart
-{
-  id: int,
-  name: String,
-  logo: String,
-  services: List<OrgService>,   // [{id, name, icon}]
-  impactImage1: String?,        // unused — local assets are used instead
-  impactImage2: String?,        // unused — local assets are used instead
-}
-```
-
-**`RequestModel`** — aid request
-
-```dart
-{
-  id: int,
-  orgName: String,
-  serviceName: String,
-  status: String,          // 'pending' | 'approved' | 'completed' | 'rejected'
-  urgencyLevel: String,
-  familyMembers: int,
-  description: String,
-  createdAt: DateTime,
-}
-```
-
-**`Organization`** — static local model
-
-```dart
-{
-  id: String,         // 'unicef' | 'intersos' | 'wfp' | 'unhcr' | 'who' | 'red_crescent'
-  name: String,
-  subtitle: String,
-  categories: List<String>,
-}
-```
-
-### Static Assets Strategy
-
-To ensure reliable image display independent of server availability, all organization visuals are bundled as local assets:
-
-```
-img/
-├── org_unicef.png          # Organization logo (list + detail header)
-├── org_intersos.png
-├── org_wfp.png
-├── org_unhcr.png
-├── org_who.png
-├── org_red_crescent.png
-│
-├── impact_unicef_1.png     # "Our Impact" gallery (2 images per organization)
-├── impact_unicef_2.png
-├── impact_intersos_1.png
-├── impact_intersos_2.png
-├── impact_wfp_1.png
-├── impact_wfp_2.png
-├── impact_unhcr_1.png
-├── impact_unhcr_2.png
-├── impact_who_1.png
-├── impact_who_2.png
-├── impact_red_crescent_1.png
-├── impact_red_crescent_2.png
-│
-├── map_location.png        # Static map preview in the refugee profile
-└── food_basket.png         # Service icon asset
-```
-
-Organization name → asset key resolution:
-
-```dart
-String _orgKey(String name) {
-  final s = name.toLowerCase();
-  if (s.contains('unicef'))                          return 'unicef';
-  if (s.contains('intersos'))                        return 'intersos';
-  if (s.contains('wfp') || s.contains('food prog'))   return 'wfp';
-  if (s.contains('unhcr'))                            return 'unhcr';
-  if (s.contains('who') || s.contains('health org'))  return 'who';
-  if (s.contains('red') && s.contains('crescent'))    return 'red_crescent';
-  return s.replaceAll(' ', '_');
-}
-
-// Usage: Image.asset('img/org_${_orgKey(org.name)}.png')
-```
-
----
-
-## Supported Organizations
-
-| Organization | Asset Key | Logo | Impact Images |
-|---|---|---|---|
-| UNICEF | `unicef` | `org_unicef.png` | `impact_unicef_1/2.png` |
-| INTERSOS | `intersos` | `org_intersos.png` | `impact_intersos_1/2.png` |
-| World Food Programme | `wfp` | `org_wfp.png` | `impact_wfp_1/2.png` |
-| UNHCR | `unhcr` | `org_unhcr.png` | `impact_unhcr_1/2.png` |
-| World Health Organization | `who` | `org_who.png` | `impact_who_1/2.png` |
-| Red Crescent | `red_crescent` | `org_red_crescent.png` | `impact_red_crescent_1/2.png` |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Flutter 3.x (Dart 3.4+) |
-| State Management | GetX 4.6.6 |
-| Backend | Django REST Framework |
-| Authentication | Simple JWT (access + refresh tokens) |
-| Token Storage | SharedPreferences |
-| HTTP Client | `dart:http` with a custom JWT interceptor |
-| Image Loading | `cached_network_image` + local assets |
-| Notifications | `flutter_local_notifications` |
-| QR Scanning | `mobile_scanner` |
-| Typography | Google Fonts |
-| Localization | GetX Translations (AR / EN) |
-| Deep Links | `app_links` (password reset) |
-
----
-
-## Dependencies
-
-```yaml
-dependencies:
-  get: ^4.6.6                          # State management, navigation, DI
-  intl: ^0.19.0                        # Date/number formatting
-  mobile_scanner: ^6.0.0               # QR code camera scanning
-  permission_handler: ^11.3.1          # Camera & notification permissions
-  google_fonts: ^6.2.1                 # Typography
-  flutter_svg: ^2.0.9                  # SVG icon rendering
-  cached_network_image: ^3.4.1         # Network image caching
-  http: ^1.2.0                         # HTTP client
-  image_picker: ^1.1.2                 # Profile photo selection
-  flutter_local_notifications: ^18.0.0 # Push notifications
-  timezone: ^0.9.4                     # Notification scheduling
-  url_launcher: ^6.3.1                 # External links (email, web)
-  pinput: ^5.0.0                       # OTP PIN input field
-  shared_preferences: ^2.3.3           # Local token & settings storage
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Flutter SDK `>=3.4.0`
-- Dart SDK `>=3.4.0`
-- Android Studio or Xcode
-- A running Django backend (see [Backend Integration](#backend-integration))
-
-### Installation
+Install the Flutter SDK and verify the environment:
 
 ```bash
-# Clone the repository
-git clone https://github.com/YousefAbaas/aidora.git
-cd aidora/aidora_app
+flutter doctor
+```
 
-# Install dependencies
+Then verify the Dart/Flutter toolchain:
+
+```bash
+flutter --version
+```
+
+A compatible Dart SDK is defined by the project:
+
+```yaml
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/YousefAbaas/Aidora.git
+cd Aidora
+```
+
+Install dependencies:
+
+```bash
 flutter pub get
+```
 
-# Run on a connected device or emulator
+Run static analysis:
+
+```bash
+flutter analyze
+```
+
+Run tests:
+
+```bash
+flutter test
+```
+
+Run the application:
+
+```bash
 flutter run
 ```
 
-### Build for Release
+---
+
+# Environment Configuration
+
+The Flutter client communicates with a backend API.
+
+Backend-specific configuration should be supplied through the project's existing configuration/service mechanism rather than hard-coded directly into UI widgets.
+
+Before running the application against a backend instance, verify:
+
+* API base URL
+* Authentication configuration
+* Backend availability
+* Android/iOS/Web platform permissions where applicable
+
+Do not commit private credentials, API keys, signing credentials, or machine-specific configuration files.
+
+---
+
+# Backend Integration
+
+The Flutter application is designed to work with a Django REST Framework backend.
+
+The backend is responsible for server-side concerns such as:
+
+* User authentication
+* User registration
+* User/profile data
+* Organizations
+* Humanitarian services
+* Assistance requests
+* Request-related workflows
+
+The Flutter client consumes these capabilities through the REST API and keeps presentation concerns separated from backend communication.
+
+---
+
+# Security Considerations
+
+Security-sensitive operations are kept outside the presentation layer wherever possible.
+
+Important considerations include:
+
+* JWT-based authentication
+* Token lifecycle management
+* Authenticated API requests
+* Separation of API and UI responsibilities
+* Avoiding hard-coded secrets
+* Local persistence limited to appropriate lightweight data
+* Platform permission handling for protected device capabilities
+
+Production deployments should additionally use secure HTTPS endpoints and appropriate backend-side authentication, authorization, validation, and rate-limiting controls.
+
+---
+
+# Development Workflow
+
+Development follows an incremental Git-based workflow.
+
+Recent project history includes commits covering:
+
+```text
+refactor: harden API layer and stabilize Flutter integration tests
+test: add widget test for DashboardScreen with HTTP overrides
+Fix SharedPreferences issue in unit tests
+docs: add week-01 testing evidence
+Revise README for improved clarity and structure
+```
+
+Repository hygiene has also been improved by removing IDE-specific files and excluding generated Flutter artifacts from version control.
+
+---
+
+# Engineering Highlights
+
+Aidora demonstrates practical software engineering beyond UI implementation.
+
+### Architecture
+
+* Service-oriented API communication
+* Dedicated authentication service
+* Dedicated data models
+* Reusable widgets
+* Controller-based reactive state management
+* Separation between presentation and networking
+
+### Reliability
+
+* Defensive API handling
+* Authentication lifecycle handling
+* Test isolation
+* Local storage handling
+* Image upload and network-image resilience
+
+### Maintainability
+
+* Centralized service responsibilities
+* Reusable UI components
+* Model-based API data
+* Static analysis
+* Automated tests
+* Git-based incremental development
+
+### Platform Integration
+
+* QR scanning
+* Image selection and upload
+* Local notifications
+* Runtime permissions
+* External URL handling
+* Persistent local preferences
+
+---
+
+# Current Quality Status
+
+| Area                        | Status       |
+| --------------------------- | ------------ |
+| Flutter Analyzer            | ✅ 0 errors   |
+| Analyzer Warnings           | ✅ 0 warnings |
+| Unit Tests                  | Implemented  |
+| Widget Tests                | Implemented  |
+| JWT Authentication          | Implemented  |
+| REST API Integration        | Implemented  |
+| GetX Reactive State         | Implemented  |
+| Profile Image Handling      | Implemented  |
+| QR Scanning                 | Implemented  |
+| Local Notifications         | Implemented  |
+| Arabic / English UI         | Implemented  |
+| Guest Organization Browsing | Implemented  |
+
+---
+
+# Roadmap
+
+Potential future improvements include:
+
+* Complete Flutter API deprecation migration
+* Replace remaining legacy Flutter APIs with their modern equivalents
+* Improve automated test coverage
+* Expand integration and end-to-end testing
+* Improve offline resilience
+* Introduce stronger centralized error reporting
+* Improve accessibility
+* Expand organization and volunteer workflows
+* Improve search and service discovery
+* Add production monitoring and analytics
+* Improve CI/CD automation
+
+---
+
+# Contributing
+
+Aidora is currently maintained as a proprietary project.
+
+For development changes:
+
+1. Create a focused branch.
+2. Keep changes scoped to a single responsibility.
+3. Run static analysis.
+4. Run the relevant tests.
+5. Review the Git diff.
+6. Use descriptive commit messages.
+7. Avoid committing generated files, IDE configuration, secrets, or machine-specific files.
+
+Before opening a pull request, verify:
 
 ```bash
-# Android APK
-flutter build apk --release
-
-# Android App Bundle
-flutter build appbundle --release
-
-# iOS
-flutter build ios --release
-```
-
----
-
-## Environment Configuration
-
-Set the backend IP in `lib/services/api_constants.dart`:
-
-```dart
-// For physical device testing:
-static const String _realDeviceIp = '192.168.1.100'; // your machine's local IP
-
-// Emulators are auto-configured:
-// Android → 10.0.2.2:8000
-// iOS     → 127.0.0.1:8000
-
-// For production:
-static const String _realDeviceIp = 'api.aidora.app';
-```
-
----
-
-## Backend Integration
-
-The Django backend must expose the following endpoint groups:
-
-| Group | Base Path | Auth Required |
-|---|---|---|
-| Auth | `/api/auth/` | Partial |
-| Organizations | `/api/organizations/` | No (cards/list) |
-| Requests | `/api/requests/` | Yes |
-| Volunteer | `/api/auth/volunteer/` | Yes |
-
-**Required Django packages:**
-
-```
-djangorestframework
-djangorestframework-simplejwt
-django-cors-headers
-Pillow  # media uploads
-```
-
-**Recommended JWT settings:**
-
-```python
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,   # keep False to avoid the session-death bug
-    'BLACKLIST_AFTER_ROTATION': False,
-}
-```
-
----
-
-## Localization
-
-The app supports **Arabic** and **English** with runtime switching via GetX Translations.
-
-```dart
-// Switch language at runtime
-Get.updateLocale(const Locale('ar', 'SA')); // Arabic
-Get.updateLocale(const Locale('en', 'US')); // English
-
-// Usage in widgets
-Text('request_help'.tr) // resolves to "Request Help" or "طلب مساعدة"
-```
-
-Translation keys are defined in `lib/utils/app_translations.dart`.
-
----
-
-## Testing
-
-```bash
-# Run all unit tests
+flutter analyze
 flutter test
-
-# Run with coverage
-flutter test --coverage
 ```
 
-Key test files:
+---
 
-| File | Purpose |
-|---|---|
-| `test/api_endpoints_test.dart` | API URL construction tests |
-| `test/model_parsing_test.dart` | JSON → Model parsing tests |
-| `test/token_manager_test.dart` | JWT lifecycle tests |
+# License
+
+This project is currently distributed under a **proprietary license**.
+
+The source code, design, assets, and associated project materials are not licensed for unrestricted redistribution or commercial reuse without permission from the project owner.
 
 ---
 
-## Roadmap
+## Project Status
 
-Planned improvements for upcoming releases:
+**Aidora — Humanitarian Aid Coordination Platform**
 
-- [ ] Push notifications via Firebase Cloud Messaging (replacing local-only notifications)
-- [ ] In-app chat between refugees, organizations, and volunteers
-- [ ] Offline-first support for request submission in low-connectivity areas
-- [ ] Admin web dashboard for organization-level analytics and reporting
-- [ ] Automated CI/CD pipeline (GitHub Actions) for build, test, and release
-- [ ] Expanded language support beyond Arabic and English
-- [ ] Unit and widget test coverage across all controllers and services
+A Flutter-based humanitarian assistance platform integrating mobile application workflows, REST APIs, JWT authentication, reactive state management, device capabilities, and automated testing.
 
-Contributions and suggestions toward any of these are welcome — see [Contributing](#contributing) below.
-
----
-
-## Contributing
-
-Contributions are welcome, whether it's a bug fix, a new feature, or an improvement to documentation.
-
-1. **Fork** the repository and create a feature branch from `main`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-2. **Follow the existing project structure** — controllers in `controllers/`, screens in `views/`, business logic in `services/`, and reusable UI in `widgets/`.
-3. **Keep commits focused and descriptive** (e.g. `fix: resolve 401 on complete-profile endpoint`, not `update stuff`).
-4. **Run tests before submitting**:
-   ```bash
-   flutter test
-   ```
-5. **Open a pull request** with a clear description of the change, the motivation behind it, and any relevant screenshots for UI changes.
-
-### Reporting Issues
-
-When filing a bug report, please include:
-
-- Flutter/Dart version (`flutter --version`)
-- Platform (Android, iOS, or Web) and device/emulator details
-- Steps to reproduce, expected behavior, and actual behavior
-- Relevant logs or screenshots
-
-### Code Style
-
-- Follow the [official Dart style guide](https://dart.dev/effective-dart).
-- Run `dart format .` before committing.
-- Prefer small, single-responsibility widgets and controllers over large monolithic files.
-
----
-
-## License
-
-This project was developed as part of a humanitarian aid initiative.
-© 2026 Aidora Team — All rights reserved.
+**Current development version:** `1.0.0`
