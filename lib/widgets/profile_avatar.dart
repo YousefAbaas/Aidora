@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'web_img_stub.dart'
-    if (dart.library.html) 'web_img.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -81,7 +79,7 @@ class ProfileAvatar extends StatelessWidget {
     if (pc.isDeleted) return _defaultAvatar();
 
     final url = pc.displayImageUrl;
-    if (url == null || url.isEmpty) return _defaultAvatar();
+    if (url.isEmpty) return _defaultAvatar();
 
     // Local file (native — just picked, before upload finishes)
     if (!kIsWeb && !url.startsWith('http')) {

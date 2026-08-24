@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../utils/app_theme.dart';
 import '../models/organization.dart';
 import 'submit_new_request_screen.dart';
 

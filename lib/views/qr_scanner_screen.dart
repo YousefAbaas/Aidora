@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../models/request_model.dart';
 import '../services/api_service.dart';
-import '../services/api_constants.dart';
 
 class QRScannerScreen extends StatefulWidget {
   final RequestModel request;

@@ -148,7 +148,7 @@ void main() {
         'id': 23, 'status': 'completed', 'ref': 'REF: 6',
         'service_name': 'Education', 'received_at': 'Pickup 21d ago',
       });
-      expect(m.status,     equals('completed'));
+      expect(m.status, equals('complete'));
       expect(m.receivedAt, equals('Pickup 21d ago'));
     });
   });

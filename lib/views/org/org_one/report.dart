@@ -128,7 +128,7 @@ class _Report extends State<StatefulWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.reportID.value['title'].toString(),
+                          controller.reportID['title'].toString(),
                           style: const TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
@@ -145,7 +145,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Date & Time"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID.value['created_at']
+                                controller.reportID['created_at']
                                     .toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -167,7 +167,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Location"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID.value['location']
+                                controller.reportID['location']
                                     .toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -189,7 +189,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Volunteer"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID.value['full_name']
+                                controller.reportID['full_name']
                                     .toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -215,7 +215,7 @@ class _Report extends State<StatefulWidget> {
 
                         // وصف المهمة
                         Text(
-                          controller.reportID.value['instructions'].toString(),
+                          controller.reportID['instructions'].toString(),
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade800,

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:aidora/controllers/form_controller.dart';
 import 'page_one.dart';
 
 class Welcome extends StatefulWidget {
@@ -12,7 +11,6 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome>
     with SingleTickerProviderStateMixin {
-  final FormController _ctrl = Get.find();
   late final AnimationController _animCtrl;
   late final Animation<double>    _fadeAnim;
   late final Animation<Offset>    _slideAnim;

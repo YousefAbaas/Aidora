@@ -6,7 +6,6 @@ import '../utils/app_theme.dart';
 import '../services/notification_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/profile_avatar.dart';
-import 'login_screen.dart';
 import 'selection_screen.dart';
 import 'settings_screen.dart';
 import 'notifications_screen.dart';

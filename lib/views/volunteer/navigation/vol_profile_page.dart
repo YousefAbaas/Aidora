@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:aidora/controllers/form_controller.dart';
 import 'package:aidora/controllers/vol_controller.dart';
-import 'package:aidora/widgets/vol_avatar.dart';
 import 'package:aidora/services/api_constants.dart';
 import 'package:aidora/services/api_service.dart';
 import 'package:aidora/services/auth_storage.dart';
@@ -61,7 +60,9 @@ class _ProfilePage extends State<ProfilePage> {
       // Sync to FormController for global reactivity
       controller.userImage.value = _profileImageUrl ?? '';
       // Sync VolController for reactive avatar across screens
-      if (Get.isRegistered<VolController>()) VolController.to.setImage(_profileImageUrl ?? '');
+      if (Get.isRegistered<VolController>()) {
+        VolController.to.setImage(_profileImageUrl ?? '');
+      }
     });
   }
 
@@ -88,9 +89,11 @@ class _ProfilePage extends State<ProfilePage> {
         _pickedBytes = null; _pickedPath = null;
       });
       // Sync to FormController so home page & all screens react instantly
-      controller.userImage.value = res.imageUrl ?? '';
+      controller.userImage.value = res.imageUrl;
       // Sync VolController reactive avatar
-      if (Get.isRegistered<VolController>()) VolController.to.setImage(res.imageUrl ?? '');
+      if (Get.isRegistered<VolController>()) {
+        VolController.to.setImage(_profileImageUrl ?? '');
+      }
       Get.snackbar('Updated', 'Profile photo uploaded.',
           backgroundColor: _green, colorText: Colors.white,
           snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(12));

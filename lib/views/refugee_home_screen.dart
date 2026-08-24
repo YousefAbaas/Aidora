@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../utils/app_theme.dart';
 import '../models/organization.dart';
 import '../utils/organizations_data.dart';
 import '../widgets/profile_avatar.dart';

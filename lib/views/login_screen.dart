@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../services/auth_service.dart';
-import '../services/auth_storage.dart';
-import 'package:aidora/views/volunteer/navigation/vol_navigation_bar.dart';
 import 'package:aidora/views/volunteer/my_request/page_request.dart';
 import 'package:aidora/views/org/org_navigation_bar.dart';
 import 'main_screen.dart';
 import '../controllers/profile_controller.dart';
 import '../controllers/bottom_nav_controller.dart';
-import '../controllers/form_controller.dart';
 import 'register_screen.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
@@ -71,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Route to the correct shell based on server role
   void _routeByRole(String serverRole) {
-    final fc = Get.find<FormController>();
+
 
     switch (serverRole.toLowerCase()) {
       case 'volunteer':

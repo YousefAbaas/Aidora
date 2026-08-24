@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint;
 import '../services/api_constants.dart';
 
 /// ImageUrlHelper — fixes server URLs for each platform.

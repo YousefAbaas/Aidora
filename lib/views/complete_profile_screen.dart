@@ -50,7 +50,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   };
 
   // Selected family "category" shown in dropdown
-  String? _selectedFamilyCategory;
 
   @override
   void dispose() {

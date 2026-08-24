@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../main.dart' show routeObserver;
 import '../models/organization_api_model.dart';
 import '../services/organization_service.dart';
-import '../utils/app_theme.dart';
 import '../widgets/ai_search_bar.dart';
 import '../widgets/org_initial_avatar.dart';
 import 'filter_screen.dart';
 import 'guest_org_details_screen.dart';
 import 'login_screen.dart';
-
 /// ─────────────────────────────────────────────────────────────────────────────
 /// OrganizationsListScreen  (API-connected)
 /// Fetches organizations from Django backend.
@@ -18,43 +15,33 @@ import 'login_screen.dart';
 /// ─────────────────────────────────────────────────────────────────────────────
 class OrganizationsListScreen extends StatefulWidget {
   const OrganizationsListScreen({super.key});
-
   @override
   State<OrganizationsListScreen> createState() =>
       _OrganizationsListScreenState();
 }
-
 class _OrganizationsListScreenState extends State<OrganizationsListScreen>
     with RouteAware {
-  static const Color _bg = Color(0xFFF5F3ED);
   static const Color _green = Color(0xFF2C5F4F);
-  static const Color _blue = Color(0xFF1565C0);
-
   final OrganizationService _service = OrganizationService.effective;
-
   List<OrganizationCardModel> _organizations = [];
   bool _isLoading = true;
   bool _isFiltered = false;
   String? _errorMsg;
-
   @override
   void initState() {
     super.initState();
     _loadOrganizations();
   }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
-
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
     super.dispose();
   }
-
   /// Called when a route above this one is popped — reset filter
   @override
   void didPopNext() {
@@ -62,7 +49,6 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
       _loadOrganizations();
     }
   }
-
   Future<void> _loadOrganizations() async {
     setState(() {
       _isLoading = true;
@@ -82,21 +68,17 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
       });
     }
   }
-
   Future<void> _openFilterAndApply() async {
     final selected = await Get.to(() => const FilterScreen(),
         transition: Transition.downToUp);
     if (selected == null || selected is! List || selected.isEmpty) return;
-
     final serviceType = selected[0] as String;
     setState(() {
       _isLoading = true;
       _errorMsg = null;
     });
-
     final result = await _service.fetchFilteredOrganizations(serviceType);
     if (!mounted) return;
-
     if (result.isSuccess) {
       if (result.organizations.isEmpty) {
         Get.snackbar('No Results', 'No organizations found for this category.',
@@ -142,7 +124,6 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -226,7 +207,6 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
       ), // WillPopScope
     );
   }
-
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(
@@ -283,13 +263,11 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
     );
   }
 }
-
 class _OrgCard extends StatelessWidget {
   final OrganizationCardModel org;
-  static const Color _blue = Color(0xFF1565C0);
   static const Color _green = Color(0xFF2C5F4F);
   const _OrgCard({required this.org});
-
+  static const Color _blue = Color(0xFF1565C0);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -317,7 +295,7 @@ class _OrgCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[200]!),
             ),
-            child: _staticOrgLogo((org.id ?? org.name).toString()),
+            child: _staticOrgLogo(org.id.toString()),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -368,7 +346,6 @@ class _OrgCard extends StatelessWidget {
       ),
     );
   }
-
   Widget _chip(
       {required IconData icon,
         required String label,
@@ -391,7 +368,6 @@ class _OrgCard extends StatelessWidget {
       ),
     );
   }
-
   /// Returns a static local asset image for the given org id/name.
   Widget _staticOrgLogo(String idOrName) {
     final key = _resolveOrgKey(idOrName);
@@ -404,7 +380,6 @@ class _OrgCard extends StatelessWidget {
       errorBuilder: (_, __, ___) => OrgInitialAvatar(name: idOrName, size: 46),
     );
   }
-
   String _resolveOrgKey(String raw) {
     final s = raw.toLowerCase();
     if (s.contains('unicef')) return 'unicef';

@@ -1,4 +1,3 @@
-import 'package:aidora/views/login_screen.dart';
 import 'package:aidora/views/selection_screen.dart';
 import 'package:aidora/services/auth_service.dart';
 import 'package:aidora/services/api_constants.dart';

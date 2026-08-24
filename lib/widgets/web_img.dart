@@ -52,18 +52,15 @@ class _WebImgState extends State<WebImg> {
     }
   }
 
-  String _fitCss(BoxFit fit) {
-    switch (fit) {
-      case BoxFit.contain:   return 'contain';
-      case BoxFit.fill:      return 'fill';
-      case BoxFit.fitWidth:  return 'contain';
-      case BoxFit.fitHeight: return 'contain';
-      case BoxFit.none:      return 'none';
-      case BoxFit.scaleDown: return 'scale-down';
-      case BoxFit.cover:
-      default:               return 'cover';
-    }
-  }
+  String _fitCss(BoxFit fit) => switch (fit) {
+    BoxFit.contain => 'contain',
+    BoxFit.fill => 'fill',
+    BoxFit.fitWidth => 'contain',
+    BoxFit.fitHeight => 'contain',
+    BoxFit.none => 'none',
+    BoxFit.scaleDown => 'scale-down',
+    BoxFit.cover => 'cover',
+  };
 
   @override
   Widget build(BuildContext context) {

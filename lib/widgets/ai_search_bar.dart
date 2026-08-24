@@ -140,7 +140,6 @@ class _AiSearchBarState extends State<AiSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = context.isDark;
     return Row(children: [
       Expanded(
         child: Container(

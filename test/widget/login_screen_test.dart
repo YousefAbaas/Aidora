@@ -11,7 +11,6 @@ import 'package:aidora/controllers/bottom_nav_controller.dart';
 import 'package:aidora/controllers/settings_controller.dart';
 import 'package:aidora/views/login_screen.dart';
 
-import '../helpers/fixtures.dart';
 import '../helpers/fake_api_service.dart';
 import 'package:aidora/services/api_service.dart';
 Future<FakeApiService> pumpLogin(WidgetTester tester, {
