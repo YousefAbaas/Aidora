@@ -14,9 +14,9 @@ import 'forgot_password_screen.dart';
 /// LoginScreen
 ///
 /// [role] hint:
-///   null       → generic (refugee by default, routes by server role)
-///   'volunteer' → shows volunteer-specific UI, no "Create Account" refugee link
-///   'org'       → shows org-specific UI, no "Create Account" link
+///   null       â†’ generic (refugee by default, routes by server role)
+///   'volunteer' â†’ shows volunteer-specific UI, no "Create Account" refugee link
+///   'org'       â†’ shows org-specific UI, no "Create Account" link
 class LoginScreen extends StatefulWidget {
   /// Optional role hint: 'volunteer' | 'org' | null
   final String? role;
@@ -27,16 +27,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailCtrl    = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
 
-  bool _obscure   = true;
+  bool _obscure = true;
   bool _isLoading = false;
 
   static const Color _green = Color(0xFF2C5F4F);
 
   bool get _isVolunteer => widget.role == 'volunteer';
-  bool get _isOrg       => widget.role == 'org';
+  bool get _isOrg => widget.role == 'org';
 
   @override
   void dispose() {
@@ -45,17 +45,19 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // ── Login logic ───────────────────────────────────────────────────────────
+  // â”€â”€ Login logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _login() async {
-    final email    = _emailCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showError('Please enter your email and password.'); return;
+      _showError('Please enter your email and password.');
+      return;
     }
 
     setState(() => _isLoading = true);
-    final result = await AuthService.instance.login(email: email, password: password);
+    final result =
+        await AuthService.instance.login(email: email, password: password);
     if (!mounted) return;
     setState(() => _isLoading = false);
 
@@ -68,23 +70,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Route to the correct shell based on server role
   void _routeByRole(String serverRole) {
-
-
     switch (serverRole.toLowerCase()) {
       case 'volunteer':
-        // Volunteer → check application state then route
+        // Volunteer â†’ check application state then route
         Get.offAll(() => const Pagerequest(), transition: Transition.fadeIn);
         break;
 
       case 'org':
       case 'organization':
       case 'organizations':
-        Get.offAll(() => const Orgnavigationbar(), transition: Transition.fadeIn);
+        Get.offAll(() => const Orgnavigationbar(),
+            transition: Transition.fadeIn);
         break;
 
       case 'refugee':
       default:
-        // Refugee → main shell
+        // Refugee â†’ main shell
         final pc = Get.find<ProfileController>();
         pc.loadProfile();
         Get.find<BottomNavController>().changeTab(0);
@@ -95,9 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showError(String message) {
     Get.snackbar(
-      'Login Failed', message,
+      'Login Failed',
+      message,
       snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.red.withOpacity(0.12),
+      backgroundColor: Colors.red.withValues(alpha: 0.12),
       colorText: Colors.red[800],
       margin: const EdgeInsets.all(12),
       borderRadius: 12,
@@ -105,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,26 +120,33 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 40),
 
-              // ── Logo / Title ────────────────────────────────────────────
+              // â”€â”€ Logo / Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               const Text('Aidora',
-                  style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold,
-                      color: _green, letterSpacing: 1.5)),
+                  style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: _green,
+                      letterSpacing: 1.5)),
 
               if (_isVolunteer) ...[
                 const SizedBox(height: 8),
                 Text('Volunteer Login',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600],
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
                         fontWeight: FontWeight.w500)),
               ] else if (_isOrg) ...[
                 const SizedBox(height: 8),
                 Text('Organization Login',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600],
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
                         fontWeight: FontWeight.w500)),
               ],
 
               const SizedBox(height: 60),
 
-              // ── Email ───────────────────────────────────────────────────
+              // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _fieldLabel('Username or email'),
               const SizedBox(height: 8),
               _inputBox(
@@ -148,18 +157,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
-              // ── Password ────────────────────────────────────────────────
+              // â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _fieldLabel('Password'),
               const SizedBox(height: 8),
               _inputBox(
                 controller: _passwordCtrl,
-                hint: '••••••••',
+                hint: '\u2022' * 8,
                 icon: Icons.lock_outline,
                 obscure: _obscure,
                 onSubmitted: (_) => _isLoading ? null : _login(),
                 suffix: IconButton(
                   icon: Icon(
-                    _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    _obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                     color: Colors.grey[600],
                   ),
                   onPressed: () => setState(() => _obscure = !_obscure),
@@ -170,8 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () => Get.to(
-                      () => const ForgotPasswordScreen(),
+                  onPressed: () => Get.to(() => const ForgotPasswordScreen(),
                       transition: Transition.cupertino),
                   child: const Text('Forgot password?',
                       style: TextStyle(color: Colors.blue, fontSize: 14)),
@@ -180,35 +190,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 20),
 
-              // ── Login button ────────────────────────────────────────────
+              // â”€â”€ Login button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _green,
-                    disabledBackgroundColor: _green.withOpacity(0.6),
+                    disabledBackgroundColor: _green.withValues(alpha: 0.6),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
                   child: _isLoading
-                      ? const SizedBox(width: 22, height: 22,
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2.5))
                       : const Text('Login',
-                          style: TextStyle(fontSize: 16,
-                              fontWeight: FontWeight.w600, color: Colors.white)),
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white)),
                 ),
               ),
 
-              // ── Create account (refugee & volunteer only) ───────────────
+              // â”€â”€ Create account (refugee & volunteer only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               if (!_isOrg) ...[
                 const SizedBox(height: 24),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text('Are you new? ', style: TextStyle(fontSize: 14,
-                      color: Colors.grey[700])),
+                  Text('Are you new? ',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[700])),
                   TextButton(
                     onPressed: () => _isVolunteer
                         ? Get.to(() => const SignUpScreen(role: 'volunteer'),
@@ -220,8 +234,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     child: Text(
-                      _isVolunteer ? 'Register as Volunteer' : 'Create an Account',
-                      style: const TextStyle(fontSize: 14, color: Colors.blue,
+                      _isVolunteer
+                          ? 'Register as Volunteer'
+                          : 'Create an Account',
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue,
                           fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -237,9 +255,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _fieldLabel(String text) => Align(
-    alignment: Alignment.centerLeft,
-    child: Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-  );
+        alignment: Alignment.centerLeft,
+        child:
+            Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+      );
 
   Widget _inputBox({
     required TextEditingController controller,
