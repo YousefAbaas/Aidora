@@ -24,7 +24,10 @@ class _A extends State<Alltask> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     final res = await ApiService.instance.get(
       ApiConstants.volunteerTasks,
@@ -33,7 +36,10 @@ class _A extends State<Alltask> {
 
     if (!mounted) return;
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _error = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _error = res.errorMessage;
+      });
       return;
     }
 
@@ -53,7 +59,10 @@ class _A extends State<Alltask> {
         return newMap;
       }).toList(),
     );
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   @override
@@ -65,10 +74,12 @@ class _A extends State<Alltask> {
     }
     if (_error != null) {
       return Scaffold(
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        body: Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.wifi_off, size: 60, color: Colors.grey),
           const SizedBox(height: 12),
-          Text(_error!, textAlign: TextAlign.center,
+          Text(_error!,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: _init, child: const Text('Retry')),
@@ -106,8 +117,9 @@ class _A extends State<Alltask> {
           ? controller.taskInTask.toList()
           : controller.taskInTask.where((t) => t['status'] == s).toList();
       if (items.isEmpty) {
-        return const Center(child: Text('No tasks found',
-            style: TextStyle(color: Colors.grey)));
+        return const Center(
+            child:
+                Text('No tasks found', style: TextStyle(color: Colors.grey)));
       }
       return ListView.builder(
         itemCount: items.length,
@@ -125,16 +137,18 @@ class _A extends State<Alltask> {
         decoration: BoxDecoration(
             color: Colors.white, borderRadius: BorderRadius.circular(14)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(status, style: TextStyle(
-            color: status == 'completed'
-                ? Colors.green
-                : status == 'pending'
-                    ? Colors.orange
-                    : Colors.red,
-          )),
+          Text(status,
+              style: TextStyle(
+                color: status == 'completed'
+                    ? Colors.green
+                    : status == 'pending'
+                        ? Colors.orange
+                        : Colors.red,
+              )),
           const SizedBox(height: 10),
           Text(task['title']?.toString() ?? '',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
           const SizedBox(height: 10),
           Row(children: [
             const Icon(Icons.date_range),
@@ -157,7 +171,8 @@ class _A extends State<Alltask> {
                 onPressed: () {
                   // Find real index in full list
                   final realIndex = controller.taskInTask.indexOf(task);
-                  Get.to(() => Updatestatus(index: realIndex >= 0 ? realIndex : index));
+                  Get.to(() =>
+                      Updatestatus(index: realIndex >= 0 ? realIndex : index));
                 },
                 child: const Text('View Details'),
               ),

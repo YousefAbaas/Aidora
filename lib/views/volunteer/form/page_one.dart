@@ -43,7 +43,6 @@ class _Pageone extends State<Pageone> {
     return Container(
       height: 300,
       width: double.infinity,
-
       padding: EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         color: Color(0xff7AD081),
@@ -132,7 +131,7 @@ class _Pageone extends State<Pageone> {
           ),
 
           SizedBox(height: 15),
-          // 🔹 Nationality
+          // ðŸ”¹ Nationality
           _section(
             title: "Nationality",
             child: _textField(
@@ -140,7 +139,7 @@ class _Pageone extends State<Pageone> {
               hint: "Switzerland",
               icon: Icons.public_rounded,
             ),
-          ), // 🔹ID / Passport number
+          ), // ðŸ”¹ID / Passport number
           _section(
             title: "ID / Passport number",
             child: _textField(
@@ -148,7 +147,7 @@ class _Pageone extends State<Pageone> {
               hint: "Enter identification number",
               icon: Icons.badge_outlined,
             ),
-          ), // 🔹 Current city
+          ), // ðŸ”¹ Current city
           _section(
             title: "Current city",
             child: _textField(
@@ -298,7 +297,6 @@ class _Pageone extends State<Pageone> {
     Get.bottomSheet(
       barrierColor: Colors.transparent,
       elevation: 0,
-
       Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -321,7 +319,7 @@ class _Pageone extends State<Pageone> {
     );
   }
 
-  // 🔹 Section (Reusable)
+  // ðŸ”¹ Section (Reusable)
   Widget _section({required String title, required Widget child}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -339,7 +337,7 @@ class _Pageone extends State<Pageone> {
     );
   }
 
-  // 🔹 TextField
+  // ðŸ”¹ TextField
   Widget _textField({
     required TextEditingController controller,
     required String hint,

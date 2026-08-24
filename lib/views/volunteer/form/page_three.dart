@@ -40,7 +40,6 @@ class _Pagethree extends State<Pagethree> {
     return Container(
       height: 300,
       width: double.infinity,
-
       padding: EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         color: Color(0xff7AD081),
@@ -98,7 +97,7 @@ class _Pagethree extends State<Pagethree> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 Education
+          // ðŸ”¹ Education
           _section(
             title: "Education level",
             child: _textField(
@@ -108,7 +107,7 @@ class _Pagethree extends State<Pagethree> {
             ),
           ),
 
-          // 🔹 Languages
+          // ðŸ”¹ Languages
           _section(
             title: "Languages spoken",
             child: _textField(
@@ -118,7 +117,7 @@ class _Pagethree extends State<Pagethree> {
             ),
           ),
 
-          // 🔹 Experience
+          // ðŸ”¹ Experience
           _section(
             title: "Previous volunteering experience",
             child: _textField(
@@ -128,7 +127,7 @@ class _Pagethree extends State<Pagethree> {
             ),
           ),
 
-          // 🔹 Skills
+          // ðŸ”¹ Skills
           _section(
             title: "Relevant skills",
             child: _textField(
@@ -187,7 +186,7 @@ class _Pagethree extends State<Pagethree> {
     );
   }
 
-  // 🔹 Section (Reusable)
+  // ðŸ”¹ Section (Reusable)
   Widget _section({required String title, required Widget child}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -205,7 +204,7 @@ class _Pagethree extends State<Pagethree> {
     );
   }
 
-  // 🔹 TextField
+  // ðŸ”¹ TextField
   Widget _textField({
     required TextEditingController controller,
     required String hint,

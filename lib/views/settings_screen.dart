@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import '../controllers/settings_controller.dart';
 import '../utils/app_theme.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
+/// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 /// SettingsScreen
 /// Accessible from the Profile screen gear icon (top-right).
-/// Provides: Language toggle · Dark/Light mode · Privacy mode
-/// ─────────────────────────────────────────────────────────────────────────────
+/// Provides: Language toggle Ã‚Â· Dark/Light mode Ã‚Â· Privacy mode
+/// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -21,7 +21,8 @@ class SettingsScreen extends StatelessWidget {
         title: Text('settings'.tr,
             style: TextStyle(
                 color: context.textColor,
-                fontWeight: FontWeight.bold, fontSize: 20)),
+                fontWeight: FontWeight.bold,
+                fontSize: 20)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_rounded, color: context.textColor),
           onPressed: () => Get.back(),
@@ -32,21 +33,24 @@ class SettingsScreen extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            // ── Appearance section ─────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Appearance section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             _sectionHeader(context, 'appearance'.tr),
             const SizedBox(height: 12),
 
             // Dark mode
             _settingCard(
               context: context,
-              icon: sc.isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-              iconColor: sc.isDark ? const Color(0xFF7986CB) : const Color(0xFFFFA726),
+              icon: sc.isDark
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+              iconColor:
+                  sc.isDark ? const Color(0xFF7986CB) : const Color(0xFFFFA726),
               title: 'dark_mode'.tr,
               subtitle: 'dark_mode_sub'.tr,
               trailing: Switch.adaptive(
                 value: sc.isDark,
                 onChanged: (_) => sc.toggleTheme(),
-                activeColor: context.primaryGreen,
+                activeThumbColor: context.primaryGreen,
               ),
             ),
             const SizedBox(height: 12),
@@ -61,14 +65,14 @@ class SettingsScreen extends StatelessWidget {
               trailing: GestureDetector(
                 onTap: sc.toggleLanguage,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: context.primaryGreen,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text(sc.isArabic ? 'EN' : 'عر',
+                    Text(sc.isArabic ? 'EN' : 'Ã˜Â¹Ã˜Â±',
                         style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -82,7 +86,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── Privacy section ────────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Privacy section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             _sectionHeader(context, 'privacy_mode'.tr),
             const SizedBox(height: 12),
 
@@ -99,7 +103,7 @@ class SettingsScreen extends StatelessWidget {
               trailing: Switch.adaptive(
                 value: sc.privacyMode,
                 onChanged: (_) => sc.togglePrivacy(),
-                activeColor: Colors.red[600],
+                activeThumbColor: Colors.red[600],
               ),
             ),
 
@@ -108,22 +112,19 @@ class SettingsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.08),
+                  color: Colors.red.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: Colors.red.withOpacity(0.2)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.info_outline,
-                      color: Colors.red, size: 18),
+                  const Icon(Icons.info_outline, color: Colors.red, size: 18),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       sc.isArabic
-                          ? 'وضع الخصوصية مفعّل — البيانات الحساسة مخفية'
-                          : 'Privacy mode active — sensitive data is masked',
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.red),
+                          ? 'Ã™Ë†Ã˜Â¶Ã˜Â¹ Ã˜Â§Ã™â€žÃ˜Â®Ã˜ÂµÃ™Ë†Ã˜ÂµÃ™Å Ã˜Â© Ã™â€¦Ã™ÂÃ˜Â¹Ã™â€˜Ã™â€ž Ã¢â‚¬â€ Ã˜Â§Ã™â€žÃ˜Â¨Ã™Å Ã˜Â§Ã™â€ Ã˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â³Ã˜Â§Ã˜Â³Ã˜Â© Ã™â€¦Ã˜Â®Ã™ÂÃ™Å Ã˜Â©'
+                          : 'Privacy mode active Ã¢â‚¬â€ sensitive data is masked',
+                      style: const TextStyle(fontSize: 13, color: Colors.red),
                     ),
                   ),
                 ]),
@@ -135,8 +136,7 @@ class SettingsScreen extends StatelessWidget {
             // App version
             Center(
               child: Text('Aidora v1.0.0',
-                  style: TextStyle(
-                      fontSize: 12, color: context.textSub)),
+                  style: TextStyle(fontSize: 12, color: context.textSub)),
             ),
           ],
         );
@@ -144,15 +144,15 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _sectionHeader(BuildContext context, String title) => Text(
-    title,
-    style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-        color: context.primaryGreen,
-        letterSpacing: 0.5),
-  );
+        title,
+        style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: context.primaryGreen,
+            letterSpacing: 0.5),
+      );
 
   Widget _settingCard({
     required BuildContext context,
@@ -167,15 +167,18 @@ class SettingsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.cardColor,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(
-            color: context.shadowColor.withOpacity(0.04),
-            blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: context.shadowColor.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Row(children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
+              color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: iconColor, size: 22),
         ),
@@ -191,8 +194,7 @@ class SettingsScreen extends StatelessWidget {
                       color: context.textColor)),
               const SizedBox(height: 2),
               Text(subtitle,
-                  style: TextStyle(
-                      fontSize: 12, color: context.textSub)),
+                  style: TextStyle(fontSize: 12, color: context.textSub)),
             ],
           ),
         ),

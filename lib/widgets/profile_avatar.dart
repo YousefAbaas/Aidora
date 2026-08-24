@@ -12,16 +12,16 @@ import '../utils/image_url_helper.dart';
 class ProfileAvatar extends StatelessWidget {
   final double size;
   final double borderWidth;
-  final Color  borderColor;
-  final bool   tappable;
-  final bool   showEditBadge;
+  final Color borderColor;
+  final bool tappable;
+  final bool showEditBadge;
 
   const ProfileAvatar({
     super.key,
-    this.size          = 46,
-    this.borderWidth   = 2,
-    this.borderColor   = const Color(0xFF2C5F4F),
-    this.tappable      = true,
+    this.size = 46,
+    this.borderWidth = 2,
+    this.borderColor = const Color(0xFF2C5F4F),
+    this.tappable = true,
     this.showEditBadge = false,
   });
 
@@ -42,7 +42,8 @@ class ProfileAvatar extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            width: size, height: size,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: borderColor, width: borderWidth),
@@ -51,12 +52,14 @@ class ProfileAvatar extends StatelessWidget {
           ),
           if (showEditBadge)
             Positioned(
-              bottom: 0, right: 0,
+              bottom: 0,
+              right: 0,
               child: Container(
-                width:  size * 0.30,
+                width: size * 0.30,
                 height: size * 0.30,
                 decoration: BoxDecoration(
-                  color: _green, shape: BoxShape.circle,
+                  color: _green,
+                  shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 1.5),
                 ),
                 child: Icon(Icons.camera_alt_rounded,
@@ -81,70 +84,82 @@ class ProfileAvatar extends StatelessWidget {
     final url = pc.displayImageUrl;
     if (url.isEmpty) return _defaultAvatar();
 
-    // Local file (native — just picked, before upload finishes)
+    // Local file (native â€” just picked, before upload finishes)
     if (!kIsWeb && !url.startsWith('http')) {
       try {
         return Image.file(File(url),
-            key: ValueKey(url),
-            fit: BoxFit.cover, width: size, height: size);
-      } catch (_) { return _defaultAvatar(); }
+            key: ValueKey(url), fit: BoxFit.cover, width: size, height: size);
+      } catch (_) {
+        return _defaultAvatar();
+      }
     }
 
-    // Network image — fix URL for current platform
+    // Network image â€” fix URL for current platform
     final fixed = ImageUrlHelper.fix(url);
     if (fixed.isEmpty) return _defaultAvatar();
 
     if (kIsWeb) {
-      // Flutter Web: Image.network ignores headers — browser handles HTTP.
+      // Flutter Web: Image.network ignores headers â€” browser handles HTTP.
       // Use cache-buster query param to force fresh load after upload.
       final webUrl =
           '$fixed${fixed.contains('?') ? '&' : '?'}v=${DateTime.now().millisecondsSinceEpoch ~/ 60000}';
       return Image.network(
-        webUrl, key: ValueKey(webUrl),
-        fit: BoxFit.cover, width: size, height: size,
-        errorBuilder:   (_, __, ___) => _defaultAvatar(),
+        webUrl,
+        key: ValueKey(webUrl),
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        errorBuilder: (_, __, ___) => _defaultAvatar(),
         loadingBuilder: (_, child, p) => p == null ? child : _loader(),
       );
     }
 
     // Native: headers are supported
     return Image.network(
-      fixed, key: ValueKey(fixed),
-      fit: BoxFit.cover, width: size, height: size,
+      fixed,
+      key: ValueKey(fixed),
+      fit: BoxFit.cover,
+      width: size,
+      height: size,
       headers: const {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache', 'Expires': '0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
-      errorBuilder:   (_, __, ___) => _defaultAvatar(),
+      errorBuilder: (_, __, ___) => _defaultAvatar(),
       loadingBuilder: (_, child, p) => p == null ? child : _loader(),
     );
   }
 
   Widget _loader() => Container(
-    color: Colors.grey[200],
-    child: Center(child: SizedBox(
-      width: size * 0.35, height: size * 0.35,
-      child: const CircularProgressIndicator(
-          strokeWidth: 2, color: Color(0xFF2C5F4F)),
-    )),
-  );
+        color: Colors.grey[200],
+        child: Center(
+            child: SizedBox(
+          width: size * 0.35,
+          height: size * 0.35,
+          child: const CircularProgressIndicator(
+              strokeWidth: 2, color: Color(0xFF2C5F4F)),
+        )),
+      );
 
   Widget _defaultAvatar() => Image.asset(
-    'img/profile_avatar.jpg',
-    key: const ValueKey('default_avatar'),
-    fit: BoxFit.cover, width: size, height: size,
-    errorBuilder: (_, __, ___) => Container(
-      color: Colors.grey[200],
-      child: Icon(Icons.person_rounded,
-          size: size * 0.55, color: Colors.grey[400]),
-    ),
-  );
+        'img/profile_avatar.jpg',
+        key: const ValueKey('default_avatar'),
+        fit: BoxFit.cover,
+        width: size,
+        height: size,
+        errorBuilder: (_, __, ___) => Container(
+          color: Colors.grey[200],
+          child: Icon(Icons.person_rounded,
+              size: size * 0.55, color: Colors.grey[400]),
+        ),
+      );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Photo Options Bottom Sheet — NO setState, no _uploading flag
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Photo Options Bottom Sheet â€” NO setState, no _uploading flag
 // Upload runs in background via ProfileController (reactive)
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _PhotoOptionsSheet extends StatelessWidget {
   final ProfileController pc;
   const _PhotoOptionsSheet({required this.pc});
@@ -153,11 +168,11 @@ class _PhotoOptionsSheet extends StatelessWidget {
   static final _picker = ImagePicker();
 
   Future<void> _pick(ImageSource source) async {
-    Get.back(); // close sheet immediately — no setState needed
+    Get.back(); // close sheet immediately â€” no setState needed
     final f = await _picker.pickImage(source: source, imageQuality: 85);
     if (f == null) return;
 
-    // Immediate local preview (reactive — updates all screens via Obx)
+    // Immediate local preview (reactive â€” updates all screens via Obx)
     pc.setImage(f.path);
 
     // Upload in background
@@ -165,10 +180,10 @@ class _PhotoOptionsSheet extends StatelessWidget {
 
     if (result.isSuccess) {
       pc.setImage(result.imageUrl); // updates all Obx widgets
-      _snack('Photo Updated', '✓ Profile photo uploaded.', _green);
+      _snack('Photo Updated', 'âœ“ Profile photo uploaded.', _green);
     } else {
-      _snack('Upload Failed',
-          result.errorMessage ?? 'Could not upload photo.', Colors.red);
+      _snack('Upload Failed', result.errorMessage ?? 'Could not upload photo.',
+          Colors.red);
     }
   }
 
@@ -178,33 +193,33 @@ class _PhotoOptionsSheet extends StatelessWidget {
     _snack('Photo Removed', 'Your profile photo has been removed.', Colors.red);
   }
 
-  void _snack(String title, String msg, Color color) =>
-      Get.snackbar(title, msg,
-          backgroundColor: color,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.TOP,
-          borderRadius: 12,
-          margin: const EdgeInsets.all(12),
-          duration: const Duration(seconds: 2));
+  void _snack(String title, String msg, Color color) => Get.snackbar(title, msg,
+      backgroundColor: color,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      borderRadius: 12,
+      margin: const EdgeInsets.all(12),
+      duration: const Duration(seconds: 2));
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(24))),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24))),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(
-          width: 40, height: 4,
+          width: 40,
+          height: 4,
           decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2)),
+              color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(height: 20),
         Text('Profile Photo',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,
+            style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyLarge?.color)),
         const SizedBox(height: 20),
         _tile(context, Icons.photo_library_outlined, 'Choose from Gallery',
@@ -233,8 +248,9 @@ class _PhotoOptionsSheet extends StatelessWidget {
     );
   }
 
-  Widget _tile(BuildContext context, IconData icon, String label,
-      VoidCallback onTap, {Color? color}) {
+  Widget _tile(
+      BuildContext context, IconData icon, String label, VoidCallback onTap,
+      {Color? color}) {
     final c = color ?? _green;
     return InkWell(
       onTap: onTap,
@@ -243,13 +259,14 @@ class _PhotoOptionsSheet extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-            color: c.withOpacity(0.07),
+            color: c.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(14)),
         child: Row(children: [
           Icon(icon, color: c, size: 22),
           const SizedBox(width: 12),
-          Text(label, style: TextStyle(fontSize: 15,
-              fontWeight: FontWeight.w600, color: c)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w600, color: c)),
         ]),
       ),
     );

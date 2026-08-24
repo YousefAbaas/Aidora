@@ -1,9 +1,9 @@
 import '../utils/image_url_helper.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /// organization_api_model.dart
 /// Models that match the Django API responses EXACTLY.
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class OrganizationsPageModel {
   final int count;
@@ -26,9 +26,9 @@ class OrganizationsPageModel {
         results: (j['results'] as List)
             .map(
               (e) => OrganizationCardModel.fromJson(
-            e as Map<String, dynamic>,
-          ),
-        )
+                e as Map<String, dynamic>,
+              ),
+            )
             .toList(),
       );
 }
@@ -94,9 +94,9 @@ class OrganizationDetailModel {
         services: (j['services'] as List? ?? [])
             .map(
               (e) => OrgService.fromJson(
-            e as Map<String, dynamic>,
-          ),
-        )
+                e as Map<String, dynamic>,
+              ),
+            )
             .toList(),
         targetGroups: (j['target_groups'] as List? ?? [])
             .map((e) => e.toString())
@@ -118,9 +118,9 @@ class OrgService {
   });
 
   factory OrgService.fromJson(Map<String, dynamic> j) => OrgService(
-    id: (j['id'] as num?)?.toInt() ?? 0,
-    name: j['name'] as String,
-    description: j['description'] as String,
-    icon: j['icon'] as String? ?? 'help_outline',
-  );
+        id: (j['id'] as num?)?.toInt() ?? 0,
+        name: j['name'] as String,
+        description: j['description'] as String,
+        icon: j['icon'] as String? ?? 'help_outline',
+      );
 }

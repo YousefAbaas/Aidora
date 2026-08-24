@@ -16,7 +16,7 @@ import 'guest_org_details_screen.dart';
 import 'notifications_screen.dart';
 import 'submit_new_request_screen.dart';
 
-// ── Top-level Helper Function ────────────────────────────────────────────────
+// â”€â”€ Top-level Helper Function â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 String _orgKey(String name) {
   final s = name.toLowerCase();
   if (s.contains('unicef')) return 'unicef';
@@ -28,9 +28,9 @@ String _orgKey(String name) {
   return s.replaceAll(' ', '_');
 }
 
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /// HomeScreen  (API-connected)
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadOrgs();
   }
 
-  // ── Load all orgs ──────────────────────────────────────────────────────────
+  // â”€â”€ Load all orgs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _loadOrgs() async {
     setState(() {
       _loading = true;
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // ── Open service filter sheet then filter orgs ─────────────────────────────
+  // â”€â”€ Open service filter sheet then filter orgs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _openFilter() async {
     final svcResult = await _svcSvc.fetchServices();
     if (!mounted) return;
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _error = null;
     });
     final filterResult =
-    await _orgSvc.fetchFilteredOrganizations(selected.serviceType);
+        await _orgSvc.fetchFilteredOrganizations(selected.serviceType);
     if (!mounted) return;
 
     if (filterResult.isSuccess) {
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
           selected.serviceType,
           '${_orgs.length} organization(s) found',
           snackPosition: SnackPosition.TOP,
-          backgroundColor: _green.withOpacity(0.9),
+          backgroundColor: _green.withValues(alpha: 0.9),
           colorText: Colors.white,
           margin: const EdgeInsets.all(12),
           borderRadius: 12,
@@ -161,8 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
-                  const ProfileAvatar(
-                      size: 46, borderColor: Color(0xFF2C5F4F)),
+                  const ProfileAvatar(size: 46, borderColor: Color(0xFF2C5F4F)),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           icon: const Icon(Icons.notifications_outlined,
                               color: Color(0xFF2C3E3C)),
                           onPressed: () => Get.to(
-                                () => const NotificationsScreen(),
+                            () => const NotificationsScreen(),
                             transition: Transition.cupertino,
                           ),
                         ),
@@ -257,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _isFiltered = true;
                   });
                   final result =
-                  await _orgSvc.fetchFilteredOrganizations(serviceType);
+                      await _orgSvc.fetchFilteredOrganizations(serviceType);
                   if (!mounted) return;
                   if (result.isSuccess) {
                     setState(() {
@@ -329,9 +328,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Org Card
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _OrgCard extends StatelessWidget {
   final OrganizationCardModel org;
   static const Color _blue = Color(0xFF1565C0);
@@ -349,7 +348,7 @@ class _OrgCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -410,22 +409,22 @@ class _OrgCard extends StatelessWidget {
                 bg: const Color(0xFFE8F5E9),
                 fg: _green,
                 onTap: () => Get.to(
-                      () => SubmitNewRequestScreen(
-                      orgId: org.id, orgName: org.name),
+                  () =>
+                      SubmitNewRequestScreen(orgId: org.id, orgName: org.name),
                   transition: Transition.cupertino,
                 ),
               ),
               const SizedBox(height: 5),
               TextButton(
                 onPressed: () => Get.to(
-                      () => GuestOrgDetailsScreen(
-                      orgId: org.id, showAddButton: true),
+                  () =>
+                      GuestOrgDetailsScreen(orgId: org.id, showAddButton: true),
                   transition: Transition.cupertino,
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: _blue,
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -460,7 +459,7 @@ class _OrgCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration:
-        BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -478,9 +477,9 @@ class _OrgCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Service Filter Bottom Sheet (loads from API)
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _ServiceFilterSheet extends StatelessWidget {
   final List<ServiceModel> services;
 
@@ -542,9 +541,9 @@ class _ServiceFilterSheet extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.08),
+                        color: color.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: color.withOpacity(0.2)),
+                        border: Border.all(color: color.withValues(alpha: 0.2)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

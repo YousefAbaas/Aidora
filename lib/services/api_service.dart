@@ -69,7 +69,9 @@ class ApiService implements ApiClient {
         final r = http.Response(webRes.body, webRes.statusCode);
         if (_needsRefresh(r.statusCode) && !isRetry && requiresAuth) {
           final ok = await TokenManager.instance.forceRefresh();
-          if (ok) return get(endpoint, requiresAuth: true, isRetry: true);
+          if (ok) {
+            return await get(endpoint, requiresAuth: true, isRetry: true);
+          }
           _expiredSession();
         }
         return _parse(r);
@@ -79,7 +81,9 @@ class ApiService implements ApiClient {
           .timeout(_timeout);
       if (_needsRefresh(res.statusCode) && !isRetry && requiresAuth) {
         final ok = await TokenManager.instance.forceRefresh();
-        if (ok) return get(endpoint, requiresAuth: true, isRetry: true);
+        if (ok) {
+          return await get(endpoint, requiresAuth: true, isRetry: true);
+        }
         _expiredSession();
       }
       return _parse(res);
@@ -105,7 +109,7 @@ class ApiService implements ApiClient {
         if (_needsRefresh(r.statusCode) && !isRetry && requiresAuth) {
           final ok = await TokenManager.instance.forceRefresh();
           if (ok)
-            return post(endpoint,
+            return await post(endpoint,
                 body: body, requiresAuth: true, isRetry: true);
           _expiredSession();
         }
@@ -119,7 +123,8 @@ class ApiService implements ApiClient {
       if (_needsRefresh(res.statusCode) && !isRetry && requiresAuth) {
         final ok = await TokenManager.instance.forceRefresh();
         if (ok)
-          return post(endpoint, body: body, requiresAuth: true, isRetry: true);
+          return await post(endpoint,
+              body: body, requiresAuth: true, isRetry: true);
         _expiredSession();
       }
       return _parse(res);
@@ -145,7 +150,7 @@ class ApiService implements ApiClient {
         if (_needsRefresh(r.statusCode) && !isRetry && requiresAuth) {
           final ok = await TokenManager.instance.forceRefresh();
           if (ok)
-            return patch(endpoint,
+            return await patch(endpoint,
                 body: body, requiresAuth: true, isRetry: true);
           _expiredSession();
         }
@@ -159,7 +164,8 @@ class ApiService implements ApiClient {
       if (_needsRefresh(res.statusCode) && !isRetry && requiresAuth) {
         final ok = await TokenManager.instance.forceRefresh();
         if (ok)
-          return patch(endpoint, body: body, requiresAuth: true, isRetry: true);
+          return await patch(endpoint,
+              body: body, requiresAuth: true, isRetry: true);
         _expiredSession();
       }
       return _parse(res);
@@ -181,7 +187,9 @@ class ApiService implements ApiClient {
         final r = http.Response(webRes.body, webRes.statusCode);
         if (_needsRefresh(r.statusCode) && !isRetry && requiresAuth) {
           final ok = await TokenManager.instance.forceRefresh();
-          if (ok) return delete(endpoint, requiresAuth: true, isRetry: true);
+          if (ok) {
+            return await delete(endpoint, requiresAuth: true, isRetry: true);
+          }
           _expiredSession();
         }
         return _parse(r);
@@ -191,7 +199,9 @@ class ApiService implements ApiClient {
           .timeout(_timeout);
       if (_needsRefresh(res.statusCode) && !isRetry && requiresAuth) {
         final ok = await TokenManager.instance.forceRefresh();
-        if (ok) return delete(endpoint, requiresAuth: true, isRetry: true);
+        if (ok) {
+          return await delete(endpoint, requiresAuth: true, isRetry: true);
+        }
         _expiredSession();
       }
       return _parse(res);

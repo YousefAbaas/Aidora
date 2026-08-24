@@ -30,7 +30,8 @@ class ServicesResult {
   final bool isSuccess;
   final List<ServiceModel> services;
   final String? errorMessage;
-  const ServicesResult._({required this.isSuccess, this.services = const [], this.errorMessage});
+  const ServicesResult._(
+      {required this.isSuccess, this.services = const [], this.errorMessage});
   factory ServicesResult.success(List<ServiceModel> s) =>
       ServicesResult._(isSuccess: true, services: s);
   factory ServicesResult.error(String msg) =>

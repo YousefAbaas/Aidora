@@ -3,19 +3,19 @@ import 'package:get/get.dart';
 import '../services/profile_api_service.dart';
 import 'main_screen.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /// CompleteProfileScreen
-/// Shown when /api/auth/me → profile_completed = false
+/// Shown when /api/auth/me â†’ profile_completed = false
 /// POST /api/auth/refugees/complete-profile/
 ///
 /// Fields:
-///   gender          → dropdown
-///   family_members  → family category picker (type + count)
-///   date_of_birth   → string "YYYY-MM-DD"
-///   location        → string
-///   sector_name     → stored in location for now (matches UI)
-///   consent_given   → checkbox
-/// ─────────────────────────────────────────────────────────────────────────────
+///   gender          â†’ dropdown
+///   family_members  â†’ family category picker (type + count)
+///   date_of_birth   â†’ string "YYYY-MM-DD"
+///   location        â†’ string
+///   sector_name     â†’ stored in location for now (matches UI)
+///   consent_given   â†’ checkbox
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class CompleteProfileScreen extends StatefulWidget {
   /// If true, just close on Done (user came from request flow).
   /// If false, navigate to MainScreen after done.
@@ -29,38 +29,42 @@ class CompleteProfileScreen extends StatefulWidget {
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   static const Color _green = Color(0xFF2C5F4F);
-  static const Color _bg    = Color(0xFFF5F3ED);
+  static const Color _bg = Color(0xFFF5F3ED);
 
-  final _locCtrl    = TextEditingController();
+  final _locCtrl = TextEditingController();
   final _sectorCtrl = TextEditingController();
 
-  // ── Date field ─────────────────────────────────────────────────────────────
+  // â”€â”€ Date field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   DateTime? _selectedBirthDate;
 
   String? _gender;
-  bool    _consent    = false;
-  bool    _isLoading  = false;
+  bool _consent = false;
+  bool _isLoading = false;
 
-  // ── Family members: {type, count} ─────────────────────────────────────────
+  // â”€â”€ Family members: {type, count} â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static const _familyTypes = [
-    'Children', 'Elderly', 'With disabilities', 'Women',
+    'Children',
+    'Elderly',
+    'With disabilities',
+    'Women',
   ];
   final Map<String, int> _familyCounts = {
-    'Children': 0, 'Elderly': 0, 'With disabilities': 0, 'Women': 0,
+    'Children': 0,
+    'Elderly': 0,
+    'With disabilities': 0,
+    'Women': 0,
   };
 
   // Selected family "category" shown in dropdown
 
   @override
   void dispose() {
-    _locCtrl.dispose(); _sectorCtrl.dispose();
+    _locCtrl.dispose();
+    _sectorCtrl.dispose();
     super.dispose();
   }
 
-
-
-
-  // ── Build date string from selected date ───────────────────────────────────
+  // â”€â”€ Build date string from selected date â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   String _buildDate() {
     if (_selectedBirthDate == null) return '';
     final y = _selectedBirthDate!.year.toString().padLeft(4, '0');
@@ -69,12 +73,13 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     return '$y-$m-$d';
   }
 
-  // ── Open date picker ────────────────────────────────────────────────────────
+  // â”€â”€ Open date picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _pickBirthDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedBirthDate ?? DateTime(now.year - 20, now.month, now.day),
+      initialDate:
+          _selectedBirthDate ?? DateTime(now.year - 20, now.month, now.day),
       firstDate: DateTime(1920),
       lastDate: DateTime(now.year - 5, now.month, now.day),
       builder: (ctx, child) => Theme(
@@ -92,16 +97,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     if (picked != null && mounted) setState(() => _selectedBirthDate = picked);
   }
 
-  // ── Validate ───────────────────────────────────────────────────────────────
+  // â”€â”€ Validate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   bool _validate() {
-    if (_gender == null) { _err('Please select your gender.'); return false; }
-    if (_buildDate().isEmpty) { _err('Please enter your birthday.'); return false; }
-    if (_locCtrl.text.trim().isEmpty) { _err('Please enter your location.'); return false; }
-    if (!_consent) { _err('Please accept the data consent to continue.'); return false; }
+    if (_gender == null) {
+      _err('Please select your gender.');
+      return false;
+    }
+    if (_buildDate().isEmpty) {
+      _err('Please enter your birthday.');
+      return false;
+    }
+    if (_locCtrl.text.trim().isEmpty) {
+      _err('Please enter your location.');
+      return false;
+    }
+    if (!_consent) {
+      _err('Please accept the data consent to continue.');
+      return false;
+    }
     return true;
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!_validate()) return;
@@ -118,10 +135,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     ].join(', ');
 
     final result = await ProfileApiService.instance.completeProfile(
-      gender:        _gender!,
-      dateOfBirth:   _buildDate(),
-      location:      location,
-      consentGiven:  _consent,
+      gender: _gender!,
+      dateOfBirth: _buildDate(),
+      location: location,
+      consentGiven: _consent,
       familyMembers: familyList,
     );
 
@@ -130,7 +147,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
     if (result.isSuccess) {
       if (widget.returnOnComplete) {
-        Get.back(result: true); // return true → request can proceed
+        Get.back(result: true); // return true â†’ request can proceed
       } else {
         Get.offAll(() => const MainScreen(), transition: Transition.fadeIn);
       }
@@ -140,16 +157,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   void _err(String msg) => Get.snackbar(
-    'Error', msg,
-    snackPosition: SnackPosition.TOP,
-    backgroundColor: Colors.red[50],
-    colorText: Colors.red[800],
-    margin: const EdgeInsets.all(12), borderRadius: 12,
-    maxWidth: 400,
-    messageText: Text(msg,
-        maxLines: 3, overflow: TextOverflow.ellipsis,
-        style: TextStyle(fontSize: 13, color: Colors.red[800])),
-  );
+        'Error',
+        msg,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red[50],
+        colorText: Colors.red[800],
+        margin: const EdgeInsets.all(12),
+        borderRadius: 12,
+        maxWidth: 400,
+        messageText: Text(msg,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 13, color: Colors.red[800])),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +179,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         backgroundColor: _bg,
         body: SafeArea(
           child: Column(children: [
-            // ── App bar ───────────────────────────────────────────────────
+            // â”€â”€ App bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               child: Row(children: [
@@ -174,10 +194,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 // Logo centre
                 Expanded(
                   child: Center(
-                    child: Image.asset('img/logo.jpg', height: 36,
+                    child: Image.asset('img/logo.jpg',
+                        height: 36,
                         errorBuilder: (_, __, ___) => const Text('aidora',
                             style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
                                 color: _green))),
                   ),
                 ),
@@ -194,11 +216,13 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   children: [
                     const Text('Please complete your\npersonal information',
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w800,
-                            color: Color(0xFF1A2E28), height: 1.25)),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A2E28),
+                            height: 1.25)),
                     const SizedBox(height: 28),
 
-                    // ── Gender ──────────────────────────────────────────
+                    // â”€â”€ Gender â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _label('Gender'),
                     _dropdown(
                       value: _gender,
@@ -208,17 +232,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    // ── Family categories ───────────────────────────────
+                    // â”€â”€ Family categories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _label('Family categories'),
                     _familyCategoryPicker(),
                     const SizedBox(height: 18),
 
-                    // ── Birthday ────────────────────────────────────────
+                    // â”€â”€ Birthday â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _label('Birthday'),
                     _birthdayRow(),
                     const SizedBox(height: 18),
 
-                    // ── Location ────────────────────────────────────────
+                    // â”€â”€ Location â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _label('Location'),
                     _field(
                       controller: _locCtrl,
@@ -227,7 +251,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     ),
                     const SizedBox(height: 18),
 
-                    // ── Sector ──────────────────────────────────────────
+                    // â”€â”€ Sector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     _label('Sector name'),
                     _field(
                       controller: _sectorCtrl,
@@ -236,7 +260,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Consent ─────────────────────────────────────────
+                    // â”€â”€ Consent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     GestureDetector(
                       onTap: () => setState(() => _consent = !_consent),
                       child: Row(
@@ -244,7 +268,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         children: [
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
-                            width: 24, height: 24,
+                            width: 24,
+                            height: 24,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _consent ? _green : Colors.transparent,
@@ -263,7 +288,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                             child: Text(
                               'Consent to use personal data for humanitarian assistance purposes',
                               style: TextStyle(
-                                  fontSize: 13, color: Color(0xFF5A5A5A),
+                                  fontSize: 13,
+                                  color: Color(0xFF5A5A5A),
                                   height: 1.4),
                             ),
                           ),
@@ -272,14 +298,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    // ── Done button ─────────────────────────────────────
+                    // â”€â”€ Done button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _green,
-                          disabledBackgroundColor: _green.withOpacity(0.55),
+                          disabledBackgroundColor:
+                              _green.withValues(alpha: 0.55),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -288,7 +315,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         ),
                         child: _isLoading
                             ? const SizedBox(
-                                width: 22, height: 22,
+                                width: 22,
+                                height: 22,
                                 child: CircularProgressIndicator(
                                     color: Colors.white, strokeWidth: 2.5))
                             : Text('done'.tr,
@@ -306,7 +334,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  // ── Family category picker ─────────────────────────────────────────────────
+  // â”€â”€ Family category picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _familyCategoryPicker() {
     // Show as a dropdown that opens a bottom sheet with counters
     final summary = _familyCounts.entries
@@ -319,7 +347,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(children: [
           Expanded(
@@ -347,7 +376,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -357,33 +387,37 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             ..._familyTypes.map((type) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Row(children: [
-                Expanded(child: Text(type,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w500))),
-                _counter(
-                  count: _familyCounts[type]!,
-                  onDec: () {
-                    if (_familyCounts[type]! > 0) {
-                      setS(() => _familyCounts[type] = _familyCounts[type]! - 1);
-                      setState(() {});
-                    }
-                  },
-                  onInc: () {
-                    setS(() => _familyCounts[type] = _familyCounts[type]! + 1);
-                    setState(() {});
-                  },
-                ),
-              ]),
-            )),
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Row(children: [
+                    Expanded(
+                        child: Text(type,
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w500))),
+                    _counter(
+                      count: _familyCounts[type]!,
+                      onDec: () {
+                        if (_familyCounts[type]! > 0) {
+                          setS(() =>
+                              _familyCounts[type] = _familyCounts[type]! - 1);
+                          setState(() {});
+                        }
+                      },
+                      onInc: () {
+                        setS(() =>
+                            _familyCounts[type] = _familyCounts[type]! + 1);
+                        setState(() {});
+                      },
+                    ),
+                  ]),
+                )),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _green, foregroundColor: Colors.white,
+                  backgroundColor: _green,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -407,31 +441,31 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Text('$count',
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
       _counterBtn(Icons.add, onInc),
     ]);
   }
 
   Widget _counterBtn(IconData icon, VoidCallback onTap) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 32, height: 32,
-      decoration: BoxDecoration(
-          color: _green.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8)),
-      child: Icon(icon, size: 16, color: _green),
-    ),
-  );
+        onTap: onTap,
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+              color: _green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, size: 16, color: _green),
+        ),
+      );
 
-  // ── Birthday row ───────────────────────────────────────────────────────────
+  // â”€â”€ Birthday row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _birthdayRow() {
     final label = _selectedBirthDate == null
         ? 'Select date of birth'
-        : '${_selectedBirthDate!.day.toString().padLeft(2,'0')} / '
-          '${_selectedBirthDate!.month.toString().padLeft(2,'0')} / '
-          '${_selectedBirthDate!.year}';
+        : '${_selectedBirthDate!.day.toString().padLeft(2, '0')} / '
+            '${_selectedBirthDate!.month.toString().padLeft(2, '0')} / '
+            '${_selectedBirthDate!.year}';
 
     return GestureDetector(
       onTap: _pickBirthDate,
@@ -442,7 +476,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         child: Row(children: [
           Icon(Icons.calendar_today_rounded,
               color: _selectedBirthDate == null
-                  ? Colors.grey[400] : const Color(0xFF2C5F4F),
+                  ? Colors.grey[400]
+                  : const Color(0xFF2C5F4F),
               size: 20),
           const SizedBox(width: 12),
           Expanded(
@@ -450,7 +485,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 style: TextStyle(
                     fontSize: 15,
                     color: _selectedBirthDate == null
-                        ? Colors.grey[400] : const Color(0xFF1A2E28))),
+                        ? Colors.grey[400]
+                        : const Color(0xFF1A2E28))),
           ),
           Icon(Icons.arrow_drop_down_rounded,
               color: Colors.grey[400], size: 24),
@@ -459,55 +495,64 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text,
-        style: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3A3A3A))),
-  );
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(text,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF3A3A3A))),
+      );
 
   Widget _dropdown({
     required String? value,
     required String hint,
     required List<String> items,
     required ValueChanged<String?> onChanged,
-  }) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(12)),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: value,
-        hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
-        isExpanded: true,
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey[600]),
-        items: items.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-        onChanged: onChanged,
-      ),
-    ),
-  );
+  }) =>
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            hint: Text(hint, style: TextStyle(color: Colors.grey[400])),
+            isExpanded: true,
+            icon: Icon(Icons.keyboard_arrow_down_rounded,
+                color: Colors.grey[600]),
+            items: items
+                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                .toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      );
 
   Widget _field({
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-  }) => Container(
-    decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(12)),
-    child: TextField(
-      controller: controller,
-      style: const TextStyle(fontSize: 15),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey[400]),
-        prefixIcon: Icon(icon, color: Colors.grey[500], size: 20),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none),
-        filled: true, fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    ),
-  );
+  }) =>
+      Container(
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: TextField(
+          controller: controller,
+          style: const TextStyle(fontSize: 15),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400]),
+            prefixIcon: Icon(icon, color: Colors.grey[500], size: 20),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+        ),
+      );
 }

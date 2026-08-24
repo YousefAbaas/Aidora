@@ -18,17 +18,17 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-  late final Animation<double>   _fade;
-  late final Animation<double>   _scale;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 900));
-    _fade  = CurvedAnimation(parent: _ctrl, curve: Curves.easeIn);
-    _scale = Tween<double>(begin: 0.75, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+        vsync: this, duration: const Duration(milliseconds: 900));
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeIn);
+    _scale = Tween<double>(begin: 0.75, end: 1.0)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
     _ctrl.forward();
     Future.delayed(const Duration(seconds: 2), _decideRoute);
   }
@@ -41,7 +41,8 @@ class _SplashScreenState extends State<SplashScreen>
         case 'org':
         case 'organization':
         case 'organizations':
-          Get.offAll(() => const Orgnavigationbar(), transition: Transition.fadeIn);
+          Get.offAll(() => const Orgnavigationbar(),
+              transition: Transition.fadeIn);
           break;
         case 'volunteer':
           Get.offAll(() => const Pagerequest(), transition: Transition.fadeIn);
@@ -54,12 +55,16 @@ class _SplashScreenState extends State<SplashScreen>
           break;
       }
     } else {
-      Get.offAll(() => const OnboardingScreen1(), transition: Transition.fadeIn);
+      Get.offAll(() => const OnboardingScreen1(),
+          transition: Transition.fadeIn);
     }
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,20 +77,26 @@ class _SplashScreenState extends State<SplashScreen>
             opacity: _fade,
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Container(
-                width: 100, height: 100,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  shape: BoxShape.circle),
+                    color: Colors.white.withValues(alpha: 0.15),
+                    shape: BoxShape.circle),
                 child: const Icon(Icons.volunteer_activism_rounded,
                     size: 56, color: Colors.white),
               ),
               const SizedBox(height: 20),
               const Text('Aidora',
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold,
-                      color: Colors.white, letterSpacing: 2)),
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2)),
               const SizedBox(height: 8),
               Text('Humanitarian Aid Platform',
-                  style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8))),
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.8))),
             ]),
           ),
         ),

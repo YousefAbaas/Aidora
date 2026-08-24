@@ -4,14 +4,14 @@ import '../services/api_constants.dart';
 import '../services/api_service.dart';
 import '../utils/image_url_helper.dart';
 
-/// VolController — single reactive source of truth for volunteer profile.
+/// VolController â€” single reactive source of truth for volunteer profile.
 /// Pattern mirrors ProfileController used by refugees.
 class VolController extends GetxController {
   static VolController get to => Get.find();
 
-  final RxString volName      = ''.obs;
-  final RxString volImageUrl  = ''.obs;
-  final RxBool   isLoading    = false.obs;
+  final RxString volName = ''.obs;
+  final RxString volImageUrl = ''.obs;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
@@ -31,15 +31,15 @@ class VolController extends GetxController {
       if (res.isSuccess) {
         final d = res.data as Map<String, dynamic>? ?? {};
         final name = d['full_name']?.toString() ?? '';
-        final raw  = d['profile_image']?.toString() ?? '';
-        volName.value     = name;
+        final raw = d['profile_image']?.toString() ?? '';
+        volName.value = name;
         volImageUrl.value = raw.isNotEmpty ? ImageUrlHelper.fix(raw) : '';
-        debugPrint('🙋 VolController loaded: name=$name img=$raw');
+        debugPrint('ðŸ™‹ VolController loaded: name=$name img=$raw');
       } else {
-        debugPrint('❌ VolController API error: ${res.errorMessage}');
+        debugPrint('âŒ VolController API error: ${res.errorMessage}');
       }
     } catch (e) {
-      debugPrint('❌ VolController exception: $e');
+      debugPrint('âŒ VolController exception: $e');
     } finally {
       isLoading.value = false;
     }

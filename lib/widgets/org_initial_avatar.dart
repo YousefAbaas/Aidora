@@ -28,17 +28,14 @@ class OrgInitialAvatar extends StatelessWidget {
       Color(0xFF558B2F), // light green
       Color(0xFF4E342E), // brown
     ];
-    final index = name.isNotEmpty
-        ? name.trim().codeUnitAt(0) % colors.length
-        : 0;
+    final index =
+        name.isNotEmpty ? name.trim().codeUnitAt(0) % colors.length : 0;
     return colors[index];
   }
 
   @override
   Widget build(BuildContext context) {
-    final letter = name.isNotEmpty
-        ? name.trim()[0].toUpperCase()
-        : '?';
+    final letter = name.isNotEmpty ? name.trim()[0].toUpperCase() : '?';
     final bg = _colorFromName(name);
 
     return Container(

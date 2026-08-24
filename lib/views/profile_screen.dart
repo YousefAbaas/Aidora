@@ -10,11 +10,11 @@ import 'selection_screen.dart';
 import 'settings_screen.dart';
 import 'notifications_screen.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /// ProfileScreen  (API-connected)
-/// GET /api/auth/profile/refugee/ → shows real data
+/// GET /api/auth/profile/refugee/ â†’ shows real data
 /// Profile image change propagates to all screens via ProfileController.
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
   @override
@@ -23,7 +23,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const Color _green = Color(0xFF2C5F4F);
-  static const Color _bg    = Color(0xFFF5F3ED);
+  static const Color _bg = Color(0xFFF5F3ED);
 
   final ProfileController _pc = ProfileController.to;
 
@@ -43,16 +43,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // ── Header ──────────────────────────────────────────────
+              // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(children: [
                 Text('profile'.tr,
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
                         color: context.textColor)),
                 const Spacer(),
                 IconButton(
-                  icon: Icon(Icons.settings_rounded, color: context.textColor, size: 22),
-                  onPressed: () => Get.to(
-                    () => const SettingsScreen(), transition: Transition.cupertino),
+                  icon: Icon(Icons.settings_rounded,
+                      color: context.textColor, size: 22),
+                  onPressed: () => Get.to(() => const SettingsScreen(),
+                      transition: Transition.cupertino),
                   tooltip: 'Settings',
                 ),
                 Obx(() {
@@ -60,21 +63,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return Stack(clipBehavior: Clip.none, children: [
                     IconButton(
                       icon: const Icon(Icons.notifications_outlined),
-                      onPressed: () => Get.to(
-                          () => const NotificationsScreen(),
+                      onPressed: () => Get.to(() => const NotificationsScreen(),
                           transition: Transition.cupertino),
                     ),
                     if (count > 0)
                       Positioned(
-                        right: 6, top: 6,
+                        right: 6,
+                        top: 6,
                         child: Container(
-                          width: 18, height: 18,
+                          width: 18,
+                          height: 18,
                           decoration: const BoxDecoration(
                               color: Color(0xFFE74C3C), shape: BoxShape.circle),
                           child: Center(
                             child: Text(count > 9 ? '9+' : '$count',
-                                style: const TextStyle(color: Colors.white,
-                                    fontSize: 10, fontWeight: FontWeight.bold)),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ),
@@ -84,29 +90,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 24),
 
-              // ── Loading / Error ──────────────────────────────────────
+              // â”€â”€ Loading / Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               if (_pc.profileLoading)
-                const Center(child: Padding(
+                const Center(
+                    child: Padding(
                   padding: EdgeInsets.all(32),
                   child: CircularProgressIndicator(color: _green),
                 ))
               else if (_pc.profileError.isNotEmpty && profile == null)
                 _errorWidget()
               else ...[
-                // ── Avatar ─────────────────────────────────────────────
-                Center(child: ProfileAvatar(
+                // â”€â”€ Avatar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Center(
+                    child: ProfileAvatar(
                   size: 120,
                   borderWidth: 3,
                   showEditBadge: true,
                 )),
                 const SizedBox(height: 14),
 
-                // ── Name + ID ──────────────────────────────────────────
+                // â”€â”€ Name + ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 Center(
                   child: Column(children: [
                     Text(profile?.fullName ?? 'User',
                         style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                             color: Color(0xFF2C3E3C))),
                     const SizedBox(height: 6),
                     if (profile?.refugeeId.isNotEmpty == true)
@@ -122,24 +131,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     const SizedBox(height: 8),
                     Row(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.touch_app_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(Icons.touch_app_rounded,
+                          size: 12, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text('Tap photo to change or remove',
-                          style: TextStyle(fontSize: 11, color: Colors.grey[400])),
+                          style:
+                              TextStyle(fontSize: 11, color: Colors.grey[400])),
                     ]),
                   ]),
                 ),
 
                 const SizedBox(height: 24),
 
-                // ── Location ───────────────────────────────────────────
-                _card(child: Column(
+                // â”€â”€ Location â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                _card(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _sectionHeader(Icons.location_on, 'Current Location'),
                     const SizedBox(height: 12),
 
-                    // ── Map image ─────────────────────────────────────
+                    // â”€â”€ Map image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Stack(
                       children: [
                         ClipRRect(
@@ -164,7 +176,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   const SizedBox(height: 6),
                                   Text('Map Preview',
                                       style: TextStyle(
-                                          fontSize: 12, color: Colors.grey[500])),
+                                          fontSize: 12,
+                                          color: Colors.grey[500])),
                                 ],
                               ),
                             ),
@@ -172,35 +185,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         // navigate icon top-right
                         Positioned(
-                          top: 8, right: 8,
+                          top: 8,
+                          right: 8,
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,
-                                boxShadow: [BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 4)]),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      blurRadius: 4)
+                                ]),
                             child: const Icon(Icons.navigation_rounded,
                                 color: _green, size: 16),
                           ),
                         ),
                         // "Area Currently Safe" badge bottom-left
                         Positioned(
-                          bottom: 8, left: 8,
+                          bottom: 8,
+                          left: 8,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                                 color: Colors.green[600],
                                 borderRadius: BorderRadius.circular(20)),
-                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
                               const Icon(Icons.check_circle,
                                   color: Colors.white, size: 12),
                               const SizedBox(width: 4),
                               const Text('Area Currently Safe',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 11,
+                                      color: Colors.white,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w600)),
                             ]),
                           ),
@@ -210,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 10),
 
-                    // ── Location text row ─────────────────────────────
+                    // â”€â”€ Location text row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -221,15 +241,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                              color: _green.withOpacity(0.1),
+                              color: _green.withValues(alpha: 0.1),
                               shape: BoxShape.circle),
-                          child: const Icon(Icons.location_on, color: _green, size: 22),
+                          child: const Icon(Icons.location_on,
+                              color: _green, size: 22),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(child: Column(
+                        Expanded(
+                            child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(profile?.location ?? '—',
+                            Text(profile?.location ?? 'â€”',
                                 style: const TextStyle(
                                     fontSize: 15, fontWeight: FontWeight.w600)),
                             if (profile?.sectorName.isNotEmpty == true) ...[
@@ -247,35 +269,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 16),
 
-                // ── Household ──────────────────────────────────────────
-                _card(child: Column(
+                // â”€â”€ Household â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                _card(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _sectionHeader(Icons.people, 'Household'),
                     const SizedBox(height: 16),
                     Row(children: [
-                      Expanded(child: _hhCard(
-                          '${profile?.childrenCount ?? 0}', 'Children',
-                          Icons.child_care, Colors.green)),
+                      Expanded(
+                          child: _hhCard('${profile?.childrenCount ?? 0}',
+                              'Children', Icons.child_care, Colors.green)),
                       const SizedBox(width: 8),
-                      Expanded(child: _hhCard(
-                          '${profile?.elderlyCount ?? 0}', 'Elderly',
-                          Icons.elderly, Colors.orange)),
+                      Expanded(
+                          child: _hhCard('${profile?.elderlyCount ?? 0}',
+                              'Elderly', Icons.elderly, Colors.orange)),
                       const SizedBox(width: 8),
-                      Expanded(child: _hhCard(
-                          '${profile?.disabledCount ?? 0}', 'Disabled',
-                          Icons.accessible, Colors.blue)),
+                      Expanded(
+                          child: _hhCard('${profile?.disabledCount ?? 0}',
+                              'Disabled', Icons.accessible, Colors.blue)),
                       const SizedBox(width: 8),
-                      Expanded(child: _hhCard(
-                          '${profile?.womenCount ?? 0}', 'Women',
-                          Icons.woman, Colors.pink)),
+                      Expanded(
+                          child: _hhCard('${profile?.womenCount ?? 0}', 'Women',
+                              Icons.woman, Colors.pink)),
                     ]),
                   ],
                 )),
 
                 const SizedBox(height: 16),
 
-                // ── Total family + Logout ──────────────────────────────
+                // â”€â”€ Total family + Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 Row(children: [
                   Expanded(
                     child: Container(
@@ -288,7 +311,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 8),
                         Text('${profile?.totalFamilyMembers ?? 0}',
                             style: const TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                                 color: _green)),
                         Text('total_family'.tr,
                             style: TextStyle(fontSize: 12),
@@ -313,7 +337,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             SizedBox(height: 8),
                             Text('log_out'.tr,
                                 style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.red)),
                           ],
                         ),
@@ -330,21 +355,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Logout ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _logout() async {
     final confirmed = await Get.dialog<bool>(AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('log_out'.tr,),
+      title: Text(
+        'log_out'.tr,
+      ),
       content: Text('Are you sure you want to log out?'),
       actions: [
         TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr,)),
+            child: Text(
+              'cancel'.tr,
+            )),
         ElevatedButton(
             onPressed: () => Get.back(result: true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red,
-                foregroundColor: Colors.white),
-            child: Text('log_out'.tr,)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: Text(
+              'log_out'.tr,
+            )),
       ],
     ));
     if (confirmed == true) {
@@ -353,43 +384,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // ── Error widget ───────────────────────────────────────────────────────────
+  // â”€â”€ Error widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _errorWidget() => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(children: [
-        Icon(Icons.cloud_off_rounded, size: 52, color: Colors.grey[400]),
-        const SizedBox(height: 12),
-        Text(_pc.profileError, textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF5A5A5A))),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: _pc.loadProfile,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text('retry'.tr,),
-          style: ElevatedButton.styleFrom(
-              backgroundColor: _green, foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(children: [
+            Icon(Icons.cloud_off_rounded, size: 52, color: Colors.grey[400]),
+            const SizedBox(height: 12),
+            Text(_pc.profileError,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF5A5A5A))),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _pc.loadProfile,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(
+                'retry'.tr,
+              ),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: _green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
+            ),
+          ]),
         ),
-      ]),
-    ),
-  );
+      );
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _card({required Widget child}) => Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(14),
-          boxShadow: [BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8, offset: const Offset(0, 2))]),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ]),
       child: child);
 
   Widget _sectionHeader(IconData icon, String title) => Row(children: [
-    Icon(icon, color: _green), const SizedBox(width: 8),
-    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-  ]);
+        Icon(icon, color: _green),
+        const SizedBox(width: 8),
+        Text(title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      ]);
 
   Widget _hhCard(String count, String label, IconData icon, Color color) =>
       Container(
@@ -399,9 +440,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(children: [
           Icon(icon, color: color, size: 26),
           const SizedBox(height: 6),
-          Text(count, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(label, style: const TextStyle(fontSize: 10),
-              textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(count,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(label,
+              style: const TextStyle(fontSize: 10),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
         ]),
       );
 }

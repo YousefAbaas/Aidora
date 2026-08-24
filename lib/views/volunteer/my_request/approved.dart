@@ -78,7 +78,8 @@ class _Approved extends State<Approved> {
               controller.isLoading.value = false;
               Get.snackbar(
                 "Invalid PIN",
-                verifyRes.errorMessage ?? "Please check the code and try again.",
+                verifyRes.errorMessage ??
+                    "Please check the code and try again.",
                 colorText: Colors.red,
               );
               return;
@@ -142,7 +143,7 @@ class _Approved extends State<Approved> {
           ),
 
           SizedBox(height: 20),
-          // هون حطيت ال text field
+          // Ù‡ÙˆÙ† Ø­Ø·ÙŠØª Ø§Ù„ text field
           FractionallySizedBox(
             widthFactor: 1,
             // You can also checkout the [PinputBuilderExample]

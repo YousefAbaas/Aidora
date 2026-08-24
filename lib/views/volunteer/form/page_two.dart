@@ -40,7 +40,6 @@ class _Pagetwo extends State<Pagetwo> {
     return Container(
       height: 300,
       width: double.infinity,
-
       padding: EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         color: Color(0xff7AD081),
@@ -108,7 +107,7 @@ class _Pagetwo extends State<Pagetwo> {
             ),
           ),
           SizedBox(height: 16),
-          // أزرار اختيار الجدول
+          // Ø£Ø²Ø±Ø§Ø± Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø¬Ø¯ÙˆÙ„
           Obx(
             () => Row(
               children: [
@@ -160,7 +159,7 @@ class _Pagetwo extends State<Pagetwo> {
           ),
           SizedBox(height: 32),
 
-          // 🔹 DD/MM/YYYY
+          // ðŸ”¹ DD/MM/YYYY
           _section(
             title: "Start date",
             child: _textField(
@@ -172,7 +171,7 @@ class _Pagetwo extends State<Pagetwo> {
 
           SizedBox(height: 24),
 
-          // 🔹 Expected duration
+          // ðŸ”¹ Expected duration
           _section(
             title: "Expected duration",
             child: _textField(
@@ -186,49 +185,48 @@ class _Pagetwo extends State<Pagetwo> {
 
           Obx(
             () =>
+
                 /// BUTTON
                 Container(
-                  width: double.infinity,
-                  height: 55,
-                  decoration: BoxDecoration(
-                    color: Color(0xff7AD081),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-
-                  child: MaterialButton(
-                    onPressed: () async {
-                      controller.isLoading.value = true;
-                      final res = await ApiService.instance.patch(
-                        ApiConstants.volunteerPageTwo,
-                        requiresAuth: true,
-                        body: {
-                          "availability_shift":
-                              controller.selectedSchedule.value,
-                          "available_days": controller.selectedDays.toList(),
-                          "start_date": controller.startDate.text,
-                          "expected_duration": controller.expectedDuration.text,
-                        },
-                      );
-                      controller.isLoading.value = false;
-
-                      if (!res.isSuccess) {
-                        Get.snackbar(
-                          "Failed to save",
-                          res.errorMessage ?? "Please try again.",
-                          colorText: Colors.red,
-                        );
-                        return;
-                      }
-                      Get.to(() => Pagethree());
+              width: double.infinity,
+              height: 55,
+              decoration: BoxDecoration(
+                color: Color(0xff7AD081),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: MaterialButton(
+                onPressed: () async {
+                  controller.isLoading.value = true;
+                  final res = await ApiService.instance.patch(
+                    ApiConstants.volunteerPageTwo,
+                    requiresAuth: true,
+                    body: {
+                      "availability_shift": controller.selectedSchedule.value,
+                      "available_days": controller.selectedDays.toList(),
+                      "start_date": controller.startDate.text,
+                      "expected_duration": controller.expectedDuration.text,
                     },
-                    child: controller.isLoading.value
-                        ? CircularProgressIndicator()
-                        : Text(
-                            "Next",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                  ),
-                ),
+                  );
+                  controller.isLoading.value = false;
+
+                  if (!res.isSuccess) {
+                    Get.snackbar(
+                      "Failed to save",
+                      res.errorMessage ?? "Please try again.",
+                      colorText: Colors.red,
+                    );
+                    return;
+                  }
+                  Get.to(() => Pagethree());
+                },
+                child: controller.isLoading.value
+                    ? CircularProgressIndicator()
+                    : Text(
+                        "Next",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+              ),
+            ),
           ),
         ],
       ),
@@ -236,7 +234,7 @@ class _Pagetwo extends State<Pagetwo> {
   }
 
   //////////////////////////////////////  methods  /////////////////////////////
-  // Widget لزر الجدول الزمني
+  // Widget Ù„Ø²Ø± Ø§Ù„Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ø²Ù…Ù†ÙŠ
   Widget _buildScheduleButton(String text, bool isSelected) {
     return Expanded(
       child: GestureDetector(
@@ -265,7 +263,7 @@ class _Pagetwo extends State<Pagetwo> {
     );
   }
 
-  // Widget لزر اليوم
+  // Widget Ù„Ø²Ø± Ø§Ù„ÙŠÙˆÙ…
   Widget _buildDayButton(String day, bool isSelected) {
     return GestureDetector(
       onTap: () => controller.toggleDay(day),
@@ -294,7 +292,7 @@ class _Pagetwo extends State<Pagetwo> {
     );
   }
 
-  // 🔹 Section (Reusable)
+  // ðŸ”¹ Section (Reusable)
   Widget _section({required String title, required Widget child}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -312,7 +310,7 @@ class _Pagetwo extends State<Pagetwo> {
     );
   }
 
-  // 🔹 TextField
+  // ðŸ”¹ TextField
   Widget _textField({
     required TextEditingController controller,
     required String hint,

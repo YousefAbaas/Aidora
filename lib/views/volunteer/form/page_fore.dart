@@ -27,7 +27,10 @@ class _Pagefore extends State<Pagefore> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _loadError = null; });
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
 
     final res = await ApiService.instance.get(
       "${ApiConstants.volunteerPageFour}${controller.idOrganization.value}/services/",
@@ -37,7 +40,10 @@ class _Pagefore extends State<Pagefore> {
     if (!mounted) return;
 
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _loadError = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _loadError = res.errorMessage;
+      });
       return;
     }
 
@@ -72,7 +78,8 @@ class _Pagefore extends State<Pagefore> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(_loadError!, textAlign: TextAlign.center,
+              child: Text(_loadError!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 16),
@@ -106,7 +113,6 @@ class _Pagefore extends State<Pagefore> {
     return Container(
       height: 300,
       width: double.infinity,
-
       padding: EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         color: Color(0xff7AD081),
@@ -201,11 +207,8 @@ class _Pagefore extends State<Pagefore> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color:
-                                    controller
-                                        .categories[index]
-                                        .isSelected
-                                        .value
+                                color: controller
+                                        .categories[index].isSelected.value
                                     ? Color(0xff7AD081)
                                     : Colors.grey.shade400,
                                 width: 2,
@@ -232,7 +235,6 @@ class _Pagefore extends State<Pagefore> {
             },
           ),
           SizedBox(height: 20),
-
           Obx(
             () => Container(
               width: double.infinity,

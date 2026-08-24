@@ -5,36 +5,35 @@ import 'package:flutter/material.dart';
 import '../utils/image_url_helper.dart';
 
 // Conditional import: web_img.dart on web, stub on native
-import 'web_img_stub.dart'
-    if (dart.library.html) 'web_img.dart';
+import 'web_img_stub.dart' if (dart.library.html) 'web_img.dart';
 
-/// NetImage — cross-platform image widget.
+/// NetImage â€” cross-platform image widget.
 ///
-/// ┌────────────────────────────────────────────────────────────┐
-/// │ Platform │ Loader                         │ CORS           │
-/// ├──────────┼────────────────────────────────┼────────────────┤
-/// │ Web      │ HtmlElementView(<img>)         │ Not blocked ✅  │
-/// │ Native   │ CachedNetworkImage             │ N/A            │
-/// │ File     │ Image.file                     │ N/A            │
-/// └────────────────────────────────────────────────────────────┘
+/// â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+/// â”‚ Platform â”‚ Loader                         â”‚ CORS           â”‚
+/// â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+/// â”‚ Web      â”‚ HtmlElementView(<img>)         â”‚ Not blocked âœ…  â”‚
+/// â”‚ Native   â”‚ CachedNetworkImage             â”‚ N/A            â”‚
+/// â”‚ File     â”‚ Image.file                     â”‚ N/A            â”‚
+/// â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 class NetImage extends StatelessWidget {
-  final String?      url;
-  final BoxFit       fit;
-  final double?      width;
-  final double?      height;
-  final Widget?      fallback;
+  final String? url;
+  final BoxFit fit;
+  final double? width;
+  final double? height;
+  final Widget? fallback;
   final BorderRadius? borderRadius;
-  final bool         bustCache;
+  final bool bustCache;
 
   const NetImage({
     super.key,
     required this.url,
-    this.fit         = BoxFit.cover,
+    this.fit = BoxFit.cover,
     this.width,
     this.height,
     this.fallback,
     this.borderRadius,
-    this.bustCache   = false,
+    this.bustCache = false,
   });
 
   @override
@@ -42,34 +41,39 @@ class NetImage extends StatelessWidget {
     final raw = url?.trim() ?? '';
     if (raw.isEmpty) return _wrap(_fallback());
 
-    // ── Local file (native only) ──────────────────────────────────────────────
+    // â”€â”€ Local file (native only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (!kIsWeb && !raw.startsWith('http')) {
       try {
         return _wrap(Image.file(File(raw),
-            key: ValueKey(raw), fit: fit, width: width, height: height,
+            key: ValueKey(raw),
+            fit: fit,
+            width: width,
+            height: height,
             errorBuilder: (_, __, ___) => _fallback()));
-      } catch (_) { return _wrap(_fallback()); }
+      } catch (_) {
+        return _wrap(_fallback());
+      }
     }
 
     final fixed = ImageUrlHelper.fix(raw);
     if (fixed.isEmpty) return _wrap(_fallback());
 
-    // ── Web: native HTML <img> — bypasses Flutter XHR / CORS completely ───────
+    // â”€â”€ Web: native HTML <img> â€” bypasses Flutter XHR / CORS completely â”€â”€â”€â”€â”€â”€â”€
     if (kIsWeb) {
       final imgUrl = bustCache
           ? '$fixed${fixed.contains('?') ? '&' : '?'}v=${DateTime.now().millisecondsSinceEpoch ~/ 60000}'
           : fixed;
 
       return _wrap(WebImg(
-        url:      imgUrl,
-        width:    width,
-        height:   height,
-        fit:      fit,
+        url: imgUrl,
+        width: width,
+        height: height,
+        fit: fit,
         fallback: _fallback(),
       ));
     }
 
-    // ── Native: CachedNetworkImage ─────────────────────────────────────────────
+    // â”€â”€ Native: CachedNetworkImage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     final cacheKey = bustCache
         ? '$fixed?t=${DateTime.now().millisecondsSinceEpoch ~/ 60000}'
         : fixed;
@@ -81,17 +85,17 @@ class NetImage extends StatelessWidget {
         : <String, String>{};
 
     return _wrap(CachedNetworkImage(
-      imageUrl:      fixed,
-      key:           ValueKey(cacheKey),
-      width:         width,
-      height:        height,
-      fit:           fit,
-      httpHeaders:   headers,
-      memCacheWidth:  width  != null ? (width!  * 2).toInt() : null,
+      imageUrl: fixed,
+      key: ValueKey(cacheKey),
+      width: width,
+      height: height,
+      fit: fit,
+      httpHeaders: headers,
+      memCacheWidth: width != null ? (width! * 2).toInt() : null,
       memCacheHeight: height != null ? (height! * 2).toInt() : null,
       placeholder: (_, __) => _shimmer(),
       errorWidget: (_, u, e) {
-        debugPrint('📱 CachedImg error [$u]: $e');
+        debugPrint('ðŸ“± CachedImg error [$u]: $e');
         return _fallback();
       },
     ));
@@ -102,14 +106,22 @@ class NetImage extends StatelessWidget {
       : child;
 
   Widget _shimmer() => Container(
-      width: width, height: height, color: Colors.grey[200],
-      child: Center(child: SizedBox(
-          width: 20, height: 20,
-          child: CircularProgressIndicator(
-              strokeWidth: 2, color: const Color(0xFF2C5F4F)))));
+      width: width,
+      height: height,
+      color: Colors.grey[200],
+      child: Center(
+          child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: const Color(0xFF2C5F4F)))));
 
-  Widget _fallback() => fallback ?? Container(
-      width: width, height: height, color: Colors.grey[200],
-      child: Icon(Icons.image_not_supported_rounded,
-          size: (width ?? 48) * 0.4, color: Colors.grey[400]));
+  Widget _fallback() =>
+      fallback ??
+      Container(
+          width: width,
+          height: height,
+          color: Colors.grey[200],
+          child: Icon(Icons.image_not_supported_rounded,
+              size: (width ?? 48) * 0.4, color: Colors.grey[400]));
 }

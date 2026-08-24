@@ -38,7 +38,9 @@ class _Orgnavigationbar extends State<Orgnavigationbar> {
       title: const Text('Log Out'),
       content: const Text('Are you sure you want to log out?'),
       actions: [
-        TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+        TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () => Get.back(result: true),
           style: ElevatedButton.styleFrom(
@@ -49,7 +51,8 @@ class _Orgnavigationbar extends State<Orgnavigationbar> {
     ));
     if (confirmed != true) return;
     await ApiService.instance.post(
-      ApiConstants.logout, requiresAuth: true,
+      ApiConstants.logout,
+      requiresAuth: true,
       body: {'refresh': AuthStorage.getRefreshToken() ?? ''},
     );
     await AuthStorage.clear();
@@ -68,21 +71,21 @@ class _Orgnavigationbar extends State<Orgnavigationbar> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // ── Logo + Name (fully reactive) ────────────────────
+              // â”€â”€ Logo + Name (fully reactive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(children: [
                 const OrgLogoAvatar(size: 42),
                 const SizedBox(width: 12),
                 Obx(() => Text(
-                  OrgController.to.orgName.value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF2C5F4F),
-                    fontWeight: FontWeight.w700,
-                  ),
-                )),
+                      OrgController.to.orgName.value,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF2C5F4F),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )),
               ]),
 
-              // ── Notifications + Logout ───────────────────────────
+              // â”€â”€ Notifications + Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Row(children: [
                 // Bell with badge
                 Obx(() {
@@ -101,13 +104,15 @@ class _Orgnavigationbar extends State<Orgnavigationbar> {
                       ),
                       if (count > 0)
                         Positioned(
-                          top: 6, right: 6,
+                          top: 6,
+                          right: 6,
                           child: Container(
                             padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1.5),
+                              border:
+                                  Border.all(color: Colors.white, width: 1.5),
                             ),
                             constraints: const BoxConstraints(
                                 minWidth: 16, minHeight: 16),
@@ -157,8 +162,7 @@ class _Orgnavigationbar extends State<Orgnavigationbar> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.task_alt_rounded), label: 'Tasks'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.people_alt_rounded),
-                label: 'Volunteers'),
+                icon: Icon(Icons.people_alt_rounded), label: 'Volunteers'),
           ],
         ),
       ),

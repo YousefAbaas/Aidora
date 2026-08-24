@@ -27,7 +27,7 @@ void main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   // Image cache: 150 images / 100MB for smooth scrolling
-  PaintingBinding.instance.imageCache.maximumSize      = 150;
+  PaintingBinding.instance.imageCache.maximumSize = 150;
   PaintingBinding.instance.imageCache.maximumSizeBytes = 100 << 20;
   runApp(const AidoraApp());
 }
@@ -63,17 +63,16 @@ class _AidoraAppState extends State<AidoraApp> {
         _handleDeepLink(Uri.parse(uriStr));
       }
     }).catchError((Object err) {
-      debugPrint('⚠️ getInitialLink error: $err');
+      debugPrint('âš ï¸ getInitialLink error: $err');
     });
   }
 
   void _handleDeepLink(Uri uri) {
     // Expected: aidora://reset-password/{uid}/{token}/
     if (uri.scheme == 'aidora' && uri.host == 'reset-password') {
-      final segments = uri.pathSegments
-          .where((s) => s.isNotEmpty).toList();
+      final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
       if (segments.length >= 2) {
-        final uid   = segments[0];
+        final uid = segments[0];
         final token = segments[1];
         Get.to(() => ResetPasswordScreen(uid: uid, token: token),
             transition: Transition.fadeIn);
@@ -87,35 +86,35 @@ class _AidoraAppState extends State<AidoraApp> {
     return GetBuilder<SettingsController>(
       init: SettingsController(),
       builder: (sc) => GetMaterialApp(
-        title:                    'Aidora',
+        title: 'Aidora',
         debugShowCheckedModeBanner: false,
-        defaultTransition:        Transition.cupertino,
-        transitionDuration:       const Duration(milliseconds: 300),
+        defaultTransition: Transition.cupertino,
+        transitionDuration: const Duration(milliseconds: 300),
 
-        // ── i18n ───────────────────────────────────────────────────────────
-        translations:  AppTranslations(),
-        locale:        sc.locale,          // reactive
+        // â”€â”€ i18n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        translations: AppTranslations(),
+        locale: sc.locale, // reactive
         fallbackLocale: const Locale('en'),
 
-        // ── Theme ──────────────────────────────────────────────────────────
-        theme:     AppTheme.light,
+        // â”€â”€ Theme â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        themeMode: sc.themeMode,           // reactive — rebuilds app on toggle
+        themeMode: sc.themeMode, // reactive â€” rebuilds app on toggle
 
         initialBinding: BindingsBuilder(() {
           Get.put(SettingsController(), permanent: true);
           final ns = Get.put(NotificationService(), permanent: true);
           ns.init();
-          Get.put(ProfileController(),   permanent: true);
-          Get.put(OrgController(),       permanent: true);
-          Get.put(VolController(),       permanent: true);
-          Get.put(FormController(),      permanent: true);
-          Get.put(RequestsController(),  permanent: true);
+          Get.put(ProfileController(), permanent: true);
+          Get.put(OrgController(), permanent: true);
+          Get.put(VolController(), permanent: true);
+          Get.put(FormController(), permanent: true);
+          Get.put(RequestsController(), permanent: true);
           Get.put(BottomNavController(), permanent: true);
         }),
 
         getPages: [
-          GetPage(name: '/login',  page: () => const LoginScreen()),
+          GetPage(name: '/login', page: () => const LoginScreen()),
           GetPage(name: '/selection', page: () => const SelectionScreen()),
           GetPage(name: '/splash', page: () => const SplashScreen()),
         ],

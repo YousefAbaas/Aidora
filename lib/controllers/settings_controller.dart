@@ -3,16 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
-/// SettingsController  — single source of truth for app-wide settings.
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/// SettingsController  â€” single source of truth for app-wide settings.
 ///
 /// Manages:
-///   • Locale  (en / ar)
-///   • ThemeMode (light / dark)
-///   • Privacy mode (blur sensitive data)
+///   â€¢ Locale  (en / ar)
+///   â€¢ ThemeMode (light / dark)
+///   â€¢ Privacy mode (blur sensitive data)
 ///
 /// All settings are persisted with SharedPreferences.
-/// ─────────────────────────────────────────────────────────────────────────────
+/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class SettingsController extends GetxController {
   static SettingsController get to => Get.find();
 
@@ -20,7 +20,7 @@ class SettingsController extends GetxController {
   static const _kTheme = 'theme';
   static const _kPrivacy = 'privacy';
 
-  // ── Reactive state ─────────────────────────────────────────────────────────
+  // â”€â”€ Reactive state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   final _locale = const Locale('en').obs;
   final _themeMode = ThemeMode.light.obs;
   final _privacyMode = false.obs;
@@ -31,7 +31,7 @@ class SettingsController extends GetxController {
   bool get isArabic => _locale.value.languageCode == 'ar';
   bool get privacyMode => _privacyMode.value;
 
-  // ── Init ───────────────────────────────────────────────────────────────────
+  // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @override
   void onInit() {
     super.onInit();
@@ -48,7 +48,7 @@ class SettingsController extends GetxController {
     _themeMode.value = theme == 'dark' ? ThemeMode.dark : ThemeMode.light;
     _privacyMode.value = priv;
 
-    // 💡 التعديل هنا: تأجيل Get.updateLocale لما بعد انتهاء رسم الـ Frame لمنع تعارض الاختبارات
+    // ðŸ’¡ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù‡Ù†Ø§: ØªØ£Ø¬ÙŠÙ„ Get.updateLocale Ù„Ù…Ø§ Ø¨Ø¹Ø¯ Ø§Ù†ØªÙ‡Ø§Ø¡ Ø±Ø³Ù… Ø§Ù„Ù€ Frame Ù„Ù…Ù†Ø¹ ØªØ¹Ø§Ø±Ø¶ Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.updateLocale(_locale.value);
     });
@@ -56,7 +56,7 @@ class SettingsController extends GetxController {
     _applySystemUI();
   }
 
-  // ── Language ───────────────────────────────────────────────────────────────
+  // â”€â”€ Language â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> toggleLanguage() async {
     final newLocale = isArabic ? const Locale('en') : const Locale('ar');
     _locale.value = newLocale;
@@ -66,13 +66,13 @@ class SettingsController extends GetxController {
     update(); // rebuild GetBuilder<SettingsController> in main.dart
   }
 
-  // ── Dark / Light mode ──────────────────────────────────────────────────────
+  // â”€â”€ Dark / Light mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> toggleTheme() async {
     _themeMode.value = isDark ? ThemeMode.light : ThemeMode.dark;
     _applySystemUI();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kTheme, isDark ? 'dark' : 'light');
-    update(); // rebuild GetBuilder<SettingsController> in main.dart → changes ThemeMode
+    update(); // rebuild GetBuilder<SettingsController> in main.dart â†’ changes ThemeMode
   }
 
   void _applySystemUI() {
@@ -85,7 +85,7 @@ class SettingsController extends GetxController {
     ));
   }
 
-  // ── Privacy mode ───────────────────────────────────────────────────────────
+  // â”€â”€ Privacy mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> togglePrivacy() async {
     _privacyMode.value = !_privacyMode.value;
     final prefs = await SharedPreferences.getInstance();

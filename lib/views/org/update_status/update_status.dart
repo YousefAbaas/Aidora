@@ -26,7 +26,6 @@ class Updatestatus extends StatelessWidget {
             ),
           ),
           item['status'] == 'pending' ? _bottomUpdate() : Container(),
-
           SizedBox(height: 100),
         ],
       ),

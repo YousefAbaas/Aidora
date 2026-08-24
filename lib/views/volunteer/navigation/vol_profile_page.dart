@@ -22,12 +22,12 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePage extends State<ProfilePage> {
   final FormController controller = Get.find();
-  final ImagePicker    _picker    = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
-  int    _volunteerId = 0;
-  String? _profileImageUrl;   // network URL from API
-  Uint8List? _pickedBytes;    // local preview on web
-  String?    _pickedPath;     // local preview on native
+  int _volunteerId = 0;
+  String? _profileImageUrl; // network URL from API
+  Uint8List? _pickedBytes; // local preview on web
+  String? _pickedPath; // local preview on native
 
   static const Color _green = Color(0xFF2C5F4F);
 
@@ -45,18 +45,21 @@ class _ProfilePage extends State<ProfilePage> {
     if (!mounted) return;
     setState(() {
       var d = res.data as Map<String, dynamic>? ?? {};
-      controller.userName.value   = d['full_name']           ?? '';
-      controller.joinDate.value   = d['join_date']           ?? '';
-      controller.tasks.value      = (d['tasks_count'] as num?)?.toInt()  ?? 0;
-      controller.points.value     = (d['points']     as num?)?.toInt()  ?? 0;
+      controller.userName.value = d['full_name'] ?? '';
+      controller.joinDate.value = d['join_date'] ?? '';
+      controller.tasks.value = (d['tasks_count'] as num?)?.toInt() ?? 0;
+      controller.points.value = (d['points'] as num?)?.toInt() ?? 0;
       controller.experiences.value = d['previous_experience'] ?? '';
-      if (d['skills']    != null) controller.skills.assignAll(List<String>.from(d['skills']));
-      if (d['languages'] != null) controller.language.assignAll(List<String>.from(d['languages']));
+      if (d['skills'] != null)
+        controller.skills.assignAll(List<String>.from(d['skills']));
+      if (d['languages'] != null)
+        controller.language.assignAll(List<String>.from(d['languages']));
       _volunteerId = (d['id'] ?? d['volunteer_id'] ?? 0 as num).toInt();
       // Profile image URL from API
       var rawImg = d['profile_image']?.toString();
       _profileImageUrl = rawImg != null && rawImg.isNotEmpty
-          ? ImageUrlHelper.fix(rawImg) : null;
+          ? ImageUrlHelper.fix(rawImg)
+          : null;
       // Sync to FormController for global reactivity
       controller.userImage.value = _profileImageUrl ?? '';
       // Sync VolController for reactive avatar across screens
@@ -66,17 +69,24 @@ class _ProfilePage extends State<ProfilePage> {
     });
   }
 
-  // ── Pick profile image ────────────────────────────────────────────────────
+  // â”€â”€ Pick profile image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _pickAndUpload() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (file == null) return;
 
     // Immediate local preview
     if (kIsWeb) {
       final bytes = await file.readAsBytes();
-      if (mounted) setState(() { _pickedBytes = bytes; });
+      if (mounted)
+        setState(() {
+          _pickedBytes = bytes;
+        });
     } else {
-      if (mounted) setState(() { _pickedPath = file.path; });
+      if (mounted)
+        setState(() {
+          _pickedPath = file.path;
+        });
     }
 
     // Upload using ProfileApiService (PATCH /api/auth/profile/upload-image/)
@@ -86,7 +96,8 @@ class _ProfilePage extends State<ProfilePage> {
     if (res.isSuccess) {
       setState(() {
         _profileImageUrl = res.imageUrl;
-        _pickedBytes = null; _pickedPath = null;
+        _pickedBytes = null;
+        _pickedPath = null;
       });
       // Sync to FormController so home page & all screens react instantly
       controller.userImage.value = res.imageUrl;
@@ -95,21 +106,26 @@ class _ProfilePage extends State<ProfilePage> {
         VolController.to.setImage(_profileImageUrl ?? '');
       }
       Get.snackbar('Updated', 'Profile photo uploaded.',
-          backgroundColor: _green, colorText: Colors.white,
-          snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(12));
+          backgroundColor: _green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(12));
     } else {
       Get.snackbar('Error', res.errorMessage ?? 'Upload failed.',
-          backgroundColor: Colors.red[50], colorText: Colors.red[800],
-          snackPosition: SnackPosition.TOP, margin: const EdgeInsets.all(12));
+          backgroundColor: Colors.red[50],
+          colorText: Colors.red[800],
+          snackPosition: SnackPosition.TOP,
+          margin: const EdgeInsets.all(12));
     }
   }
 
-  // ── Show QR code ──────────────────────────────────────────────────────────
+  // â”€â”€ Show QR code â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _showQrCode() async {
     if (_volunteerId == 0) {
       Get.snackbar('Error', 'Could not load volunteer ID',
           snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red[50], colorText: Colors.red[800]);
+          backgroundColor: Colors.red[50],
+          colorText: Colors.red[800]);
       return;
     }
     Get.dialog(const Center(child: CircularProgressIndicator()));
@@ -121,22 +137,25 @@ class _ProfilePage extends State<ProfilePage> {
     if (!res.isSuccess) {
       Get.snackbar('Error', res.errorMessage ?? 'Failed to load QR',
           snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red[50], colorText: Colors.red[800]);
+          backgroundColor: Colors.red[50],
+          colorText: Colors.red[800]);
       return;
     }
     final displayName = res.data['display_name'] ?? controller.userName.value;
-    final qrB64       = res.data['qr_image_base64'] as String? ?? '';
+    final qrB64 = res.data['qr_image_base64'] as String? ?? '';
     Get.dialog(_QrDialog(displayName: displayName, qrBase64: qrB64));
   }
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  // â”€â”€ Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _logout() async {
     final confirmed = await Get.dialog<bool>(AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text('Log Out'),
       content: const Text('Are you sure you want to log out?'),
       actions: [
-        TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+        TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () => Get.back(result: true),
           style: ElevatedButton.styleFrom(
@@ -156,7 +175,7 @@ class _ProfilePage extends State<ProfilePage> {
     Get.offAll(() => const SelectionScreen(), transition: Transition.fadeIn);
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,7 +206,7 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  // ── Avatar with upload ────────────────────────────────────────────────────
+  // â”€â”€ Avatar with upload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _profileInfo() {
     return Column(children: [
       const SizedBox(height: 24),
@@ -202,11 +221,13 @@ class _ProfilePage extends State<ProfilePage> {
             ),
           ),
           Positioned(
-            bottom: 0, right: 0,
+            bottom: 0,
+            right: 0,
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                  color: _green, shape: BoxShape.circle,
+                  color: _green,
+                  shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2)),
               child: const Icon(Icons.camera_alt_rounded,
                   color: Colors.white, size: 14),
@@ -218,7 +239,7 @@ class _ProfilePage extends State<ProfilePage> {
       Obx(() => Text(controller.userName.value,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
       Obx(() => Text(
-          '${controller.role.value} • ${controller.joinDate.value}',
+          '${controller.role.value} â€¢ ${controller.joinDate.value}',
           style: const TextStyle(color: Color(0xFF27AE60)))),
       const SizedBox(height: 8),
     ]);
@@ -227,16 +248,21 @@ class _ProfilePage extends State<ProfilePage> {
   Widget _avatarWidget() {
     // 1. Local preview (just picked)
     if (_pickedBytes != null) {
-      return Image.memory(_pickedBytes!, fit: BoxFit.cover, width: 100, height: 100);
+      return Image.memory(_pickedBytes!,
+          fit: BoxFit.cover, width: 100, height: 100);
     }
     if (_pickedPath != null && !kIsWeb) {
-      return NetImage(url: _pickedPath, fit: BoxFit.cover, width: 100, height: 100);
+      return NetImage(
+          url: _pickedPath, fit: BoxFit.cover, width: 100, height: 100);
     }
     // 2. Server image
     if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
       return NetImage(
-        url: _profileImageUrl, fit: BoxFit.cover,
-        width: 100, height: 100, bustCache: true,
+        url: _profileImageUrl,
+        fit: BoxFit.cover,
+        width: 100,
+        height: 100,
+        bustCache: true,
       );
     }
     // 3. Default
@@ -244,88 +270,113 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget _stats() => Padding(
-    padding: const EdgeInsets.all(16),
-    child: Row(children: [
-      Expanded(child: _statCard(label: 'Tasks',  value: controller.tasks,
-          color: Colors.blue.shade50,   textColor: Colors.blue)),
-      const SizedBox(width: 10),
-      Expanded(child: _statCard(label: 'Points', value: controller.points,
-          color: Colors.orange.shade50, textColor: Colors.orange)),
-    ]),
-  );
+        padding: const EdgeInsets.all(16),
+        child: Row(children: [
+          Expanded(
+              child: _statCard(
+                  label: 'Tasks',
+                  value: controller.tasks,
+                  color: Colors.blue.shade50,
+                  textColor: Colors.blue)),
+          const SizedBox(width: 10),
+          Expanded(
+              child: _statCard(
+                  label: 'Points',
+                  value: controller.points,
+                  color: Colors.orange.shade50,
+                  textColor: Colors.orange)),
+        ]),
+      );
 
-  Widget _statCard({required String label, required RxInt value,
-      required Color color, required Color textColor}) =>
+  Widget _statCard(
+          {required String label,
+          required RxInt value,
+          required Color color,
+          required Color textColor}) =>
       Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
+        decoration: BoxDecoration(
+            color: color, borderRadius: BorderRadius.circular(14)),
         child: Column(children: [
           Text(label),
           const SizedBox(height: 8),
           Obx(() => Text(value.value.toString(),
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                   color: textColor))),
         ]),
       );
 
   Widget _skills() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Column(children: [
-      const Text('Skills & Badges',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height: 10),
-      Obx(() => Wrap(spacing: 10,
-          children: controller.skills.map((e) => Chip(
-            label: Text(e),
-            backgroundColor: Colors.green.shade50,
-          )).toList())),
-      const SizedBox(height: 10),
-      Obx(() => Wrap(spacing: 10,
-          children: controller.language.map((e) => Chip(
-            label: Text(e),
-            backgroundColor: Colors.teal.shade50,
-          )).toList())),
-    ]),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(children: [
+          const Text('Skills & Badges',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Obx(() => Wrap(
+              spacing: 10,
+              children: controller.skills
+                  .map((e) => Chip(
+                        label: Text(e),
+                        backgroundColor: Colors.green.shade50,
+                      ))
+                  .toList())),
+          const SizedBox(height: 10),
+          Obx(() => Wrap(
+              spacing: 10,
+              children: controller.language
+                  .map((e) => Chip(
+                        label: Text(e),
+                        backgroundColor: Colors.teal.shade50,
+                      ))
+                  .toList())),
+        ]),
+      );
 
   Widget _experience() => Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(children: [
-      const Align(alignment: Alignment.centerLeft,
-          child: Text('Previous experience',
-              style: TextStyle(fontWeight: FontWeight.bold))),
-      const SizedBox(height: 10),
-      Obx(() => Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white,
-            borderRadius: BorderRadius.circular(14)),
-        child: Row(children: [
-          const Icon(Icons.volunteer_activism, color: Colors.green),
-          const SizedBox(width: 10),
-          Expanded(child: Text(controller.experiences.value)),
+        child: Column(children: [
+          const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Previous experience',
+                  style: TextStyle(fontWeight: FontWeight.bold))),
+          const SizedBox(height: 10),
+          Obx(() => Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14)),
+                child: Row(children: [
+                  const Icon(Icons.volunteer_activism, color: Colors.green),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(controller.experiences.value)),
+                ]),
+              )),
         ]),
-      )),
-    ]),
-  );
+      );
 
   Widget _logoutBtn() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: ElevatedButton(
-      onPressed: _logout,
-      style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade50, foregroundColor: Colors.red,
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.logout_rounded, size: 20),
-        SizedBox(width: 8),
-        Text('Log Out', style: TextStyle(fontWeight: FontWeight.w600)),
-      ]),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ElevatedButton(
+          onPressed: _logout,
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade50,
+              foregroundColor: Colors.red,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12))),
+          child:
+              const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.logout_rounded, size: 20),
+            SizedBox(width: 8),
+            Text('Log Out', style: TextStyle(fontWeight: FontWeight.w600)),
+          ]),
+        ),
+      );
 }
 
-// ── QR Dialog ─────────────────────────────────────────────────────────────────
+// â”€â”€ QR Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _QrDialog extends StatelessWidget {
   final String displayName;
   final String qrBase64;
@@ -336,7 +387,8 @@ class _QrDialog extends StatelessWidget {
     Uint8List? imgBytes;
     if (qrBase64.isNotEmpty) {
       try {
-        final b64 = qrBase64.contains(',') ? qrBase64.split(',').last : qrBase64;
+        final b64 =
+            qrBase64.contains(',') ? qrBase64.split(',').last : qrBase64;
         imgBytes = base64Decode(b64);
       } catch (_) {}
     }
@@ -349,15 +401,19 @@ class _QrDialog extends StatelessWidget {
           const Text('QR Code',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(displayName, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          Text(displayName,
+              style: TextStyle(color: Colors.grey[600], fontSize: 14)),
           const SizedBox(height: 20),
           if (imgBytes != null)
-            ClipRRect(borderRadius: BorderRadius.circular(12),
+            ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child: Image.memory(imgBytes, width: 220, height: 220))
           else
             Container(
-              width: 220, height: 220,
-              decoration: BoxDecoration(color: Colors.grey[100],
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                  color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12)),
               child: const Center(
                   child: Icon(Icons.qr_code_2, size: 80, color: Colors.grey)),
@@ -366,8 +422,10 @@ class _QrDialog extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Get.back(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2C5F4F), foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              backgroundColor: const Color(0xFF2C5F4F),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               minimumSize: const Size(double.infinity, 48),
             ),
             child: const Text('Close'),

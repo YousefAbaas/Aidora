@@ -22,9 +22,9 @@ class _PinputExampleState extends State<PinputExample> {
   void initState() {
     super.initState();
     if (kIsWeb) BrowserContextMenu.disableContextMenu();
-    formKey      = GlobalKey<FormState>();
+    formKey = GlobalKey<FormState>();
     pinController = TextEditingController();
-    focusNode    = FocusNode();
+    focusNode = FocusNode();
   }
 
   @override
@@ -40,13 +40,15 @@ class _PinputExampleState extends State<PinputExample> {
     final FormController controller = Get.find();
 
     const focusedBorderColor = Color.fromRGBO(23, 171, 144, 1);
-    const fillColor          = Color.fromRGBO(243, 246, 249, 0);
-    const borderColor        = Color.fromRGBO(23, 171, 144, 0.4);
+    const fillColor = Color.fromRGBO(243, 246, 249, 0);
+    const borderColor = Color.fromRGBO(23, 171, 144, 0.4);
 
     final defaultPinTheme = PinTheme(
-      width: 56, height: 56,
+      width: 56,
+      height: 56,
       textStyle: const TextStyle(
-        fontSize: 22, color: Color.fromRGBO(30, 60, 87, 1),
+        fontSize: 22,
+        color: Color.fromRGBO(30, 60, 87, 1),
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(19),
@@ -74,7 +76,8 @@ class _PinputExampleState extends State<PinputExample> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(bottom: 9),
-                    width: 22, height: 1,
+                    width: 22,
+                    height: 1,
                     color: focusedBorderColor,
                   ),
                 ],

@@ -8,7 +8,7 @@ class RejectApplicationPage extends StatelessWidget {
   RejectApplicationPage({super.key, required this.index});
 
   final int index;
-  // تهيئة الـ Controller
+  // ØªÙ‡ÙŠØ¦Ø© Ø§Ù„Ù€ Controller
   final FormController controller = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class RejectApplicationPage extends StatelessWidget {
     );
   }
 
-  // ------------------ قسم معلومات المتقدم ------------------
+  // ------------------ Ù‚Ø³Ù… Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ØªÙ‚Ø¯Ù… ------------------
   Widget _buildApplicantCard() {
     return Obx(() {
       final v = controller.listallpagefore[index];
@@ -68,7 +68,6 @@ class RejectApplicationPage extends StatelessWidget {
           children: [
             CircleAvatar(radius: 50, child: Icon(Icons.add)),
             const SizedBox(height: 6),
-
             Text(
               v.name,
               style: const TextStyle(
@@ -92,7 +91,7 @@ class RejectApplicationPage extends StatelessWidget {
     });
   }
 
-  // ------------------ قسم السؤال ------------------
+  // ------------------ Ù‚Ø³Ù… Ø§Ù„Ø³Ø¤Ø§Ù„ ------------------
   Widget _question(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -102,14 +101,13 @@ class RejectApplicationPage extends StatelessWidget {
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w800,
-
           height: 1.3,
         ),
       ),
     );
   }
 
-  // ------------------ قسم النص ------------------
+  // ------------------ Ù‚Ø³Ù… Ø§Ù„Ù†Øµ ------------------
   Widget _buildConfirmationQuestion(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -126,14 +124,14 @@ class RejectApplicationPage extends StatelessWidget {
     );
   }
 
-  // ------------------ قسم الأزرار ------------------
+  // ------------------ Ù‚Ø³Ù… Ø§Ù„Ø£Ø²Ø±Ø§Ø± ------------------
   Widget _buildActionButtons() {
     var w = controller.listallpagefore[index];
 
     return Obx(
       () => Column(
         children: [
-          // زر تأكيد الرفض
+          // Ø²Ø± ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ø±ÙØ¶
           Container(
             decoration: BoxDecoration(
               color: Colors.red,
@@ -174,13 +172,13 @@ class RejectApplicationPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          // زر الإلغاء
+          // Ø²Ø± Ø§Ù„Ø¥Ù„ØºØ§Ø¡
         ],
       ),
     );
   }
 
-  // ------------------ قسم الملاحظة السفلية ------------------
+  // ------------------ Ù‚Ø³Ù… Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø© Ø§Ù„Ø³ÙÙ„ÙŠØ© ------------------
   Widget _buildFooterNote() {
     return Container(
       width: double.infinity,

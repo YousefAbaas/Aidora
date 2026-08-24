@@ -24,7 +24,10 @@ class _Orgfore extends State<Orgfore> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     final res = await ApiService.instance.get(
       ApiConstants.orgPageFore,
@@ -33,12 +36,16 @@ class _Orgfore extends State<Orgfore> {
 
     if (!mounted) return;
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _error = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _error = res.errorMessage;
+      });
       return;
     }
 
     final d = res.data as Map<String, dynamic>? ?? {};
-    controller.listallpagefore.value = ((d['applications'] as List?) ?? []).map((e) {
+    controller.listallpagefore.value =
+        ((d['applications'] as List?) ?? []).map((e) {
       return VolunteerPageFore(
         logo: List<String>.from(e['service_icon'] ?? []),
         name: e['full_name']?.toString() ?? '',
@@ -64,7 +71,10 @@ class _Orgfore extends State<Orgfore> {
       );
     }).toList();
 
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   @override
@@ -78,10 +88,12 @@ class _Orgfore extends State<Orgfore> {
     if (_error != null) {
       return Scaffold(
         backgroundColor: const Color.fromARGB(240, 247, 242, 232),
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        body: Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.wifi_off, size: 60, color: Colors.grey),
           const SizedBox(height: 12),
-          Text(_error!, textAlign: TextAlign.center,
+          Text(_error!,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: _init, child: const Text('Retry')),
@@ -130,8 +142,9 @@ class _Orgfore extends State<Orgfore> {
           ? controller.listallpagefore.toList()
           : controller.listallpagefore.where((t) => t.state == s).toList();
       if (items.isEmpty) {
-        return const Center(child: Text('No volunteers found',
-            style: TextStyle(color: Colors.grey)));
+        return const Center(
+            child: Text('No volunteers found',
+                style: TextStyle(color: Colors.grey)));
       }
       return ListView.builder(
         itemCount: items.length,
@@ -151,16 +164,19 @@ class _Orgfore extends State<Orgfore> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(14)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ListTile(
-              leading: CircleAvatar(child: Icon(
+              leading: CircleAvatar(
+                  child: Icon(
                 controller.iconsMap[iconKey]?.icon,
                 color: controller.iconsMap[iconKey]?.color,
               )),
               title: Text(task.name, style: const TextStyle(fontSize: 20)),
               subtitle: Text(firstHelp),
               trailing: Container(
-                width: 70, height: 30,
+                width: 70,
+                height: 30,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: task.state == 'approved'
@@ -169,8 +185,9 @@ class _Orgfore extends State<Orgfore> {
                           ? Colors.orange
                           : Colors.red,
                 ),
-                child: Center(child: Text(task.state,
-                    style: const TextStyle(color: Colors.white))),
+                child: Center(
+                    child: Text(task.state,
+                        style: const TextStyle(color: Colors.white))),
               ),
             ),
             const SizedBox(height: 20),
@@ -195,14 +212,20 @@ class _Orgfore extends State<Orgfore> {
                   Get.to(() => VolunteerDetailScreen(index: fullIndex));
                 },
                 child: Container(
-                  height: 50, width: 150,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                  child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text('View Details',
-                        style: TextStyle(color: Colors.blue,
-                            fontWeight: FontWeight.bold, fontSize: 15)),
-                    Icon(Icons.arrow_forward_ios),
-                  ]),
+                  height: 50,
+                  width: 150,
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                  child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('View Details',
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15)),
+                        Icon(Icons.arrow_forward_ios),
+                      ]),
                 ),
               ),
             ),

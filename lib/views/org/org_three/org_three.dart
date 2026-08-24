@@ -25,7 +25,10 @@ class _Orgthree extends State<Orgthree> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     final res = await ApiService.instance.get(
       ApiConstants.orgPageThree,
@@ -34,7 +37,10 @@ class _Orgthree extends State<Orgthree> {
 
     if (!mounted) return;
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _error = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _error = res.errorMessage;
+      });
       return;
     }
 
@@ -53,7 +59,10 @@ class _Orgthree extends State<Orgthree> {
 
     controller.allTasks.value = tasks;
     controller.updateSeparateLists();
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   @override
@@ -67,10 +76,12 @@ class _Orgthree extends State<Orgthree> {
     if (_error != null) {
       return Scaffold(
         backgroundColor: Colors.grey[50],
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        body: Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.wifi_off, size: 60, color: Colors.grey),
           const SizedBox(height: 12),
-          Text(_error!, textAlign: TextAlign.center,
+          Text(_error!,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: _init, child: const Text('Retry')),
@@ -82,7 +93,8 @@ class _Orgthree extends State<Orgthree> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+            const Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -90,12 +102,14 @@ class _Orgthree extends State<Orgthree> {
       body: Obx(() {
         if (controller.allTasks.isEmpty) {
           return const Center(
-              child: Text('No tasks found', style: TextStyle(color: Colors.grey)));
+              child:
+                  Text('No tasks found', style: TextStyle(color: Colors.grey)));
         }
         return Stack(children: [
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _buildStatsCard(),
               const SizedBox(height: 24),
               ...controller.completedTasks.map(_buildTaskCard),
@@ -107,9 +121,11 @@ class _Orgthree extends State<Orgthree> {
             ]),
           ),
           Positioned(
-            bottom: 20, right: 20,
+            bottom: 20,
+            right: 20,
             child: Container(
-              height: 65, width: 65,
+              height: 65,
+              width: 65,
               decoration: BoxDecoration(
                   color: Colors.green, borderRadius: BorderRadius.circular(50)),
               child: IconButton(
@@ -129,24 +145,33 @@ class _Orgthree extends State<Orgthree> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
       ),
-      child: Obx(() => Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _statItem('COMPLETED', controller.completedTasks.length, Colors.green),
-        _statItem('IN PROGRESS', controller.inProgressTasks.length, Colors.blue),
-        _statItem('FAILED', controller.failedTasks.length, Colors.red),
-      ])),
+      child: Obx(() =>
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            _statItem(
+                'COMPLETED', controller.completedTasks.length, Colors.green),
+            _statItem(
+                'IN PROGRESS', controller.inProgressTasks.length, Colors.blue),
+            _statItem('FAILED', controller.failedTasks.length, Colors.red),
+          ])),
     );
   }
 
   Widget _statItem(String label, int count, Color color) {
     return Column(children: [
       Text(count.toString(),
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: color)),
+          style: TextStyle(
+              fontSize: 32, fontWeight: FontWeight.bold, color: color)),
       const SizedBox(height: 4),
-      Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
-          color: Colors.grey)),
+      Text(label,
+          style: const TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey)),
     ]);
   }
 
@@ -160,25 +185,30 @@ class _Orgthree extends State<Orgthree> {
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(_getIconForStatus(task.status), size: 20,
-                color: _getColorForStatus(task.status)),
+            Icon(_getIconForStatus(task.status),
+                size: 20, color: _getColorForStatus(task.status)),
             const SizedBox(width: 8),
-            Expanded(child: Text(task.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
+            Expanded(
+                child: Text(task.title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: _getColorForStatus(task.status)?.withOpacity(0.1),
+                color: _getColorForStatus(task.status)?.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(task.status.toUpperCase(),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       color: _getColorForStatus(task.status))),
             ),
           ]),
           const SizedBox(height: 4),
           Row(children: [
-            const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
+            const Icon(Icons.location_on_outlined,
+                size: 16, color: Colors.grey),
             const SizedBox(width: 4),
             Text(task.location,
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
@@ -189,7 +219,8 @@ class _Orgthree extends State<Orgthree> {
               const Icon(Icons.person_outline, size: 16, color: Colors.grey),
               const SizedBox(width: 4),
               Text(task.assignee,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w500)),
             ]),
             Text(task.date,
                 style: const TextStyle(fontSize: 14, color: Colors.grey)),
@@ -203,24 +234,29 @@ class _Orgthree extends State<Orgthree> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.red.shade100),
               ),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              child:
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.error_outline, size: 18, color: Colors.red.shade700),
                 const SizedBox(width: 8),
-                Expanded(child: Text('"${task.failureReason}"',
-                    style: TextStyle(fontSize: 13, color: Colors.red.shade700,
-                        fontStyle: FontStyle.italic))),
+                Expanded(
+                    child: Text('"${task.failureReason}"',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.red.shade700,
+                            fontStyle: FontStyle.italic))),
               ]),
             ),
           ],
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             if (task.status == 'completed')
-              Expanded(child: MaterialButton(
+              Expanded(
+                  child: MaterialButton(
                 color: Colors.blue,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
-                onPressed: () => Get.to(
-                    () => Report(), arguments: int.tryParse(task.id) ?? 0),
+                onPressed: () => Get.to(() => Report(),
+                    arguments: int.tryParse(task.id) ?? 0),
                 child: const Text('View Report',
                     style: TextStyle(color: Colors.white)),
               )),
@@ -232,7 +268,8 @@ class _Orgthree extends State<Orgthree> {
                 onPressed: () async {
                   final res = await ApiService.instance.patch(
                     '${ApiConstants.orgPageThree}${task.id}/reassign/',
-                    body: {}, requiresAuth: true,
+                    body: {},
+                    requiresAuth: true,
                   );
                   if (!res.isSuccess) {
                     Get.snackbar(
@@ -255,18 +292,24 @@ class _Orgthree extends State<Orgthree> {
 
   IconData? _getIconForStatus(String status) {
     switch (status) {
-      case 'completed': return Icons.check_circle_outline;
-      case 'pending':   return Icons.pending_outlined;
-      case 'failed':    return Icons.cancel_outlined;
+      case 'completed':
+        return Icons.check_circle_outline;
+      case 'pending':
+        return Icons.pending_outlined;
+      case 'failed':
+        return Icons.cancel_outlined;
     }
     return null;
   }
 
   Color? _getColorForStatus(String status) {
     switch (status) {
-      case 'completed': return Colors.green;
-      case 'pending':   return Colors.blue;
-      case 'failed':    return Colors.red;
+      case 'completed':
+        return Colors.green;
+      case 'pending':
+        return Colors.blue;
+      case 'failed':
+        return Colors.red;
     }
     return null;
   }

@@ -24,7 +24,10 @@ class _Report extends State<StatefulWidget> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _loadError = null; });
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
 
     final res = await ApiService.instance.get(
       "${ApiConstants.orgReport}${id}/report/",
@@ -34,7 +37,10 @@ class _Report extends State<StatefulWidget> {
     if (!mounted) return;
 
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _loadError = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _loadError = res.errorMessage;
+      });
       return;
     }
 
@@ -44,7 +50,7 @@ class _Report extends State<StatefulWidget> {
     });
   }
 
-  // حقن المتحكم
+  // Ø­Ù‚Ù† Ø§Ù„Ù…ØªØ­ÙƒÙ…
   final FormController controller = Get.find();
 
   @override
@@ -63,7 +69,8 @@ class _Report extends State<StatefulWidget> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(_loadError!, textAlign: TextAlign.center,
+              child: Text(_loadError!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 16),
@@ -101,7 +108,7 @@ class _Report extends State<StatefulWidget> {
               child: Column(
                 children: [
                   SizedBox(height: 8),
-                  // شارة "Completed"
+                  // Ø´Ø§Ø±Ø© "Completed"
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -135,7 +142,7 @@ class _Report extends State<StatefulWidget> {
                           ),
                         ),
                         const Divider(height: 24, thickness: 1),
-                        // التاريخ والوقت
+                        // Ø§Ù„ØªØ§Ø±ÙŠØ® ÙˆØ§Ù„ÙˆÙ‚Øª
                         _buildInfoRow(
                           icon: Icons.date_range,
                           color: Colors.green,
@@ -145,8 +152,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Date & Time"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID['created_at']
-                                    .toString(),
+                                controller.reportID['created_at'].toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -157,7 +163,7 @@ class _Report extends State<StatefulWidget> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // الموقع
+                        // Ø§Ù„Ù…ÙˆÙ‚Ø¹
                         _buildInfoRow(
                           icon: Icons.location_on,
                           color: Colors.blue,
@@ -167,8 +173,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Location"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID['location']
-                                    .toString(),
+                                controller.reportID['location'].toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -179,7 +184,7 @@ class _Report extends State<StatefulWidget> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // المتطوع وزر الإكمال
+                        // Ø§Ù„Ù…ØªØ·ÙˆØ¹ ÙˆØ²Ø± Ø§Ù„Ø¥ÙƒÙ…Ø§Ù„
                         _buildInfoRow(
                           icon: Icons.handshake,
                           color: Colors.red,
@@ -189,8 +194,7 @@ class _Report extends State<StatefulWidget> {
                               Text("Volunteer"),
                               SizedBox(height: 2),
                               Text(
-                                controller.reportID['full_name']
-                                    .toString(),
+                                controller.reportID['full_name'].toString(),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -213,7 +217,7 @@ class _Report extends State<StatefulWidget> {
                         ),
                         const SizedBox(height: 10),
 
-                        // وصف المهمة
+                        // ÙˆØµÙ Ø§Ù„Ù…Ù‡Ù…Ø©
                         Text(
                           controller.reportID['instructions'].toString(),
                           style: TextStyle(
@@ -231,7 +235,7 @@ class _Report extends State<StatefulWidget> {
             ),
             const SizedBox(height: 24),
 
-            // قسم نقاط الأداء
+            // Ù‚Ø³Ù… Ù†Ù‚Ø§Ø· Ø§Ù„Ø£Ø¯Ø§Ø¡
             const Text(
               "Award Performance Points",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -281,7 +285,6 @@ class _Report extends State<StatefulWidget> {
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
-
                         child: Container(
                           color: const Color.fromARGB(255, 197, 197, 197),
                           child: SingleChildScrollView(
@@ -355,7 +358,8 @@ class _Report extends State<StatefulWidget> {
                                     child: TextButton(
                                       onPressed: () async {
                                         controller.isLoading.value = true;
-                                        final res = await ApiService.instance.patch(
+                                        final res =
+                                            await ApiService.instance.patch(
                                           "${ApiConstants.orgReport}${id}/report/",
                                           requiresAuth: true,
                                           body: {
@@ -368,7 +372,8 @@ class _Report extends State<StatefulWidget> {
                                         if (!res.isSuccess) {
                                           Get.snackbar(
                                             "Failed to update points",
-                                            res.errorMessage ?? "Please try again.",
+                                            res.errorMessage ??
+                                                "Please try again.",
                                             colorText: Colors.red,
                                           );
                                           return;
@@ -411,14 +416,14 @@ class _Report extends State<StatefulWidget> {
                 ),
               ],
             ),
-            // عرض النقاط المختارة
+            // Ø¹Ø±Ø¶ Ø§Ù„Ù†Ù‚Ø§Ø· Ø§Ù„Ù…Ø®ØªØ§Ø±Ø©
           ],
         ),
       ),
     );
   }
 
-  /// ويدجيت الازرار
+  /// ÙˆÙŠØ¯Ø¬ÙŠØª Ø§Ù„Ø§Ø²Ø±Ø§Ø±
   Widget _bottomSheet(int text) {
     return Expanded(
       child: Container(
@@ -436,7 +441,7 @@ class _Report extends State<StatefulWidget> {
     );
   }
 
-  /// ويدجت مساعد لصفوف المعلومات
+  /// ÙˆÙŠØ¯Ø¬Øª Ù…Ø³Ø§Ø¹Ø¯ Ù„ØµÙÙˆÙ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª
   Widget _buildInfoRow({
     required IconData icon,
     required Color color,
@@ -452,7 +457,7 @@ class _Report extends State<StatefulWidget> {
     );
   }
 
-  /// زر اختيار النقاط
+  /// Ø²Ø± Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù†Ù‚Ø§Ø·
   Widget _buildPointButton(int points) {
     return FloatingActionButton(
       onPressed: () {

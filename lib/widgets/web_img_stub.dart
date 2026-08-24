@@ -1,11 +1,11 @@
-// web_img_stub.dart — Non-web stub. Never actually used on native platforms.
+// web_img_stub.dart â€” Non-web stub. Never actually used on native platforms.
 import 'package:flutter/material.dart';
 
 class WebImg extends StatelessWidget {
-  final String  url;
+  final String url;
   final double? width;
   final double? height;
-  final BoxFit  fit;
+  final BoxFit fit;
   final Widget? fallback;
 
   const WebImg({

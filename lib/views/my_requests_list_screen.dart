@@ -9,8 +9,7 @@ class MyRequestsListScreen extends StatefulWidget {
   const MyRequestsListScreen({super.key});
 
   @override
-  State<MyRequestsListScreen> createState() =>
-      _MyRequestsListScreenState();
+  State<MyRequestsListScreen> createState() => _MyRequestsListScreenState();
 }
 
 class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
@@ -59,9 +58,7 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
         title: Text(
           'My Requests',
           style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.text),
+              fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
         ),
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -75,8 +72,7 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
               controller: searchCtrl,
               decoration: InputDecoration(
                 hintText: 'Search by title or reference...',
-                hintStyle:
-                    TextStyle(color: AppColors.grey, fontSize: 14),
+                hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
                 prefixIcon: Icon(Icons.search, color: AppColors.grey),
                 filled: true,
                 fillColor: AppColors.white,
@@ -84,8 +80,8 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: (_) => setState(() {}),
             ),
@@ -128,8 +124,8 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
                           size: 64, color: AppColors.grey),
                       const SizedBox(height: 16),
                       Text('No requests found',
-                          style: TextStyle(
-                              fontSize: 16, color: AppColors.grey)),
+                          style:
+                              TextStyle(fontSize: 16, color: AppColors.grey)),
                     ],
                   ),
                 );
@@ -151,20 +147,18 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
     return GestureDetector(
       onTap: () => setState(() => selectedFilter = label),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: sel ? AppColors.primary : AppColors.white,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-              color: sel ? AppColors.primary : AppColors.greyLight),
+          border:
+              Border.all(color: sel ? AppColors.primary : AppColors.greyLight),
         ),
         child: Text(
           '$label ($count)',
           style: TextStyle(
             fontSize: 13,
-            fontWeight:
-                sel ? FontWeight.w700 : FontWeight.normal,
+            fontWeight: sel ? FontWeight.w700 : FontWeight.normal,
             color: sel ? AppColors.white : AppColors.text,
           ),
         ),
@@ -210,11 +204,10 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border:
-              Border(left: BorderSide(color: color, width: 4)),
+          border: Border(left: BorderSide(color: color, width: 4)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -236,8 +229,7 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
                           color: color)),
                   const Spacer(),
                   Text('REF: ${r.refNumber}',
-                      style: TextStyle(
-                          fontSize: 12, color: AppColors.grey)),
+                      style: TextStyle(fontSize: 12, color: AppColors.grey)),
                 ],
               ),
               const SizedBox(height: 10),
@@ -250,12 +242,10 @@ class _MyRequestsListScreenState extends State<MyRequestsListScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.access_time,
-                        size: 13, color: AppColors.grey),
+                    Icon(Icons.access_time, size: 13, color: AppColors.grey),
                     const SizedBox(width: 5),
                     Text('Submitted ${r.submittedTime}',
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.grey)),
+                        style: TextStyle(fontSize: 12, color: AppColors.grey)),
                   ],
                 ),
               ],

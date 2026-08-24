@@ -41,7 +41,7 @@ class _RequestsDashboardScreenState extends State<RequestsDashboardScreen> {
   void initState() {
     super.initState();
     _instance = this;
-    // التعديل الجوهري: استخدام widget.apiService أو effective للـ Mocking
+    // Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¬ÙˆÙ‡Ø±ÙŠ: Ø§Ø³ØªØ®Ø¯Ø§Ù… widget.apiService Ø£Ùˆ effective Ù„Ù„Ù€ Mocking
     _svc = widget.apiService ?? RequestsApiService.effective;
     _load();
   }
@@ -133,7 +133,7 @@ class _RequestsDashboardScreenState extends State<RequestsDashboardScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                    color: const Color(0xFF2C5F4F).withOpacity(0.1),
+                    color: const Color(0xFF2C5F4F).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20)),
                 child: const Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('View All',
@@ -247,7 +247,8 @@ class _RequestsDashboardScreenState extends State<RequestsDashboardScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.06), blurRadius: 8)
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 8)
                   ]),
               child: IconButton(
                 icon: const Icon(Icons.notifications_outlined,
@@ -337,7 +338,7 @@ class _RequestsDashboardScreenState extends State<RequestsDashboardScreen> {
               border: Border.all(color: Colors.grey[200]!, width: 1.5),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2))
               ]),
@@ -346,7 +347,8 @@ class _RequestsDashboardScreenState extends State<RequestsDashboardScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                  color: _green.withOpacity(0.08), shape: BoxShape.circle),
+                  color: _green.withValues(alpha: 0.08),
+                  shape: BoxShape.circle),
               child: const Icon(Icons.add_rounded, color: _green, size: 26),
             ),
             const SizedBox(width: 16),
@@ -389,7 +391,7 @@ class _StatBox extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2))
               ]),
@@ -422,7 +424,7 @@ class _ApprovedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2))
             ]),
@@ -518,7 +520,7 @@ class _RejectedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2))
             ]),
@@ -568,7 +570,7 @@ Widget _badge(IconData icon, String label, Color color, Color bg) => Container(
       decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.35))),
+          border: Border.all(color: color.withValues(alpha: 0.35))),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, color: color, size: 13),
         const SizedBox(width: 4),

@@ -51,7 +51,8 @@ class RefugeeHomeScreen extends StatelessWidget {
                   IconButton(
                     icon: Stack(
                       children: [
-                        const Icon(Icons.notifications, color: Colors.black, size: 28),
+                        const Icon(Icons.notifications,
+                            color: Colors.black, size: 28),
                         Positioned(
                           right: 0,
                           top: 0,
@@ -85,7 +86,8 @@ class RefugeeHomeScreen extends StatelessWidget {
                   children: [
                     // Back button and title
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Row(
                         children: [
                           IconButton(
@@ -133,7 +135,8 @@ class RefugeeHomeScreen extends StatelessWidget {
                             Expanded(
                               child: TextField(
                                 decoration: InputDecoration(
-                                  hintText: 'Describe your needs (e.g. I need food)',
+                                  hintText:
+                                      'Describe your needs (e.g. I need food)',
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   border: InputBorder.none,
                                 ),
@@ -145,7 +148,8 @@ class RefugeeHomeScreen extends StatelessWidget {
                                 color: Color(0xFF4CAF50),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.add, color: Colors.white, size: 20),
+                              child: const Icon(Icons.add,
+                                  color: Colors.white, size: 20),
                             ),
                           ],
                         ),
@@ -267,8 +271,10 @@ class RefugeeHomeScreen extends StatelessWidget {
                         foregroundColor: const Color(0xFF0095DA),
                       ),
                       child: Row(
-                        children:  [
-                          Text('details'.tr,),
+                        children: [
+                          Text(
+                            'details'.tr,
+                          ),
                           SizedBox(width: 4),
                           Icon(Icons.arrow_forward, size: 16),
                         ],
@@ -290,7 +296,7 @@ class RefugeeHomeScreen extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
           ),
         ],

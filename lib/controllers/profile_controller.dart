@@ -18,8 +18,7 @@ class ProfileController extends GetxController {
   // Reactive state
   // ---------------------------------------------------------------------------
 
-  final Rx<RefugeeProfileModel?> _profile =
-  Rx<RefugeeProfileModel?>(null);
+  final Rx<RefugeeProfileModel?> _profile = Rx<RefugeeProfileModel?>(null);
 
   final RxBool _profileLoading = false.obs;
   final RxString _profileError = ''.obs;
@@ -110,8 +109,7 @@ class ProfileController extends GetxController {
 
   int get womenCount => profile?.womenCount ?? 0;
 
-  int get totalFamilyMembers =>
-      profile?.totalFamilyMembers ?? 0;
+  int get totalFamilyMembers => profile?.totalFamilyMembers ?? 0;
 
   bool get hasProfile => profile != null;
 
@@ -146,7 +144,7 @@ class ProfileController extends GetxController {
   }) async {
     if (_isLoadingProfile && !force) {
       debugPrint(
-        '⏳ Profile already loading — skipping duplicate request',
+        'â³ Profile already loading â€” skipping duplicate request',
       );
       return;
     }
@@ -158,11 +156,10 @@ class ProfileController extends GetxController {
       _profileError.value = '';
     }
 
-    debugPrint('👤 Loading refugee profile...');
+    debugPrint('ðŸ‘¤ Loading refugee profile...');
 
     try {
-      final result =
-      await ProfileApiService.effective.fetchRefugeeProfile();
+      final result = await ProfileApiService.effective.fetchRefugeeProfile();
 
       if (result.isSuccess && result.data != null) {
         _profile.value = result.data;
@@ -173,8 +170,7 @@ class ProfileController extends GetxController {
         // locally selected value unless the local value was explicitly set
         // after the request.
         if (_localImageUrl.value.isEmpty) {
-          final serverImage =
-              result.data!.profileImage?.trim() ?? '';
+          final serverImage = result.data!.profileImage?.trim() ?? '';
 
           if (serverImage.isNotEmpty) {
             _localImageUrl.value = serverImage;
@@ -182,23 +178,22 @@ class ProfileController extends GetxController {
         }
 
         debugPrint(
-          '✅ Profile loaded: ${result.data!.fullName}',
+          'âœ… Profile loaded: ${result.data!.fullName}',
         );
       } else {
-        final message =
-            result.errorMessage ?? 'Failed to load profile.';
+        final message = result.errorMessage ?? 'Failed to load profile.';
 
         _profileError.value = message;
 
         debugPrint(
-          '⚠️ Profile load failed: $message',
+          'âš ï¸ Profile load failed: $message',
         );
       }
     } catch (e, stackTrace) {
       _profileError.value = 'Failed to load profile.';
 
       debugPrint(
-        '❌ Profile controller error: $e',
+        'âŒ Profile controller error: $e',
       );
 
       debugPrint(
@@ -237,22 +232,21 @@ class ProfileController extends GetxController {
     _localImageUrl.value = value;
 
     debugPrint(
-      '🖼️ Profile image updated locally: $value',
+      'ðŸ–¼ï¸ Profile image updated locally: $value',
     );
   }
 
   /// Uploads a selected XFile and updates the displayed image.
   Future<bool> uploadImage(dynamic xfile) async {
     try {
-      final result = await ProfileApiService.effective
-          .uploadProfileImageXFile(xfile);
+      final result =
+          await ProfileApiService.effective.uploadProfileImageXFile(xfile);
 
       if (!result.isSuccess) {
-        _profileError.value =
-            result.errorMessage ?? 'Failed to upload image.';
+        _profileError.value = result.errorMessage ?? 'Failed to upload image.';
 
         debugPrint(
-          '❌ Profile image upload failed: ${_profileError.value}',
+          'âŒ Profile image upload failed: ${_profileError.value}',
         );
 
         return false;
@@ -264,7 +258,7 @@ class ProfileController extends GetxController {
       _profileError.value = '';
 
       debugPrint(
-        '✅ Profile image uploaded successfully',
+        'âœ… Profile image uploaded successfully',
       );
 
       return true;
@@ -272,7 +266,7 @@ class ProfileController extends GetxController {
       _profileError.value = 'Upload error: $e';
 
       debugPrint(
-        '❌ Profile image upload error: $e',
+        'âŒ Profile image upload error: $e',
       );
 
       return false;
@@ -282,15 +276,13 @@ class ProfileController extends GetxController {
   /// Deletes the profile image from the backend.
   Future<bool> deleteImage() async {
     try {
-      final result =
-      await ProfileApiService.effective.deleteProfileImage();
+      final result = await ProfileApiService.effective.deleteProfileImage();
 
       if (!result.isSuccess) {
-        _profileError.value =
-            result.errorMessage ?? 'Failed to delete image.';
+        _profileError.value = result.errorMessage ?? 'Failed to delete image.';
 
         debugPrint(
-          '❌ Profile image deletion failed: ${_profileError.value}',
+          'âŒ Profile image deletion failed: ${_profileError.value}',
         );
 
         return false;
@@ -319,7 +311,7 @@ class ProfileController extends GetxController {
       }
 
       debugPrint(
-        '✅ Profile image deleted successfully',
+        'âœ… Profile image deleted successfully',
       );
 
       return true;
@@ -327,7 +319,7 @@ class ProfileController extends GetxController {
       _profileError.value = 'Delete error: $e';
 
       debugPrint(
-        '❌ Profile image deletion error: $e',
+        'âŒ Profile image deletion error: $e',
       );
 
       return false;

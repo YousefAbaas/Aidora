@@ -210,7 +210,7 @@ class FormController extends GetxController {
   final idController = TextEditingController();
   final cityController = TextEditingController();
 
-  /// بيانات
+  /// Ø¨ÙŠØ§Ù†Ø§Øª
   final months = [
     'Jan',
     'Feb',
@@ -238,21 +238,21 @@ class FormController extends GetxController {
 
   // ************************** Page Two **************************
 
-  // المتغيرات
+  // Ø§Ù„Ù…ØªØºÙŠØ±Ø§Øª
   var selectedSchedule = ''.obs; // Morning, Afternoon, Evening
-  var selectedDays = <String>[].obs; // الأيام المحددة
+  var selectedDays = <String>[].obs; // Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©
   final startDate = TextEditingController();
   final expectedDuration = TextEditingController();
 
-  // قائمة الأيام المتاحة
+  // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£ÙŠØ§Ù… Ø§Ù„Ù…ØªØ§Ø­Ø©
   final List<String> availableDays = ['S', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
 
-  // دالة اختيار الجدول الزمني
+  // Ø¯Ø§Ù„Ø© Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ø²Ù…Ù†ÙŠ
   void selectSchedule(String schedule) {
     selectedSchedule.value = schedule;
   }
 
-  // دالة اختيار/إلغاء اختيار اليوم
+  // Ø¯Ø§Ù„Ø© Ø§Ø®ØªÙŠØ§Ø±/Ø¥Ù„ØºØ§Ø¡ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ÙŠÙˆÙ…
   void toggleDay(String day) {
     if (selectedDays.contains(day)) {
       selectedDays.remove(day);
@@ -263,8 +263,8 @@ class FormController extends GetxController {
 
   // ************************** Page Three **************************
 
-  // 🔹 القيم
-  // 🔹 TextFields
+  // ðŸ”¹ Ø§Ù„Ù‚ÙŠÙ…
+  // ðŸ”¹ TextFields
   final education = TextEditingController();
   final languagesThree = TextEditingController();
   final experienceController = TextEditingController();
@@ -289,19 +289,19 @@ class FormController extends GetxController {
   }
 
   // ************************** Page five **************************
-  // 🔹 TextFields
+  // ðŸ”¹ TextFields
   final phoneNumberEmergency = TextEditingController();
   final volunteer = TextEditingController();
 
-  //  متغيرات لتتبع حالة checkbox
+  //  Ù…ØªØºÙŠØ±Ø§Øª Ù„ØªØªØ¨Ø¹ Ø­Ø§Ù„Ø© checkbox
   var isInfoAgreed = false.obs;
   var isPolicyCommitted = false.obs;
-  // تحديث حالة الموافقة على استخدام المعلومات
+  // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª
   void toggleInfoAgreement(bool? value) {
     isInfoAgreed.value = value ?? false;
   }
 
-  // تحديث حالة الموافقة على سياسة حماية الطفل
+  // ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø³ÙŠØ§Ø³Ø© Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ø·ÙÙ„
   void togglePolicyCommitment(bool? value) {
     isPolicyCommitted.value = value ?? false;
   }
@@ -333,18 +333,18 @@ class FormController extends GetxController {
 
   // ************************** Home **************************
 
-  // اسم المستخدم
-  var userName  = "Alex Rivera".obs;
+  // Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
+  var userName = "Alex Rivera".obs;
   var userImage = "".obs; // profile image URL (volunteer/org)
   final ImagePicker picker = ImagePicker();
-  // XFile removed — use userImage (RxString) for URL after upload
+  // XFile removed â€” use userImage (RxString) for URL after upload
 
-  // الإحصائيات
+  // Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª
   var failed = 4.obs;
 
   var pending = 6.obs;
   var completed = 24.obs;
-  // قائمة المهام
+  // Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ù‡Ø§Ù…
   var tasksthreeHome = [
     {
       'id': 1,
@@ -409,12 +409,12 @@ class FormController extends GetxController {
 
   // ************************** All Org Page Three **************************
 
-  // قوائم منفصلة لكل حالة (للاستدعاء السريع)
+  // Ù‚ÙˆØ§Ø¦Ù… Ù…Ù†ÙØµÙ„Ø© Ù„ÙƒÙ„ Ø­Ø§Ù„Ø© (Ù„Ù„Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ Ø§Ù„Ø³Ø±ÙŠØ¹)
   var completedTasks = <TaskModel>[].obs;
   var inProgressTasks = <TaskModel>[].obs;
   var failedTasks = <TaskModel>[].obs;
 
-  // بيانات تجريبية مطابقة للصورة
+  // Ø¨ÙŠØ§Ù†Ø§Øª ØªØ¬Ø±ÙŠØ¨ÙŠØ© Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù„ØµÙˆØ±Ø©
   var allTasks = [
     TaskModel(
       id: '1',
@@ -564,27 +564,27 @@ class FormController extends GetxController {
     ].obs,
   );
   // ************************** All Org Page Report **************************
-  // بيانات ثابتة (يمكن استبدالها بجلب من API)
+  // Ø¨ÙŠØ§Ù†Ø§Øª Ø«Ø§Ø¨ØªØ© (ÙŠÙ…ÙƒÙ† Ø§Ø³ØªØ¨Ø¯Ø§Ù„Ù‡Ø§ Ø¨Ø¬Ù„Ø¨ Ù…Ù† API)
   var reportID = {
     "title": "food",
     "instructions": "this is my description",
     "location": "damas",
     "full_name": "ahmad ali",
     "points": 0,
-    "created_at": "Sunday, May 11•08:36 PM",
+    "created_at": "Sunday, May 11â€¢08:36 PM",
   }.obs;
 
-  // النقاط المختارة
+  // Ø§Ù„Ù†Ù‚Ø§Ø· Ø§Ù„Ù…Ø®ØªØ§Ø±Ø©
   RxInt selectedPoints = 0.obs;
 
-  /// اختيار نقاط الأداء
+  /// Ø§Ø®ØªÙŠØ§Ø± Ù†Ù‚Ø§Ø· Ø§Ù„Ø£Ø¯Ø§Ø¡
   void selectPoints(int points) {
     if (selectedPoints.value + points <= 10000) {
       selectedPoints.value += points;
     }
   }
 
-  /// اختيار نقاط الأداء
+  /// Ø§Ø®ØªÙŠØ§Ø± Ù†Ù‚Ø§Ø· Ø§Ù„Ø£Ø¯Ø§Ø¡
   void updateValue(int points) {
     selectedPoints.value = points;
   }
@@ -608,17 +608,17 @@ class FormController extends GetxController {
     status: "pending",
   );
 
-  // متغير لتخزين نص سبب الفشل (عند اختيار Failed)
+  // Ù…ØªØºÙŠØ± Ù„ØªØ®Ø²ÙŠÙ† Ù†Øµ Ø³Ø¨Ø¨ Ø§Ù„ÙØ´Ù„ (Ø¹Ù†Ø¯ Ø§Ø®ØªÙŠØ§Ø± Failed)
   var resonPersonOne = ''.obs;
 
-  // دالة لتحديث سبب الفشل من المدخلات النصية
+  // Ø¯Ø§Ù„Ø© Ù„ØªØ­Ø¯ÙŠØ« Ø³Ø¨Ø¨ Ø§Ù„ÙØ´Ù„ Ù…Ù† Ø§Ù„Ù…Ø¯Ø®Ù„Ø§Øª Ø§Ù„Ù†ØµÙŠØ©
   void updateResonPersonOne(String reason) {
     resonPersonOne.value = reason;
   }
 
   //  ////////////////////////// Assign New Task  ////////////////////
 
-  // بيانات ثابتة للعرض (يمكن جلبها من API)
+  // Ø¨ÙŠØ§Ù†Ø§Øª Ø«Ø§Ø¨ØªØ© Ù„Ù„Ø¹Ø±Ø¶ (ÙŠÙ…ÙƒÙ† Ø¬Ù„Ø¨Ù‡Ø§ Ù…Ù† API)
   var requestId = 0.obs;
   var logo = "restaurant".obs;
   var assistanceType = 'Food assistance'.obs;
@@ -651,7 +651,7 @@ class FormController extends GetxController {
     {"id": 9, "full_name": "maher"},
   ];
 
-  /////////////////////////////// ماب التحويل ///////////////////////////////
+  /////////////////////////////// Ù…Ø§Ø¨ Ø§Ù„ØªØ­ÙˆÙŠÙ„ ///////////////////////////////
   Map<String, IconConfig> iconsMap = {
     "emergency": IconConfig(Icons.emergency, Color(0xff15a3da)),
     "sos": IconConfig(Icons.sos, Colors.red),

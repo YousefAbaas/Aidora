@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     // Load refugee profile from API once after login
     // so name + image are shown everywhere immediately
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Load profile — this sets displayName & apiImageUrl reactively
+      // Load profile â€” this sets displayName & apiImageUrl reactively
       // across HomeScreen, RequestsDashboard, and ProfileScreen
       ProfileController.to.loadProfile();
     });

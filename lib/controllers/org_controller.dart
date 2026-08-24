@@ -4,14 +4,14 @@ import '../services/api_constants.dart';
 import '../services/api_service.dart';
 import '../utils/image_url_helper.dart';
 
-/// OrgController — single reactive source of truth for organization profile.
+/// OrgController â€” single reactive source of truth for organization profile.
 /// Pattern mirrors ProfileController used by refugees.
 class OrgController extends GetxController {
   static OrgController get to => Get.find();
 
-  final RxString orgName     = 'Organization'.obs;
-  final RxString orgLogoUrl  = ''.obs;
-  final RxBool   isLoading   = false.obs;
+  final RxString orgName = 'Organization'.obs;
+  final RxString orgLogoUrl = ''.obs;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
@@ -33,20 +33,19 @@ class OrgController extends GetxController {
       );
       if (res.isSuccess) {
         final d = res.data as Map<String, dynamic>? ?? {};
-        final name = d['organization_name']?.toString()
-                  ?? d['name']?.toString()
-                  ?? 'Organization';
-        final raw  = d['organization_logo']?.toString()
-                  ?? d['logo']?.toString()
-                  ?? '';
-        orgName.value    = name;
+        final name = d['organization_name']?.toString() ??
+            d['name']?.toString() ??
+            'Organization';
+        final raw =
+            d['organization_logo']?.toString() ?? d['logo']?.toString() ?? '';
+        orgName.value = name;
         orgLogoUrl.value = raw.isNotEmpty ? ImageUrlHelper.fix(raw) : '';
-        debugPrint('🏢 OrgController loaded: name=$name logo=$raw');
+        debugPrint('ðŸ¢ OrgController loaded: name=$name logo=$raw');
       } else {
-        debugPrint('❌ OrgController API error: ${res.errorMessage}');
+        debugPrint('âŒ OrgController API error: ${res.errorMessage}');
       }
     } catch (e) {
-      debugPrint('❌ OrgController exception: $e');
+      debugPrint('âŒ OrgController exception: $e');
     } finally {
       isLoading.value = false;
     }

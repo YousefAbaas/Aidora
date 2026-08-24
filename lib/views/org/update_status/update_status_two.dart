@@ -11,7 +11,7 @@ class Updatestatustwo extends StatelessWidget {
 
   final int index;
 
-  // استدعاء الـ Controller باستخدام GetX
+  // Ø§Ø³ØªØ¯Ø¹Ø§Ø¡ Ø§Ù„Ù€ Controller Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù… GetX
   final FormController controller = Get.find();
   final ControllerTwo controllerTwo = Get.put(ControllerTwo());
 
@@ -44,7 +44,7 @@ class Updatestatustwo extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // رقم الطلب ومنصب المستخدم
+                  // Ø±Ù‚Ù… Ø§Ù„Ø·Ù„Ø¨ ÙˆÙ…Ù†ØµØ¨ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…
                   Column(
                     children: [
                       ListTile(
@@ -62,7 +62,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  // عنوان "Select New Status"
+                  // Ø¹Ù†ÙˆØ§Ù† "Select New Status"
                   const Text(
                     'Select New Status',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -70,7 +70,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // خيار Mark as Completed
+                  // Ø®ÙŠØ§Ø± Mark as Completed
                   Obx(
                     () => RadioListTile<String>(
                       title: const Text(
@@ -99,7 +99,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // خيار Mark as Failed
+                  // Ø®ÙŠØ§Ø± Mark as Failed
                   Obx(
                     () => RadioListTile<String>(
                       title: const Text(
@@ -128,7 +128,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // حقل سبب الفشل (يظهر فقط عند اختيار Failed)
+                  // Ø­Ù‚Ù„ Ø³Ø¨Ø¨ Ø§Ù„ÙØ´Ù„ (ÙŠØ¸Ù‡Ø± ÙÙ‚Ø· Ø¹Ù†Ø¯ Ø§Ø®ØªÙŠØ§Ø± Failed)
                   Obx(
                     () => AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
@@ -166,7 +166,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  // ملاحظة (Note)
+                  // Ù…Ù„Ø§Ø­Ø¸Ø© (Note)
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -197,7 +197,7 @@ class Updatestatustwo extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // زر Confirm Update
+                  // Ø²Ø± Confirm Update
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -246,7 +246,7 @@ class Updatestatustwo extends StatelessWidget {
                         elevation: 2,
                       ),
                       child: const Text(
-                        'Confirm Update →',
+                        'Confirm Update â†’',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

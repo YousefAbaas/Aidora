@@ -10,17 +10,18 @@ import 'submit_new_request_screen.dart';
 
 class OrganizationsScreen extends StatelessWidget {
   final String? selectedCategory;
-  
+
   const OrganizationsScreen({super.key, this.selectedCategory});
 
   @override
   Widget build(BuildContext context) {
     final filteredOrgs = selectedCategory == null
         ? organizationsData
-        : organizationsData.where((org) => 
-            org.categories.contains(selectedCategory)).toList();
+        : organizationsData
+            .where((org) => org.categories.contains(selectedCategory))
+            .toList();
 
-    // إذا كان هناك فلترة، نأخذ أول منظمة فقط
+    // Ø¥Ø°Ø§ ÙƒØ§Ù† Ù‡Ù†Ø§Ùƒ ÙÙ„ØªØ±Ø©ØŒ Ù†Ø£Ø®Ø° Ø£ÙˆÙ„ Ù…Ù†Ø¸Ù…Ø© ÙÙ‚Ø·
     final orgsToShow = selectedCategory != null && filteredOrgs.isNotEmpty
         ? [filteredOrgs.first]
         : filteredOrgs;
@@ -74,7 +75,7 @@ class OrganizationsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -90,14 +91,16 @@ class OrganizationsScreen extends StatelessWidget {
                 height: 60,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.blue.withOpacity(0.1),
+                  color: AppColors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
                   'img/org_${org.id}.png',
                   fit: BoxFit.contain,
-                  width: 44, height: 44,
-                  errorBuilder: (_, __, ___) => OrgInitialAvatar(name: org.name, size: 44),
+                  width: 44,
+                  height: 44,
+                  errorBuilder: (_, __, ___) =>
+                      OrgInitialAvatar(name: org.name, size: 44),
                 ),
               ),
               const SizedBox(width: 16),
@@ -137,11 +140,13 @@ class OrganizationsScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Get.to(() => SubmitNewRequestScreen(
-                      orgName: org.name,
-                    ));
+                          orgName: org.name,
+                        ));
                   },
                   icon: const Icon(Icons.add_circle_outline, size: 18),
-                  label: Text('request_help'.tr,),
+                  label: Text(
+                    'request_help'.tr,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[100],
                     foregroundColor: Colors.green,
@@ -161,7 +166,9 @@ class OrganizationsScreen extends StatelessWidget {
                         arguments: org);
                   },
                   icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: Text('details'.tr,),
+                  label: Text(
+                    'details'.tr,
+                  ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.blue,
                     side: BorderSide(color: AppColors.blue),

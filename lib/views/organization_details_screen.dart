@@ -164,7 +164,8 @@ class OrganizationDetailsScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'Services Provided',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     Text(
@@ -188,7 +189,7 @@ class OrganizationDetailsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: service['color'].withOpacity(0.1),
+                            color: service['color'].withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(service['icon'],
@@ -214,7 +215,7 @@ class OrganizationDetailsScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        // + Button → navigate to submit request
+                        // + Button â†’ navigate to submit request
                         GestureDetector(
                           onTap: () {
                             Get.to(
@@ -351,8 +352,8 @@ class OrganizationDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(label,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500)),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
             const Spacer(),
             const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
@@ -393,12 +394,47 @@ class OrganizationDetailsScreen extends StatelessWidget {
 
   List<String> _getTargetGroups(String id) {
     const map = {
-      'unicef': ['Children', 'Refugees', 'Mothers', 'Conflict Zones', 'Education'],
-      'unhcr': ['Persecuted Individuals', 'Displaced Families', 'Refugees', 'IDPs', 'Asylum Seekers'],
-      'wfp': ['Households in need', 'Children at risk', 'Low-income communities', 'Refugees', 'Conflict zones'],
-      'who': ['Health Emergencies', 'Refugees', 'Outbreak Regions', 'Vulnerable Individuals', 'Healthcare Workers'],
-      'red_crescent': ['Children', 'Refugees', 'Mothers', 'Conflict Zones', 'Displaced Families'],
-      'intersos': ['Conflict Zones', 'Displaced Persons', 'Emergency Victims', 'Vulnerable Communities'],
+      'unicef': [
+        'Children',
+        'Refugees',
+        'Mothers',
+        'Conflict Zones',
+        'Education'
+      ],
+      'unhcr': [
+        'Persecuted Individuals',
+        'Displaced Families',
+        'Refugees',
+        'IDPs',
+        'Asylum Seekers'
+      ],
+      'wfp': [
+        'Households in need',
+        'Children at risk',
+        'Low-income communities',
+        'Refugees',
+        'Conflict zones'
+      ],
+      'who': [
+        'Health Emergencies',
+        'Refugees',
+        'Outbreak Regions',
+        'Vulnerable Individuals',
+        'Healthcare Workers'
+      ],
+      'red_crescent': [
+        'Children',
+        'Refugees',
+        'Mothers',
+        'Conflict Zones',
+        'Displaced Families'
+      ],
+      'intersos': [
+        'Conflict Zones',
+        'Displaced Persons',
+        'Emergency Victims',
+        'Vulnerable Communities'
+      ],
     };
     return map[id] ?? ['General Population'];
   }
@@ -407,49 +443,217 @@ class OrganizationDetailsScreen extends StatelessWidget {
     switch (id) {
       case 'unicef':
         return [
-          {'icon': Icons.shield, 'color': Colors.blue, 'title': 'Child Protection', 'description': 'Safe environment and legal support for children in danger zones.'},
-          {'icon': Icons.school, 'color': Colors.orange, 'title': 'Education', 'description': 'Supporting schools, training teachers, and providing educational supplies.'},
-          {'icon': Icons.water_drop, 'color': Colors.cyan, 'title': 'Water and Sanitation', 'description': 'Ensuring access to clean, drinkable water for communities.'},
+          {
+            'icon': Icons.shield,
+            'color': Colors.blue,
+            'title': 'Child Protection',
+            'description':
+                'Safe environment and legal support for children in danger zones.'
+          },
+          {
+            'icon': Icons.school,
+            'color': Colors.orange,
+            'title': 'Education',
+            'description':
+                'Supporting schools, training teachers, and providing educational supplies.'
+          },
+          {
+            'icon': Icons.water_drop,
+            'color': Colors.cyan,
+            'title': 'Water and Sanitation',
+            'description':
+                'Ensuring access to clean, drinkable water for communities.'
+          },
         ];
       case 'unhcr':
         return [
-          {'icon': Icons.shield, 'color': Colors.blue, 'title': 'Refugee & IDP Protection', 'description': 'Ensuring safety, registration, and identity documentation.'},
-          {'icon': Icons.home, 'color': Colors.orange, 'title': 'Temporary Shelter', 'description': 'Essential housing support and temporary accommodation.'},
-          {'icon': Icons.gavel, 'color': Colors.indigo, 'title': 'Legal Assistance', 'description': 'Support for asylum services, rights advocacy, and resettlement.'},
-          {'icon': Icons.emergency, 'color': Colors.red, 'title': 'Emergency Relief', 'description': 'Critical humanitarian aid, food, water, and medical supplies.'},
+          {
+            'icon': Icons.shield,
+            'color': Colors.blue,
+            'title': 'Refugee & IDP Protection',
+            'description':
+                'Ensuring safety, registration, and identity documentation.'
+          },
+          {
+            'icon': Icons.home,
+            'color': Colors.orange,
+            'title': 'Temporary Shelter',
+            'description':
+                'Essential housing support and temporary accommodation.'
+          },
+          {
+            'icon': Icons.gavel,
+            'color': Colors.indigo,
+            'title': 'Legal Assistance',
+            'description':
+                'Support for asylum services, rights advocacy, and resettlement.'
+          },
+          {
+            'icon': Icons.emergency,
+            'color': Colors.red,
+            'title': 'Emergency Relief',
+            'description':
+                'Critical humanitarian aid, food, water, and medical supplies.'
+          },
         ];
       case 'wfp':
         return [
-          {'icon': Icons.restaurant, 'color': Colors.orange, 'title': 'Food Assistance', 'description': 'Providing immediate food relief to populations in crisis.'},
-          {'icon': Icons.health_and_safety, 'color': Colors.green, 'title': 'Malnutrition Prevention', 'description': 'Specialized programs to prevent stunting and deficiencies.'},
-          {'icon': Icons.local_shipping, 'color': Colors.blue, 'title': 'Logistics Support', 'description': 'Managing supply chains for efficient food distribution globally.'},
-          {'icon': Icons.pregnant_woman, 'color': Colors.pink, 'title': 'Maternal Nutrition', 'description': 'Nutrition programs for children and pregnant women.'},
-          {'icon': Icons.security, 'color': Colors.purple, 'title': 'Food Security & Development', 'description': 'Building long-term resilience and community development.'},
+          {
+            'icon': Icons.restaurant,
+            'color': Colors.orange,
+            'title': 'Food Assistance',
+            'description':
+                'Providing immediate food relief to populations in crisis.'
+          },
+          {
+            'icon': Icons.health_and_safety,
+            'color': Colors.green,
+            'title': 'Malnutrition Prevention',
+            'description':
+                'Specialized programs to prevent stunting and deficiencies.'
+          },
+          {
+            'icon': Icons.local_shipping,
+            'color': Colors.blue,
+            'title': 'Logistics Support',
+            'description':
+                'Managing supply chains for efficient food distribution globally.'
+          },
+          {
+            'icon': Icons.pregnant_woman,
+            'color': Colors.pink,
+            'title': 'Maternal Nutrition',
+            'description': 'Nutrition programs for children and pregnant women.'
+          },
+          {
+            'icon': Icons.security,
+            'color': Colors.purple,
+            'title': 'Food Security & Development',
+            'description':
+                'Building long-term resilience and community development.'
+          },
         ];
       case 'who':
         return [
-          {'icon': Icons.emergency, 'color': Colors.red, 'title': 'Emergency Response', 'description': 'Rapid emergency health response during crises.'},
-          {'icon': Icons.coronavirus, 'color': Colors.orange, 'title': 'Disease Control', 'description': 'Monitoring and controlling disease outbreaks.'},
-          {'icon': Icons.medical_services, 'color': Colors.pink, 'title': 'Healthcare Systems', 'description': 'Strengthening local healthcare infrastructure.'},
-          {'icon': Icons.vaccines, 'color': Colors.green, 'title': 'Vaccination', 'description': 'Leading preventive healthcare and vaccination programs.'},
-          {'icon': Icons.psychology, 'color': Colors.purple, 'title': 'Mental Health', 'description': 'Psychosocial care and mental health support.'},
+          {
+            'icon': Icons.emergency,
+            'color': Colors.red,
+            'title': 'Emergency Response',
+            'description': 'Rapid emergency health response during crises.'
+          },
+          {
+            'icon': Icons.coronavirus,
+            'color': Colors.orange,
+            'title': 'Disease Control',
+            'description': 'Monitoring and controlling disease outbreaks.'
+          },
+          {
+            'icon': Icons.medical_services,
+            'color': Colors.pink,
+            'title': 'Healthcare Systems',
+            'description': 'Strengthening local healthcare infrastructure.'
+          },
+          {
+            'icon': Icons.vaccines,
+            'color': Colors.green,
+            'title': 'Vaccination',
+            'description':
+                'Leading preventive healthcare and vaccination programs.'
+          },
+          {
+            'icon': Icons.psychology,
+            'color': Colors.purple,
+            'title': 'Mental Health',
+            'description': 'Psychosocial care and mental health support.'
+          },
         ];
       case 'red_crescent':
         return [
-          {'icon': Icons.medical_services, 'color': Colors.red, 'title': 'Medical Assistance', 'description': 'Emergency healthcare, ambulance services, and medical aid.'},
-          {'icon': Icons.restaurant, 'color': Colors.orange, 'title': 'Food Distribution', 'description': 'Food aid parcels and essential supplies for displaced families.'},
-          {'icon': Icons.psychology, 'color': Colors.blue, 'title': 'Psychological Support', 'description': 'Mental health services and social support for trauma recovery.'},
-          {'icon': Icons.emergency, 'color': Colors.green, 'title': 'Disaster Response', 'description': 'Rapid disaster management and emergency response.'},
-          {'icon': Icons.favorite, 'color': Colors.pink, 'title': 'Health Services', 'description': 'Blood donation drives, transfusion services, and first-aid.'},
+          {
+            'icon': Icons.medical_services,
+            'color': Colors.red,
+            'title': 'Medical Assistance',
+            'description':
+                'Emergency healthcare, ambulance services, and medical aid.'
+          },
+          {
+            'icon': Icons.restaurant,
+            'color': Colors.orange,
+            'title': 'Food Distribution',
+            'description':
+                'Food aid parcels and essential supplies for displaced families.'
+          },
+          {
+            'icon': Icons.psychology,
+            'color': Colors.blue,
+            'title': 'Psychological Support',
+            'description':
+                'Mental health services and social support for trauma recovery.'
+          },
+          {
+            'icon': Icons.emergency,
+            'color': Colors.green,
+            'title': 'Disaster Response',
+            'description': 'Rapid disaster management and emergency response.'
+          },
+          {
+            'icon': Icons.favorite,
+            'color': Colors.pink,
+            'title': 'Health Services',
+            'description':
+                'Blood donation drives, transfusion services, and first-aid.'
+          },
         ];
       case 'intersos':
         return [
-          {'icon': Icons.shield_rounded, 'color': Colors.blue, 'title': 'Protection Services', 'description': 'Protecting vulnerable populations in emergency contexts.', 'filterKey': 'protection'},
-          {'icon': Icons.medical_services_rounded, 'color': Colors.red, 'title': 'Health Assistance', 'description': 'Emergency medical support in conflict-affected areas.', 'filterKey': 'health'},
-          {'icon': Icons.home_rounded, 'color': Colors.orange, 'title': 'Shelter Support', 'description': 'Temporary shelter and non-food items for displaced persons.', 'filterKey': 'shelter'},
-          {'icon': Icons.emergency_rounded, 'color': Colors.red, 'title': 'Emergency Relief', 'description': 'Rapid emergency response and critical humanitarian assistance.', 'filterKey': 'emergency'},
-          {'icon': Icons.gavel_rounded, 'color': Colors.indigo, 'title': 'Legal Aid', 'description': 'Legal assistance for displaced persons and asylum seekers.', 'filterKey': 'legal'},
-          {'icon': Icons.restaurant_rounded, 'color': Colors.orange, 'title': 'Emergency Food Assistance', 'description': 'Food distribution for families in acute crisis situations.', 'filterKey': 'food'},
+          {
+            'icon': Icons.shield_rounded,
+            'color': Colors.blue,
+            'title': 'Protection Services',
+            'description':
+                'Protecting vulnerable populations in emergency contexts.',
+            'filterKey': 'protection'
+          },
+          {
+            'icon': Icons.medical_services_rounded,
+            'color': Colors.red,
+            'title': 'Health Assistance',
+            'description':
+                'Emergency medical support in conflict-affected areas.',
+            'filterKey': 'health'
+          },
+          {
+            'icon': Icons.home_rounded,
+            'color': Colors.orange,
+            'title': 'Shelter Support',
+            'description':
+                'Temporary shelter and non-food items for displaced persons.',
+            'filterKey': 'shelter'
+          },
+          {
+            'icon': Icons.emergency_rounded,
+            'color': Colors.red,
+            'title': 'Emergency Relief',
+            'description':
+                'Rapid emergency response and critical humanitarian assistance.',
+            'filterKey': 'emergency'
+          },
+          {
+            'icon': Icons.gavel_rounded,
+            'color': Colors.indigo,
+            'title': 'Legal Aid',
+            'description':
+                'Legal assistance for displaced persons and asylum seekers.',
+            'filterKey': 'legal'
+          },
+          {
+            'icon': Icons.restaurant_rounded,
+            'color': Colors.orange,
+            'title': 'Emergency Food Assistance',
+            'description':
+                'Food distribution for families in acute crisis situations.',
+            'filterKey': 'food'
+          },
         ];
       default:
         return [];

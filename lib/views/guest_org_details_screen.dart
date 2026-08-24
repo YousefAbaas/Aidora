@@ -12,10 +12,10 @@ import 'complete_profile_screen.dart';
 import 'service_request_screen.dart';
 
 /// GuestOrgDetailsScreen
-/// showAddButton=true  → refugee home view (shows + per service)
-/// showAddButton=false → public / org-list view (no + buttons)
+/// showAddButton=true  â†’ refugee home view (shows + per service)
+/// showAddButton=false â†’ public / org-list view (no + buttons)
 class GuestOrgDetailsScreen extends StatefulWidget {
-  final int  orgId;
+  final int orgId;
   final bool showAddButton;
   const GuestOrgDetailsScreen({
     super.key,
@@ -33,7 +33,7 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
   final OrganizationService _service = OrganizationService.effective;
 
   OrganizationDetailModel? _org;
-  bool    _isLoading = true;
+  bool _isLoading = true;
   String? _errorMsg;
 
   @override
@@ -43,13 +43,22 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
   }
 
   Future<void> _load() async {
-    setState(() { _isLoading = true; _errorMsg = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMsg = null;
+    });
     final result = await _service.fetchOrganizationDetail(widget.orgId);
     if (!mounted) return;
     if (result.isSuccess) {
-      setState(() { _org = result.organization; _isLoading = false; });
+      setState(() {
+        _org = result.organization;
+        _isLoading = false;
+      });
     } else {
-      setState(() { _errorMsg = result.errorMessage; _isLoading = false; });
+      setState(() {
+        _errorMsg = result.errorMessage;
+        _isLoading = false;
+      });
     }
   }
 
@@ -59,7 +68,7 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
-  // ── Tap "+" next to a service ─────────────────────────────────────────────
+  // â”€â”€ Tap "+" next to a service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _requestService(OrgService svc) async {
     // Guard: service must have a valid ID (id=0 means Django didn't return it)
     if (svc.id == 0) {
@@ -90,10 +99,10 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
     if (!mounted) return;
     Get.to(
       () => ServiceRequestScreen(
-        orgId:       widget.orgId,
-        serviceId:   svc.id,
+        orgId: widget.orgId,
+        serviceId: svc.id,
         serviceName: svc.name,
-        orgName:     _org?.name ?? '',
+        orgName: _org?.name ?? '',
       ),
       transition: Transition.cupertino,
     );
@@ -123,7 +132,8 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF2C5F4F)));
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF2C5F4F)));
     }
     if (_errorMsg != null) {
       return Center(
@@ -132,7 +142,8 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.cloud_off_rounded, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text(_errorMsg!, textAlign: TextAlign.center,
+            Text(_errorMsg!,
+                textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 14, height: 1.5)),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -140,8 +151,10 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
               icon: const Icon(Icons.refresh_rounded),
               label: Text('retry'.tr),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _green, foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: _green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ]),
@@ -153,19 +166,23 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        // ── Logo ────────────────────────────────────────────────────────────
+        // â”€â”€ Logo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Container(
           padding: const EdgeInsets.symmetric(vertical: 32),
           child: Column(children: [
             Container(
-              width: 120, height: 120,
-              decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                  color: Colors.grey[100], shape: BoxShape.circle),
               child: ClipOval(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: NetImage(
-                    url: org.logo, fit: BoxFit.contain,
-                    width: 80, height: 80,
+                    url: org.logo,
+                    fit: BoxFit.contain,
+                    width: 80,
+                    height: 80,
                     fallback: OrgInitialAvatar(name: org.name, size: 80),
                   ),
                 ),
@@ -173,46 +190,56 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
             ),
             const SizedBox(height: 16),
             Text(org.name,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(org.title,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600])),
           ]),
         ),
 
-        // ── About ────────────────────────────────────────────────────────────
+        // â”€â”€ About â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _section(
           title: 'About Mission',
           child: Text(org.about,
-              style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5)),
+              style: TextStyle(
+                  fontSize: 14, color: Colors.grey[700], height: 1.5)),
         ),
         const SizedBox(height: 24),
 
-        // ── Target Groups ─────────────────────────────────────────────────────
+        // â”€â”€ Target Groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _section(
           title: 'Target Groups',
           child: Wrap(
-            spacing: 8, runSpacing: 8,
-            children: org.targetGroups.map((g) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                  color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
-              child: Text(g,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-            )).toList(),
+            spacing: 8,
+            runSpacing: 8,
+            children: org.targetGroups
+                .map((g) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Text(g,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w500)),
+                    ))
+                .toList(),
           ),
         ),
         const SizedBox(height: 24),
 
-        // ── Services (with optional + button) ────────────────────────────────
+        // â”€â”€ Services (with optional + button) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         _section(
           title: 'Services Provided',
           trailing: Text('${org.services.length} Key Areas',
               style: const TextStyle(
-                  fontSize: 13, color: Colors.blue, fontWeight: FontWeight.w600)),
+                  fontSize: 13,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600)),
           child: Column(
             children: org.services.map((svc) {
-              final icon  = IconMapper.get(svc.icon);
+              final icon = IconMapper.get(svc.icon);
               final color = IconMapper.getColor(svc.icon);
               return Container(
                 margin: const EdgeInsets.only(bottom: 14),
@@ -222,12 +249,13 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8)),
                       child: Icon(icon, color: color, size: 22),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Column(
+                    Expanded(
+                        child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(svc.name,
@@ -239,13 +267,14 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
                                 fontSize: 13, color: Colors.grey[600])),
                       ],
                     )),
-                    // "+" button — refugee home only
+                    // "+" button â€” refugee home only
                     if (widget.showAddButton) ...[
                       const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () => _requestService(svc),
                         child: Container(
-                          width: 36, height: 36,
+                          width: 36,
+                          height: 36,
                           decoration: BoxDecoration(
                               color: _green,
                               borderRadius: BorderRadius.circular(10)),
@@ -262,32 +291,38 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
         ),
         const SizedBox(height: 32),
 
-        // ── Impact Images ─────────────────────────────────────────────────────
+        // â”€â”€ Impact Images â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (org.impactImage1 != null || org.impactImage2 != null)
           _section(
             title: 'Our Impact',
             child: Row(children: [
               if (org.impactImage1 != null)
-                Expanded(child: ClipRRect(
+                Expanded(
+                    child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: NetImage(
                     url: org.impactImage1!,
-                    height: 150, fit: BoxFit.cover,
+                    height: 150,
+                    fit: BoxFit.cover,
                     fallback: Container(
-                        height: 150, color: Colors.grey[200],
+                        height: 150,
+                        color: Colors.grey[200],
                         child: const Icon(Icons.image, size: 50)),
                   ),
                 )),
               if (org.impactImage1 != null && org.impactImage2 != null)
                 const SizedBox(width: 12),
               if (org.impactImage2 != null)
-                Expanded(child: ClipRRect(
+                Expanded(
+                    child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: NetImage(
                     url: org.impactImage2!,
-                    height: 150, fit: BoxFit.cover,
+                    height: 150,
+                    fit: BoxFit.cover,
                     fallback: Container(
-                        height: 150, color: Colors.grey[200],
+                        height: 150,
+                        color: Colors.grey[200],
                         child: const Icon(Icons.image, size: 50)),
                   ),
                 )),
@@ -295,7 +330,7 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
           ),
         const SizedBox(height: 32),
 
-        // ── Contact ───────────────────────────────────────────────────────────
+        // â”€â”€ Contact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(children: [
@@ -304,7 +339,10 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
                   'Official Website', () => _launchUrl(org.officialWebsite)),
             if (org.contactEmail != null) ...[
               const SizedBox(height: 12),
-              _contactRow(Icons.email_outlined, Colors.green[50]!, Colors.green,
+              _contactRow(
+                  Icons.email_outlined,
+                  Colors.green[50]!,
+                  Colors.green,
                   org.contactEmail!,
                   () => _launchUrl('mailto:${org.contactEmail}')),
             ],
@@ -315,14 +353,15 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
     );
   }
 
-  Widget _section({required String title, Widget? trailing, required Widget child}) =>
+  Widget _section(
+          {required String title, Widget? trailing, required Widget child}) =>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             if (trailing != null) ...[const Spacer(), trailing],
           ]),
           const SizedBox(height: 12),
@@ -330,8 +369,8 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
         ]),
       );
 
-  Widget _contactRow(IconData icon, Color bg, Color color,
-      String label, VoidCallback onTap) =>
+  Widget _contactRow(IconData icon, Color bg, Color color, String label,
+          VoidCallback onTap) =>
       InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -347,9 +386,10 @@ class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
               child: Icon(icon, color: color, size: 20),
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(label,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500))),
+            Expanded(
+                child: Text(label,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w500))),
             const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ]),
         ),

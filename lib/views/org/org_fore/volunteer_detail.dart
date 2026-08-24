@@ -9,7 +9,7 @@ class VolunteerDetailScreen extends StatelessWidget {
 
   final int index;
   final FormController controller = Get.find();
-  // حقن المتحكم
+  // Ø­Ù‚Ù† Ø§Ù„Ù…ØªØ­ÙƒÙ…
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +33,7 @@ class VolunteerDetailScreen extends StatelessWidget {
                 width: 100,
                 child: CircleAvatar(child: Icon(Icons.add)),
               ),
-              // اسم المتطوع ووقت التقديم
+              // Ø§Ø³Ù… Ø§Ù„Ù…ØªØ·ÙˆØ¹ ÙˆÙˆÙ‚Øª Ø§Ù„ØªÙ‚Ø¯ÙŠÙ…
               Column(
                 children: [
                   Text(
@@ -51,7 +51,7 @@ class VolunteerDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // بطاقة المعلومات الشخصية
+              // Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©
               _buildSectionCard(
                 title: 'PERSONAL INFORMATION',
                 child: Column(
@@ -85,7 +85,6 @@ class VolunteerDetailScreen extends StatelessWidget {
                     const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                       children: [
                         Row(
                           children: [
@@ -120,7 +119,7 @@ class VolunteerDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // بطاقة التوفر
+              // Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„ØªÙˆÙØ±
               _buildSectionCard(
                 title: 'AVAILABILITY',
                 child: Column(
@@ -138,16 +137,14 @@ class VolunteerDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-
                     Text("Start date : ${v.startDate}"),
-
                     const SizedBox(height: 8),
                     Text("Expected duration : ${v.duration}"),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              // بطاقة المهارات والخبرة
+              // Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…Ù‡Ø§Ø±Ø§Øª ÙˆØ§Ù„Ø®Ø¨Ø±Ø©
               _buildSectionCard(
                 title: 'SKILLS & EXPERIENCE',
                 child: Column(
@@ -184,7 +181,7 @@ class VolunteerDetailScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // بطاقة المساعدة الممكن تقديمها
+              // Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ø§Ù„Ù…Ù…ÙƒÙ† ØªÙ‚Ø¯ÙŠÙ…Ù‡Ø§
               _buildSectionCard(
                 title: 'THE HELP HE CAN PROVIDE',
                 child: Column(
@@ -196,7 +193,6 @@ class VolunteerDetailScreen extends StatelessWidget {
                             controller.iconsMap[v.logo[i]]?.icon,
                             color: controller.iconsMap[v.logo[i]]?.color,
                           ),
-
                           SizedBox(width: 15),
                           Text(v.helpProvided[i]),
                         ],
@@ -207,7 +203,7 @@ class VolunteerDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // بطاقة معلومات إضافية
+              // Ø¨Ø·Ø§Ù‚Ø© Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø¥Ø¶Ø§ÙÙŠØ©
               _buildSectionCard(
                 title: 'MORE INFORMATION',
                 child: Column(
@@ -233,7 +229,7 @@ class VolunteerDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // زرا الرفض والقبول
+              // Ø²Ø±Ø§ Ø§Ù„Ø±ÙØ¶ ÙˆØ§Ù„Ù‚Ø¨ÙˆÙ„
               if (v.state == 'pending')
                 Row(
                   children: [
@@ -292,7 +288,7 @@ class VolunteerDetailScreen extends StatelessWidget {
     );
   }
 
-  // ويدجت مساعد لبناء صف معلومات (عنوان - قيمة)
+  // ÙˆÙŠØ¯Ø¬Øª Ù…Ø³Ø§Ø¹Ø¯ Ù„Ø¨Ù†Ø§Ø¡ ØµÙ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª (Ø¹Ù†ÙˆØ§Ù† - Ù‚ÙŠÙ…Ø©)
   Widget _buildInfoRow(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +305,7 @@ class VolunteerDetailScreen extends StatelessWidget {
     );
   }
 
-  // ويدجت مساعد لبناء بطاقة قسم
+  // ÙˆÙŠØ¯Ø¬Øª Ù…Ø³Ø§Ø¹Ø¯ Ù„Ø¨Ù†Ø§Ø¡ Ø¨Ø·Ø§Ù‚Ø© Ù‚Ø³Ù…
   Widget _buildSectionCard({required String title, required Widget child}) {
     return Card(
       elevation: 2,

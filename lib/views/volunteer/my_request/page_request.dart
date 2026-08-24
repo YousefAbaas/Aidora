@@ -24,7 +24,9 @@ class _Pagerequest extends State<Pagerequest> {
 
   Future<void> _checkUserRequest() async {
     if (!mounted) return;
-    setState(() { _checking = true; });
+    setState(() {
+      _checking = true;
+    });
 
     final res = await ApiService.instance.get(
       ApiConstants.volunteerStateRequest,
@@ -35,8 +37,10 @@ class _Pagerequest extends State<Pagerequest> {
     if (!mounted) return;
 
     if (!res.isSuccess) {
-      // Could not reach server — let the user retry instead of being stuck silently
-      setState(() { _checking = false; });
+      // Could not reach server â€” let the user retry instead of being stuck silently
+      setState(() {
+        _checking = false;
+      });
       Get.snackbar(
         "Connection issue",
         res.errorMessage ?? "Could not check your request status.",
@@ -50,15 +54,17 @@ class _Pagerequest extends State<Pagerequest> {
     final status = (data['application_status'] ?? '').toString().toLowerCase();
 
     if (profileCompleted) {
-      // Profile done and approved → main volunteer area
+      // Profile done and approved â†’ main volunteer area
       Get.offAll(() => const Navigationbarr(), transition: Transition.fadeIn);
     } else if (status == 'approved') {
       Get.offAll(() => Approved());
     } else if (status == 'rejected') {
       Get.offAll(() => Rejected());
     } else {
-      // pending/null → stay on this page
-      setState(() { _checking = false; });
+      // pending/null â†’ stay on this page
+      setState(() {
+        _checking = false;
+      });
     }
   }
 
@@ -150,19 +156,13 @@ Widget _formCard() {
             fontWeight: FontWeight.bold,
           ),
         ),
-
         SizedBox(height: 10),
         Text(
           "We are currently reviewing your application details. You will be notified immediately once a decision has been made.",
           textAlign: TextAlign.center,
-
           style: TextStyle(fontSize: 20, color: Colors.blueGrey),
         ),
-
         SizedBox(height: 30),
-
-
-
       ],
     ),
   );

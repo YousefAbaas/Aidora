@@ -24,7 +24,10 @@ class _Orgtwo extends State<Orgtwo> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     final res = await ApiService.instance.get(
       ApiConstants.orgPageTwo,
@@ -33,7 +36,10 @@ class _Orgtwo extends State<Orgtwo> {
 
     if (!mounted) return;
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _error = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _error = res.errorMessage;
+      });
       return;
     }
 
@@ -42,18 +48,21 @@ class _Orgtwo extends State<Orgtwo> {
       list.map<Map<String, String>>((item) {
         final e = item as Map<String, dynamic>;
         return {
-          'ID':       e['id']?.toString()           ?? '',
-          'title':    e['refugee_name']?.toString() ?? '',
-          'id':       e['request_id']?.toString()   ?? '',
+          'ID': e['id']?.toString() ?? '',
+          'title': e['refugee_name']?.toString() ?? '',
+          'id': e['request_id']?.toString() ?? '',
           'taskName': e['service_name']?.toString() ?? '',
-          'icon':     e['icon']?.toString()         ?? '',
-          'location': e['location']?.toString()     ?? '',
-          'date':     e['request_date']?.toString() ?? '',
-          'state':    e['status']?.toString()       ?? '',
+          'icon': e['icon']?.toString() ?? '',
+          'location': e['location']?.toString() ?? '',
+          'date': e['request_date']?.toString() ?? '',
+          'state': e['status']?.toString() ?? '',
         };
       }).toList(),
     );
-    if (mounted) setState(() { _isLoading = false; });
+    if (mounted)
+      setState(() {
+        _isLoading = false;
+      });
   }
 
   @override
@@ -67,10 +76,12 @@ class _Orgtwo extends State<Orgtwo> {
     if (_error != null) {
       return Scaffold(
         backgroundColor: const Color.fromARGB(240, 247, 242, 232),
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        body: Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.wifi_off, size: 60, color: Colors.grey),
           const SizedBox(height: 12),
-          Text(_error!, textAlign: TextAlign.center,
+          Text(_error!,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: _init, child: const Text('Retry')),
@@ -121,8 +132,9 @@ class _Orgtwo extends State<Orgtwo> {
           ? controller.listallpagetwo.toList()
           : controller.listallpagetwo.where((t) => t['state'] == s).toList();
       if (items.isEmpty) {
-        return const Center(child: Text('No requests found',
-            style: TextStyle(color: Colors.grey)));
+        return const Center(
+            child: Text('No requests found',
+                style: TextStyle(color: Colors.grey)));
       }
       return ListView.builder(
         itemCount: items.length,
@@ -140,12 +152,15 @@ class _Orgtwo extends State<Orgtwo> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(14)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ListTile(
-              title: Text(task['title'] ?? 'NULL', style: const TextStyle(fontSize: 20)),
+              title: Text(task['title'] ?? 'NULL',
+                  style: const TextStyle(fontSize: 20)),
               subtitle: Text(task['id'] ?? 'NULL'),
               trailing: Container(
-                width: 70, height: 30,
+                width: 70,
+                height: 30,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: task['state'] == 'completed'
@@ -156,13 +171,15 @@ class _Orgtwo extends State<Orgtwo> {
                               ? Colors.green[200]
                               : Colors.red[200],
                 ),
-                child: Center(child: Text(task['state'] ?? 'NULL',
-                    style: const TextStyle(color: Colors.white))),
+                child: Center(
+                    child: Text(task['state'] ?? 'NULL',
+                        style: const TextStyle(color: Colors.white))),
               ),
             ),
             const SizedBox(height: 20),
             Row(children: [
-              Icon(controller.iconsMap[task['icon']]?.icon, color: Colors.blue[100]),
+              Icon(controller.iconsMap[task['icon']]?.icon,
+                  color: Colors.blue[100]),
               const SizedBox(width: 10),
               Text(task['taskName'] ?? 'NULL'),
             ]),
@@ -187,12 +204,14 @@ class _Orgtwo extends State<Orgtwo> {
                   arguments: int.tryParse(task['ID'] ?? '0') ?? 0,
                 ),
                 child: Container(
-                  height: 50, width: 150,
+                  height: 50,
+                  width: 150,
                   decoration: BoxDecoration(
                       color: const Color(0xff5ba9c7),
                       borderRadius: BorderRadius.circular(15)),
-                  child: const Center(child: Text('View Details',
-                      style: TextStyle(color: Colors.white))),
+                  child: const Center(
+                      child: Text('View Details',
+                          style: TextStyle(color: Colors.white))),
                 ),
               ),
             ),

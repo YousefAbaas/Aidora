@@ -1,17 +1,17 @@
-// web_img.dart — Web-only image widget using native <img> HTML element.
+// web_img.dart â€” Web-only image widget using native <img> HTML element.
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 
 /// Registers the img view factory once per image URL.
 /// Uses the browser's native <img> which loads without CORS restriction.
 class WebImg extends StatefulWidget {
-  final String   url;
-  final double?  width;
-  final double?  height;
-  final BoxFit   fit;
-  final Widget?  fallback;
+  final String url;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Widget? fallback;
 
   const WebImg({
     super.key,
@@ -39,35 +39,36 @@ class _WebImgState extends State<WebImg> {
   void _register() {
     try {
       ui_web.platformViewRegistry.registerViewFactory(_viewId, (int id) {
-        final imgEl = html.ImageElement()
+        final imgEl = web.HTMLImageElement()
           ..src = widget.url
-          ..style.width  = '100%'
+          ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = _fitCss(widget.fit)
           ..style.display = 'block';
         return imgEl;
       });
     } catch (_) {
-      // Already registered — safe to ignore
+      // Already registered â€” safe to ignore
     }
   }
 
   String _fitCss(BoxFit fit) => switch (fit) {
-    BoxFit.contain => 'contain',
-    BoxFit.fill => 'fill',
-    BoxFit.fitWidth => 'contain',
-    BoxFit.fitHeight => 'contain',
-    BoxFit.none => 'none',
-    BoxFit.scaleDown => 'scale-down',
-    BoxFit.cover => 'cover',
-  };
+        BoxFit.contain => 'contain',
+        BoxFit.fill => 'fill',
+        BoxFit.fitWidth => 'contain',
+        BoxFit.fitHeight => 'contain',
+        BoxFit.none => 'none',
+        BoxFit.scaleDown => 'scale-down',
+        BoxFit.cover => 'cover',
+      };
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width:  widget.width,
+      width: widget.width,
       height: widget.height,
       child: HtmlElementView(viewType: _viewId),
     );
   }
 }
+

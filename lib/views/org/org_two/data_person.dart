@@ -17,7 +17,7 @@ class _Dataperson extends State<StatefulWidget> {
   bool _isLoading = true;
   String? _loadError;
 
-  // حقن المتحكم
+  // Ø­Ù‚Ù† Ø§Ù„Ù…ØªØ­ÙƒÙ…
   final FormController controller = Get.find();
   @override
   void initState() {
@@ -27,7 +27,10 @@ class _Dataperson extends State<StatefulWidget> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _loadError = null; });
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
 
     final res = await ApiService.instance.get(
       "${ApiConstants.orgPageTwo}${id}",
@@ -37,7 +40,10 @@ class _Dataperson extends State<StatefulWidget> {
     if (!mounted) return;
 
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _loadError = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _loadError = res.errorMessage;
+      });
       return;
     }
 
@@ -74,7 +80,8 @@ class _Dataperson extends State<StatefulWidget> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(_loadError!, textAlign: TextAlign.center,
+              child: Text(_loadError!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 16),
@@ -149,7 +156,7 @@ class _Dataperson extends State<StatefulWidget> {
     );
   }
 
-  // ========== Widgets مُقسمة ==========
+  // ========== Widgets Ù…ÙÙ‚Ø³Ù…Ø© ==========
 
   Widget _buildHeader(FormController controller) {
     return Column(
@@ -380,10 +387,10 @@ class _Dataperson extends State<StatefulWidget> {
       padding: const EdgeInsets.all(03),
       decoration: BoxDecoration(
         // ignore: deprecated_member_use
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
         // ignore: deprecated_member_use
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +529,8 @@ class _Dataperson extends State<StatefulWidget> {
                                       () => TextButton(
                                         onPressed: () async {
                                           controller.isLoading.value = true;
-                                          final res = await ApiService.instance.post(
+                                          final res =
+                                              await ApiService.instance.post(
                                             "${ApiConstants.orgPageTwoApproved}${id}/approve/",
                                             body: {},
                                             requiresAuth: true,
@@ -533,7 +541,8 @@ class _Dataperson extends State<StatefulWidget> {
                                           if (!res.isSuccess) {
                                             Get.snackbar(
                                               "Failed to approve",
-                                              res.errorMessage ?? "Please try again.",
+                                              res.errorMessage ??
+                                                  "Please try again.",
                                               colorText: Colors.red,
                                             );
                                             return;
@@ -700,7 +709,6 @@ class _Dataperson extends State<StatefulWidget> {
                                       ),
                                     ],
                                   ),
-
                                   SizedBox(height: 30),
                                   Container(
                                     height: 50,
@@ -713,12 +721,12 @@ class _Dataperson extends State<StatefulWidget> {
                                       () => TextButton(
                                         onPressed: () async {
                                           controller.isLoading.value = true;
-                                          final res = await ApiService.instance.post(
+                                          final res =
+                                              await ApiService.instance.post(
                                             "${ApiConstants.orgPageTwoRejected}${id}/reject/",
                                             body: {
                                               "rejection_reason": controller
-                                                  .resonPersonOne
-                                                  .value,
+                                                  .resonPersonOne.value,
                                             },
                                             requiresAuth: true,
                                           );
@@ -727,7 +735,8 @@ class _Dataperson extends State<StatefulWidget> {
                                           if (!res.isSuccess) {
                                             Get.snackbar(
                                               "Failed to reject",
-                                              res.errorMessage ?? "Please try again.",
+                                              res.errorMessage ??
+                                                  "Please try again.",
                                               colorText: Colors.red,
                                             );
                                             return;

@@ -6,9 +6,9 @@ import '../services/requests_api_service.dart';
 import 'qr_scanner_screen.dart';
 import 'request_details_screen.dart';
 
-/// MyRequestsScreen — "View All" from the dashboard
-/// GET /api/requests/list/              → all
-/// GET /api/requests/list/?status=xxx  → filtered
+/// MyRequestsScreen â€” "View All" from the dashboard
+/// GET /api/requests/list/              â†’ all
+/// GET /api/requests/list/?status=xxx  â†’ filtered
 ///
 /// Tabs: All | Approved | Pending | Rejected | Completed
 class MyRequestsScreen extends StatefulWidget {
@@ -59,7 +59,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
   void initState() {
     super.initState();
     _instance = this;
-    // تم التعديل لاستخدام effective لدعم Fake/Mock أثناء اختبارات الـ Widgets
+    // ØªÙ… Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù… effective Ù„Ø¯Ø¹Ù… Fake/Mock Ø£Ø«Ù†Ø§Ø¡ Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø§Ù„Ù€ Widgets
     _svc = widget.apiService ?? RequestsApiService.effective;
     _tab = TabController(length: _tabs.length, vsync: this);
     _tab.addListener(_onTabChanged);
@@ -120,7 +120,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
       backgroundColor: _bg,
       body: SafeArea(
         child: Column(children: [
-          // ── Header ────────────────────────────────────────────────────
+          // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 16, 20, 0),
             child: Row(children: [
@@ -139,7 +139,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
 
           const SizedBox(height: 12),
 
-          // ── Tab bar ───────────────────────────────────────────────────
+          // â”€â”€ Tab bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Container(
             height: 42,
             margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,7 +174,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
 
           const SizedBox(height: 12),
 
-          // ── Tab views ─────────────────────────────────────────────────
+          // â”€â”€ Tab views â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             child: TabBarView(
               controller: _tab,
@@ -208,7 +208,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _TabPage extends StatelessWidget {
   final String status;
   final List<RequestModel> items;
@@ -277,9 +277,9 @@ class _TabPage extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Request Card
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _RequestCard extends StatelessWidget {
   final RequestModel request;
   final Future<void> Function(RequestModel) onScanQR;
@@ -360,7 +360,7 @@ class _RequestCard extends StatelessWidget {
         border: Border(left: BorderSide(color: _accentColor, width: 4)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -375,7 +375,8 @@ class _RequestCard extends StatelessWidget {
               decoration: BoxDecoration(
                   color: _badgeBg,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: _accentColor.withOpacity(0.25))),
+                  border:
+                      Border.all(color: _accentColor.withValues(alpha: 0.25))),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(_icon, color: _accentColor, size: 13),
                 const SizedBox(width: 5),

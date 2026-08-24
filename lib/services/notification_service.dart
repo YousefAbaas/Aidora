@@ -8,13 +8,13 @@ import 'api_service.dart';
 /// Notification types matching backend `notification_type` field.
 enum NotifType { approved, assigned, rejected }
 
-// ── AppNotification ────────────────────────────────────────────────────────
+// â”€â”€ AppNotification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class AppNotification {
-  final String   id;
-  final String   message;
-  final String   createdAt;
+  final String id;
+  final String message;
+  final String createdAt;
   final NotifType type;
-  final bool     isRead;
+  final bool isRead;
 
   const AppNotification({
     required this.id,
@@ -26,37 +26,48 @@ class AppNotification {
 
   factory AppNotification.fromJson(Map<String, dynamic> j, {String? id}) =>
       AppNotification(
-        id:        id ?? j['id']?.toString()
-                       ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        message:   j['message']?.toString()   ?? '',
+        id: id ??
+            j['id']?.toString() ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
+        message: j['message']?.toString() ?? '',
         createdAt: j['created_at']?.toString() ?? '',
-        type:      _parseType(j['notification_type']?.toString() ?? ''),
-        isRead:    j['is_read'] == true,
+        type: _parseType(j['notification_type']?.toString() ?? ''),
+        isRead: j['is_read'] == true,
       );
 
   static NotifType _parseType(String raw) {
     switch (raw.toLowerCase().trim()) {
-      case 'approved': return NotifType.approved;
-      case 'assigned': return NotifType.assigned;
-      case 'rejected': return NotifType.rejected;
-      default:         return NotifType.approved;
+      case 'approved':
+        return NotifType.approved;
+      case 'assigned':
+        return NotifType.assigned;
+      case 'rejected':
+        return NotifType.rejected;
+      default:
+        return NotifType.approved;
     }
   }
 
   String get title {
     switch (type) {
-      case NotifType.approved: return '✅ Request Approved';
-      case NotifType.assigned: return '📦 Ready for Pickup';
-      case NotifType.rejected: return '❌ Request Rejected';
+      case NotifType.approved:
+        return 'âœ… Request Approved';
+      case NotifType.assigned:
+        return 'ðŸ“¦ Ready for Pickup';
+      case NotifType.rejected:
+        return 'âŒ Request Rejected';
     }
   }
 
   AppNotification copyWith({bool? isRead}) => AppNotification(
-      id: id, message: message, createdAt: createdAt,
-      type: type, isRead: isRead ?? this.isRead);
+      id: id,
+      message: message,
+      createdAt: createdAt,
+      type: type,
+      isRead: isRead ?? this.isRead);
 }
 
-// ── NotificationService ────────────────────────────────────────────────────
+// â”€â”€ NotificationService â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class NotificationService extends GetxController {
   static NotificationService get to => Get.find();
 
@@ -65,14 +76,14 @@ class NotificationService extends GetxController {
   final ApiService _api = ApiService.instance;
 
   final RxList<AppNotification> notifications = <AppNotification>[].obs;
-  final RxInt  unreadCount = 0.obs;
-  final RxBool isLoading   = false.obs;
+  final RxInt unreadCount = 0.obs;
+  final RxBool isLoading = false.obs;
 
-  // ── Init ──────────────────────────────────────────────────────
+  // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> init() async {
     if (!kIsWeb) {
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const ios     = DarwinInitializationSettings(
+      const ios = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestSoundPermission: true,
@@ -89,7 +100,7 @@ class NotificationService extends GetxController {
     await fetchFromApi();
   }
 
-  // ── GET /api/auth/notifications/ ──────────────────────────────
+  // â”€â”€ GET /api/auth/notifications/ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> fetchFromApi() async {
     isLoading.value = true;
     try {
@@ -100,11 +111,18 @@ class NotificationService extends GetxController {
         if (data is List) {
           list = data;
         } else if (data is Map) {
-          list = (data['notifications'] ?? data['results'] ?? data['data'] ?? []) as List;
+          list = (data['notifications'] ??
+              data['results'] ??
+              data['data'] ??
+              []) as List;
         }
-        final parsed = list.asMap().entries.map((e) =>
-            AppNotification.fromJson(e.value as Map<String, dynamic>,
-                id: e.key.toString())).toList();
+        final parsed = list
+            .asMap()
+            .entries
+            .map((e) => AppNotification.fromJson(
+                e.value as Map<String, dynamic>,
+                id: e.key.toString()))
+            .toList();
         notifications.assignAll(parsed);
         unreadCount.value = parsed.where((n) => !n.isRead).length;
       } else {
@@ -117,28 +135,32 @@ class NotificationService extends GetxController {
     }
   }
 
-  // ── Push system notification ───────────────────────────────────
+  // â”€â”€ Push system notification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> pushSystemNotification({
     required String title,
     required String body,
   }) async {
     const android = AndroidNotificationDetails(
-      'aidora_requests', 'Aid Requests',
+      'aidora_requests',
+      'Aid Requests',
       channelDescription: 'Notifications about your humanitarian aid requests',
-      importance: Importance.max, priority: Priority.high,
-      playSound: true, enableVibration: true,
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
       color: Color(0xFF2C5F4F),
     );
     const ios = DarwinNotificationDetails(
         presentAlert: true, presentBadge: true, presentSound: true);
     await _plugin.show(
       DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title, body,
+      title,
+      body,
       const NotificationDetails(android: android, iOS: ios),
     );
   }
 
-  // ── Read management ───────────────────────────────────────────
+  // â”€â”€ Read management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   void markAllRead() {
     for (int i = 0; i < notifications.length; i++) {
       if (!notifications[i].isRead) {

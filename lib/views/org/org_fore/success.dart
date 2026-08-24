@@ -8,7 +8,7 @@ class SuccessAcceptancePage extends StatelessWidget {
   SuccessAcceptancePage({super.key, required this.index});
 
   final int index;
-  // حقن الـ Controller تلقائيًا عبر Get.put أو lazyPut
+  // Ø­Ù‚Ù† Ø§Ù„Ù€ Controller ØªÙ„Ù‚Ø§Ø¦ÙŠÙ‹Ø§ Ø¹Ø¨Ø± Get.put Ø£Ùˆ lazyPut
   final FormController controller = Get.find();
 
   @override
@@ -29,16 +29,16 @@ class SuccessAcceptancePage extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              // قسم النجاح (أيقونة + عنوان)
+              // Ù‚Ø³Ù… Ø§Ù„Ù†Ø¬Ø§Ø­ (Ø£ÙŠÙ‚ÙˆÙ†Ø© + Ø¹Ù†ÙˆØ§Ù†)
               _buildSuccessHeader(),
               const SizedBox(height: 24),
-              // قسم الرسالة الوصفية
+              // Ù‚Ø³Ù… Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ø§Ù„ÙˆØµÙÙŠØ©
               _buildDescriptionMessage(),
               const SizedBox(height: 40),
-              // بطاقة المتطوع المقبول
+              // Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…ØªØ·ÙˆØ¹ Ø§Ù„Ù…Ù‚Ø¨ÙˆÙ„
               _buildVolunteerCard(),
               const Spacer(flex: 3),
-              // زر الذهاب إلى لوحة التحكم
+              // Ø²Ø± Ø§Ù„Ø°Ù‡Ø§Ø¨ Ø¥Ù„Ù‰ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…
               _buildDashboardButton(),
               const SizedBox(height: 20),
             ],
@@ -48,7 +48,7 @@ class SuccessAcceptancePage extends StatelessWidget {
     );
   }
 
-  // (1) رأس النجاح مع الأيقونة والعنوان
+  // (1) Ø±Ø£Ø³ Ø§Ù„Ù†Ø¬Ø§Ø­ Ù…Ø¹ Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø© ÙˆØ§Ù„Ø¹Ù†ÙˆØ§Ù†
   Widget _buildSuccessHeader() {
     return Column(
       children: [
@@ -81,7 +81,7 @@ class SuccessAcceptancePage extends StatelessWidget {
     );
   }
 
-  // (2) الرسالة التوضيحية
+  // (2) Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ø§Ù„ØªÙˆØ¶ÙŠØ­ÙŠØ©
   Widget _buildDescriptionMessage() {
     return Text(
       'The volunteer has been successfully accepted and notified. '
@@ -91,7 +91,7 @@ class SuccessAcceptancePage extends StatelessWidget {
     );
   }
 
-  // (3) بطاقة معلومات المتطوع المقبول
+  // (3) Ø¨Ø·Ø§Ù‚Ø© Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ØªØ·ÙˆØ¹ Ø§Ù„Ù…Ù‚Ø¨ÙˆÙ„
   Widget _buildVolunteerCard() {
     return Obx(() {
       var v = controller.listallpagefore[index];
@@ -106,12 +106,12 @@ class SuccessAcceptancePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // الصورة الرمزية
+            // Ø§Ù„ØµÙˆØ±Ø© Ø§Ù„Ø±Ù…Ø²ÙŠØ©
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.blue.shade50,
               child: Text(
-                // اختصار للاسم
+                // Ø§Ø®ØªØµØ§Ø± Ù„Ù„Ø§Ø³Ù…
                 v.name.split(' ').map((e) => e[0].toUpperCase()).join(),
                 style: TextStyle(
                   fontSize: 28,
@@ -121,7 +121,7 @@ class SuccessAcceptancePage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 2),
-            // الاسم
+            // Ø§Ù„Ø§Ø³Ù…
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -134,7 +134,7 @@ class SuccessAcceptancePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                // التخصص
+                // Ø§Ù„ØªØ®ØµØµ
                 Text(
                   v.helpProvided[0],
                   style: TextStyle(color: Colors.grey.shade700),
@@ -142,7 +142,7 @@ class SuccessAcceptancePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // شارة الحالة "ACCEPTED"
+            // Ø´Ø§Ø±Ø© Ø§Ù„Ø­Ø§Ù„Ø© "ACCEPTED"
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
               decoration: BoxDecoration(
@@ -165,7 +165,7 @@ class SuccessAcceptancePage extends StatelessWidget {
     });
   }
 
-  // (4) زر التنقل إلى لوحة التحكم
+  // (4) Ø²Ø± Ø§Ù„ØªÙ†Ù‚Ù„ Ø¥Ù„Ù‰ Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…
   Widget _buildDashboardButton() {
     var w = controller.listallpagefore[index];
 

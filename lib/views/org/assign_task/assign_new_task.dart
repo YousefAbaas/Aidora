@@ -31,7 +31,10 @@ class _Assignnewtask extends State<StatefulWidget> {
 
   Future<void> _init() async {
     if (!mounted) return;
-    setState(() { _isLoading = true; _loadError = null; });
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
 
     final res = await ApiService.instance.get(
       "${ApiConstants.orgAssignTask}$id/",
@@ -41,15 +44,17 @@ class _Assignnewtask extends State<StatefulWidget> {
     if (!mounted) return;
 
     if (!res.isSuccess) {
-      setState(() { _isLoading = false; _loadError = res.errorMessage; });
+      setState(() {
+        _isLoading = false;
+        _loadError = res.errorMessage;
+      });
       return;
     }
 
     final data = res.data;
     controller.requestId.value = data['id'];
     controller.logo.value = data['service_icon']?.toString() ?? "";
-    controller.assistanceType.value =
-        data['service_name']?.toString() ?? "";
+    controller.assistanceType.value = data['service_name']?.toString() ?? "";
     controller.locations.value = data['sector']?.toString() ?? "";
     controller.volunt.clear();
     final volunteerList = (data is Map && data['volunteers'] is List)
@@ -61,10 +66,12 @@ class _Assignnewtask extends State<StatefulWidget> {
       }).toList(),
     );
 
-    setState(() { _isLoading = false; });
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  // حقن المتحكم
+  // Ø­Ù‚Ù† Ø§Ù„Ù…ØªØ­ÙƒÙ…
   FormController controller = Get.find();
 
   @override
@@ -83,7 +90,8 @@ class _Assignnewtask extends State<StatefulWidget> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(_loadError!, textAlign: TextAlign.center,
+              child: Text(_loadError!,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 16),
@@ -107,24 +115,24 @@ class _Assignnewtask extends State<StatefulWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // قسم: REQUEST معلومات
+            // Ù‚Ø³Ù…: REQUEST Ù…Ø¹Ù„ÙˆÙ…Ø§Øª
             _buildRequestSection(),
             const SizedBox(height: 24),
             _buildRequestVolunteer(),
-            // قسم: Task details
+            // Ù‚Ø³Ù…: Task details
             _buildTaskDetailsSection(),
             const SizedBox(height: 32),
-            // أزرار: Create and Assign + Cancel
+            // Ø£Ø²Ø±Ø§Ø±: Create and Assign + Cancel
             _buildActionButtons(),
           ],
         ),
       ),
 
-      // مؤشر تحميل يظهر فوق المحتوى عند الضغط على إنشاء
+      // Ù…Ø¤Ø´Ø± ØªØ­Ù…ÙŠÙ„ ÙŠØ¸Ù‡Ø± ÙÙˆÙ‚ Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø¹Ù†Ø¯ Ø§Ù„Ø¶ØºØ· Ø¹Ù„Ù‰ Ø¥Ù†Ø´Ø§Ø¡
     );
   }
 
-  // ========== قسم معلومات الطلب ==========
+  // ========== Ù‚Ø³Ù… Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø·Ù„Ø¨ ==========
   Widget _buildRequestSection() {
     return Obx(
       () => Container(
@@ -194,14 +202,11 @@ class _Assignnewtask extends State<StatefulWidget> {
         itemHeight: null,
         hint: Text("Select User"),
         value: controller.valID.value.isEmpty ? null : controller.valID.value,
-
         items: controller.volunt.map((e) {
           return DropdownMenuItem<String>(
             value: e["id"].toString(),
-
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 5),
-
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: Column(
@@ -232,7 +237,7 @@ class _Assignnewtask extends State<StatefulWidget> {
     );
   }
 
-  // ========== قسم تفاصيل المهمة ==========
+  // ========== Ù‚Ø³Ù… ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù…Ù‡Ù…Ø© ==========
   Widget _buildTaskDetailsSection() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -261,7 +266,6 @@ class _Assignnewtask extends State<StatefulWidget> {
             ],
           ),
           const SizedBox(height: 16),
-
           const SizedBox(height: 4),
           _section(
             title: "Task Title",
@@ -285,7 +289,7 @@ class _Assignnewtask extends State<StatefulWidget> {
     );
   }
 
-  // ========== أزرار الإجراء ==========
+  // ========== Ø£Ø²Ø±Ø§Ø± Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡ ==========
   Widget _buildActionButtons() {
     return Column(
       children: [
@@ -375,7 +379,7 @@ class _Assignnewtask extends State<StatefulWidget> {
     );
   }
 
-  // 🔹 Section (Reusable)
+  // ðŸ”¹ Section (Reusable)
   Widget _section({required String title, required Widget child}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -393,7 +397,7 @@ class _Assignnewtask extends State<StatefulWidget> {
     );
   }
 
-  // 🔹 TextField
+  // ðŸ”¹ TextField
   Widget _textField({
     required TextEditingController controller,
     required String hint,

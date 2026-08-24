@@ -43,7 +43,6 @@ class _Pagefive extends State<Pagefive> {
     return Container(
       height: 300,
       width: double.infinity,
-
       padding: EdgeInsets.fromLTRB(20, 60, 20, 30),
       decoration: BoxDecoration(
         color: Color(0xff7AD081),
@@ -115,7 +114,7 @@ class _Pagefive extends State<Pagefive> {
               ),
             ),
           ),
-          // 🔹 Volunteer
+          // ðŸ”¹ Volunteer
           _section(
             title: "Why do you want to volunteer?",
             child: _textField_2(
@@ -138,7 +137,6 @@ class _Pagefive extends State<Pagefive> {
               color: Color(0xff7AD081),
               borderRadius: BorderRadius.circular(30),
             ),
-
             child: MaterialButton(
               onPressed: () async {
                 controller.isLoading.value = true;
@@ -199,7 +197,7 @@ class _Pagefive extends State<Pagefive> {
     );
   }
 
-  // 🔹 Section (Reusable)
+  // ðŸ”¹ Section (Reusable)
   Widget _section({required String title, required Widget child}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -217,7 +215,7 @@ class _Pagefive extends State<Pagefive> {
     );
   }
 
-  // 🔹 TextField and icon
+  // ðŸ”¹ TextField and icon
   Widget _textField_1({
     required TextEditingController controller,
     required String hint,
@@ -254,7 +252,7 @@ class _Pagefive extends State<Pagefive> {
     );
   }
 
-  // 🔹 TextField and without icon
+  // ðŸ”¹ TextField and without icon
   Widget _textField_2({
     required TextEditingController controller,
     required String hint,
@@ -263,7 +261,6 @@ class _Pagefive extends State<Pagefive> {
     return Column(
       children: [
         texthint,
-
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
@@ -290,7 +287,7 @@ class _Pagefive extends State<Pagefive> {
     );
   }
 
-  // قسم الموافقات
+  // Ù‚Ø³Ù… Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø§Øª
   Widget _buildAgreementsSection(FormController controller) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -300,7 +297,7 @@ class _Pagefive extends State<Pagefive> {
       ),
       child: Column(
         children: [
-          // الموافقة على استخدام المعلومات
+          // Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª
           Obx(
             () => CheckboxListTile(
               value: controller.isInfoAgreed.value,
@@ -318,7 +315,7 @@ class _Pagefive extends State<Pagefive> {
 
           const Divider(height: 8),
 
-          // الموافقة على سياسة حماية الطفل
+          // Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø³ÙŠØ§Ø³Ø© Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ø·ÙÙ„
           Obx(
             () => CheckboxListTile(
               value: controller.isPolicyCommitted.value,

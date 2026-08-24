@@ -26,17 +26,20 @@ class _OnboardingScreensState extends State<OnboardingScreens>
     {
       'image': 'img/onboarding1.png',
       'title': 'Connect with Aid\nOrganizations',
-      'desc': 'Find humanitarian organizations ready to help you and your family, wherever you are.',
+      'desc':
+          'Find humanitarian organizations ready to help you and your family, wherever you are.',
     },
     {
       'image': 'img/onboarding2.png',
       'title': 'Request the\nAssistance You Need',
-      'desc': 'Submit requests for food, shelter, medical aid and more — quickly and easily.',
+      'desc':
+          'Submit requests for food, shelter, medical aid and more â€” quickly and easily.',
     },
     {
       'image': 'img/onboarding3_new.png',
       'title': 'Help Reaches You\nWherever You Are',
-      'desc': 'Get the support you need, when you need it — no matter where you are.',
+      'desc':
+          'Get the support you need, when you need it â€” no matter where you are.',
     },
   ];
 
@@ -53,14 +56,19 @@ class _OnboardingScreensState extends State<OnboardingScreens>
     _slideCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 450));
     _slide = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _slideCtrl, curve: Curves.easeOutCubic));
+        .animate(
+            CurvedAnimation(parent: _slideCtrl, curve: Curves.easeOutCubic));
     _playAnim();
     _scheduleNext();
   }
 
   void _playAnim() {
-    _fadeCtrl..reset()..forward();
-    _slideCtrl..reset()..forward();
+    _fadeCtrl
+      ..reset()
+      ..forward();
+    _slideCtrl
+      ..reset()
+      ..forward();
   }
 
   void _scheduleNext() {
@@ -103,7 +111,7 @@ class _OnboardingScreensState extends State<OnboardingScreens>
       backgroundColor: _kBg,
       body: Column(
         children: [
-          // ── Skip ────────────────────────────────────────────────
+          // â”€â”€ Skip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SizedBox(
             height: topPad + 52,
             child: Align(
@@ -113,10 +121,10 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                 child: GestureDetector(
                   onTap: _finish,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     decoration: BoxDecoration(
-                      color: _kGreen.withOpacity(0.09),
+                      color: _kGreen.withValues(alpha: 0.09),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text('Skip',
@@ -130,8 +138,8 @@ class _OnboardingScreensState extends State<OnboardingScreens>
             ),
           ),
 
-          // ── Illustration PageView ────────────────────────────────
-          // Images are 392×517 / 392×559 — same beige background as app.
+          // â”€â”€ Illustration PageView â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          // Images are 392Ã—517 / 392Ã—559 â€” same beige background as app.
           // BoxFit.contain shows the full illustration without clipping.
           Expanded(
             flex: 58,
@@ -153,13 +161,12 @@ class _OnboardingScreensState extends State<OnboardingScreens>
             ),
           ),
 
-          // ── Text panel ───────────────────────────────────────────
+          // â”€â”€ Text panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             flex: 42,
             child: Container(
               color: _kBg,
-              padding:
-                  EdgeInsets.fromLTRB(28, 0, 28, botPad + 28),
+              padding: EdgeInsets.fromLTRB(28, 0, 28, botPad + 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -168,8 +175,7 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                     width: 40,
                     height: 3,
                     decoration: BoxDecoration(
-                        color: _kGreen,
-                        borderRadius: BorderRadius.circular(2)),
+                        color: _kGreen, borderRadius: BorderRadius.circular(2)),
                   ),
                   const SizedBox(height: 16),
 
@@ -223,7 +229,7 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                             decoration: BoxDecoration(
                               color: active
                                   ? _kGreen
-                                  : _kGreen.withOpacity(0.18),
+                                  : _kGreen.withValues(alpha: 0.18),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -231,7 +237,7 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                       ),
                       const Spacer(),
 
-                      // Last page → "Get Started"
+                      // Last page â†’ "Get Started"
                       if (isLast)
                         FadeTransition(
                           opacity: _fade,
@@ -242,10 +248,9 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 28, vertical: 14),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(30)),
+                                  borderRadius: BorderRadius.circular(30)),
                               elevation: 4,
-                              shadowColor: _kGreen.withOpacity(0.35),
+                              shadowColor: _kGreen.withValues(alpha: 0.35),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
@@ -263,12 +268,11 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                           ),
                         ),
 
-                      // Other pages → circular arrow
+                      // Other pages â†’ circular arrow
                       if (!isLast)
                         GestureDetector(
                           onTap: () => _pageCtrl.nextPage(
-                              duration:
-                                  const Duration(milliseconds: 600),
+                              duration: const Duration(milliseconds: 600),
                               curve: Curves.easeInOutCubic),
                           child: Container(
                             width: 52,
@@ -278,16 +282,14 @@ class _OnboardingScreensState extends State<OnboardingScreens>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: _kGreen.withOpacity(0.30),
+                                  color: _kGreen.withValues(alpha: 0.30),
                                   blurRadius: 14,
                                   offset: const Offset(0, 5),
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                                Icons.arrow_forward_rounded,
-                                color: Colors.white,
-                                size: 24),
+                            child: const Icon(Icons.arrow_forward_rounded,
+                                color: Colors.white, size: 24),
                           ),
                         ),
                     ],

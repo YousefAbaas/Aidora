@@ -6,7 +6,8 @@ import 'login_screen.dart';
 class ResetPasswordScreen extends StatefulWidget {
   final String uid;
   final String token;
-  const ResetPasswordScreen({super.key, required this.uid, required this.token});
+  const ResetPasswordScreen(
+      {super.key, required this.uid, required this.token});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -15,13 +16,13 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _newPassCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
-  bool _obscureNew     = true;
+  bool _obscureNew = true;
   bool _obscureConfirm = true;
-  bool _isLoading      = false;
+  bool _isLoading = false;
   String? _passError;
 
   static const Color _green = Color(0xFF2C5F4F);
-  static const Color _bg    = Color(0xFFF5F3ED);
+  static const Color _bg = Color(0xFFF5F3ED);
 
   @override
   void dispose() {
@@ -32,7 +33,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Future<void> _save() async {
     setState(() => _passError = null);
-    final pass    = _newPassCtrl.text;
+    final pass = _newPassCtrl.text;
     final confirm = _confirmCtrl.text;
     if (pass.length < 6) {
       setState(() => _passError = 'min_6_chars'.tr);
@@ -46,9 +47,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     setState(() => _isLoading = true);
 
     final r = await AuthService.instance.resetPassword(
-      uid:             widget.uid,
-      token:           widget.token,
-      newPassword:     pass,
+      uid: widget.uid,
+      token: widget.token,
+      newPassword: pass,
       confirmPassword: confirm,
     );
     if (!mounted) return;
@@ -56,7 +57,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     if (r.isSuccess) {
       Get.snackbar(
-        '✓', 'save_password'.tr,
+        'âœ“',
+        'save_password'.tr,
         backgroundColor: _green,
         colorText: Colors.white,
         snackPosition: SnackPosition.TOP,
@@ -65,12 +67,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         duration: const Duration(seconds: 2),
       );
       await Future.delayed(const Duration(milliseconds: 1500));
-      if (mounted) Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
+      if (mounted)
+        Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
     } else {
       final errMsg = r.errorMessage ?? 'Request failed.';
-      final display = errMsg.length > 120 ? '\${errMsg.substring(0, 120)}…' : errMsg;
+      final display =
+          errMsg.length > 120 ? '\${errMsg.substring(0, 120)}â€¦' : errMsg;
       Get.snackbar(
-        'Error', display,
+        'Error',
+        display,
         backgroundColor: Colors.red[50],
         colorText: Colors.red[800],
         snackPosition: SnackPosition.TOP,
@@ -112,11 +117,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     children: [
                       const SizedBox(height: 32),
 
-                      // ── Icon ────────────────────────────────────────────────
+                      // â”€â”€ Icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Container(
-                        width: 72, height: 72,
+                        width: 72,
+                        height: 72,
                         decoration: BoxDecoration(
-                          color: _green.withOpacity(0.1),
+                          color: _green.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.lock_open_rounded,
@@ -124,7 +130,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // ── Title ───────────────────────────────────────────────
+                      // â”€â”€ Title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       Text(
                         'create_new_password'.tr,
                         style: const TextStyle(
@@ -142,59 +148,65 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                       const SizedBox(height: 32),
 
-                      // ── New Password ─────────────────────────────────────────
+                      // â”€â”€ New Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _label('new_password'.tr),
                       _passField(
                         controller: _newPassCtrl,
-                        hint:        'min_6_chars'.tr,
-                        obscure:     _obscureNew,
-                        hasError:    _passError != null,
-                        toggle: () => setState(() => _obscureNew = !_obscureNew),
+                        hint: 'min_6_chars'.tr,
+                        obscure: _obscureNew,
+                        hasError: _passError != null,
+                        toggle: () =>
+                            setState(() => _obscureNew = !_obscureNew),
                       ),
                       const SizedBox(height: 14),
 
-                      // ── Confirm Password ─────────────────────────────────────
+                      // â”€â”€ Confirm Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _label('confirm_password'.tr),
                       _passField(
                         controller: _confirmCtrl,
-                        hint:        'repeat_password'.tr,
-                        obscure:     _obscureConfirm,
-                        hasError:    _passError != null,
-                        toggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                        hint: 'repeat_password'.tr,
+                        obscure: _obscureConfirm,
+                        hasError: _passError != null,
+                        toggle: () =>
+                            setState(() => _obscureConfirm = !_obscureConfirm),
                         onSubmitted: (_) => _isLoading ? null : _save(),
                       ),
 
-                      // ── Error message ─────────────────────────────────────────
+                      // â”€â”€ Error message â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       if (_passError != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 6, left: 4),
                           child: Row(children: [
-                            const Icon(Icons.error_outline, size: 13, color: Colors.red),
+                            const Icon(Icons.error_outline,
+                                size: 13, color: Colors.red),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(_passError!,
-                                  style: const TextStyle(fontSize: 12, color: Colors.red)),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.red)),
                             ),
                           ]),
                         ),
 
                       const SizedBox(height: 28),
 
-                      // ── Save button ───────────────────────────────────────────
+                      // â”€â”€ Save button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _save,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _green,
-                            disabledBackgroundColor: _green.withOpacity(0.5),
+                            disabledBackgroundColor:
+                                _green.withValues(alpha: 0.5),
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                           ),
                           child: _isLoading
                               ? const SizedBox(
-                                  width: 22, height: 22,
+                                  width: 22,
+                                  height: 22,
                                   child: CircularProgressIndicator(
                                       color: Colors.white, strokeWidth: 2.5))
                               : Text(
@@ -220,16 +232,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }
 
   Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: Text(text,
-          style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700])),
-    ),
-  );
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(text,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700])),
+        ),
+      );
 
   Widget _passField({
     required TextEditingController controller,
@@ -248,14 +260,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               : Border.all(color: Colors.transparent),
         ),
         child: TextField(
-          controller:      controller,
-          obscureText:     obscure,
-          textInputAction: onSubmitted != null
-              ? TextInputAction.done
-              : TextInputAction.next,
+          controller: controller,
+          obscureText: obscure,
+          textInputAction:
+              onSubmitted != null ? TextInputAction.done : TextInputAction.next,
           onSubmitted: onSubmitted,
           decoration: InputDecoration(
-            hintText:  hint,
+            hintText: hint,
             hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
             prefixIcon: const Icon(Icons.lock_outline, color: _green, size: 20),
             suffixIcon: IconButton(

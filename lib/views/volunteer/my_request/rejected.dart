@@ -59,8 +59,9 @@ class Rejected extends StatelessWidget {
           );
           controller.isLoading.value = false;
           await AuthService.instance.logout();
-          // After rejection → guest mode: show organizations list
-          Get.offAll(() => const SelectionScreen(), transition: Transition.fadeIn);
+          // After rejection â†’ guest mode: show organizations list
+          Get.offAll(() => const SelectionScreen(),
+              transition: Transition.fadeIn);
         },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -112,15 +113,12 @@ class Rejected extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           SizedBox(height: 20),
           Text(
             "Please review your details or contact support for further assistance regarding this application.",
             textAlign: TextAlign.center,
-
             style: TextStyle(fontSize: 20, color: Colors.blueGrey),
           ),
-
           SizedBox(height: 30),
         ],
       ),

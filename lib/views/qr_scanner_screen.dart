@@ -14,8 +14,8 @@ class QRScannerScreen extends StatefulWidget {
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
   late final MobileScannerController _camCtrl;
-  bool _scanned   = false;
-  bool _loading   = false;
+  bool _scanned = false;
+  bool _loading = false;
   String? _resultRef;
   String? _resultStatus;
   String? _resultReceivedAt;
@@ -33,7 +33,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     super.dispose();
   }
 
-  // ── Called when camera detects a QR code ──────────────────────────────────
+  // â”€â”€ Called when camera detects a QR code â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   void _onDetect(BarcodeCapture capture) {
     if (_scanned || _loading) return;
     if (capture.barcodes.isEmpty) return;
@@ -44,9 +44,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     _sendToApi(rawValue);
   }
 
-  // ── POST /api/requests/<pk>/scan-qr/ ────────────────────────────────────
+  // â”€â”€ POST /api/requests/<pk>/scan-qr/ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<void> _sendToApi(String qrValue) async {
-    setState(() { _loading = true; _errorMsg = null; });
+    setState(() {
+      _loading = true;
+      _errorMsg = null;
+    });
 
     final endpoint = '/api/requests/${widget.request.id}/scan-qr/';
     final r = await ApiService.instance.post(
@@ -60,14 +63,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     if (r.isSuccess) {
       final data = r.data as Map<String, dynamic>? ?? {};
       setState(() {
-        _scanned        = true;
-        _loading        = false;
-        _resultRef      = data['ref']?.toString();
-        _resultStatus   = data['status']?.toString();
+        _scanned = true;
+        _loading = false;
+        _resultRef = data['ref']?.toString();
+        _resultStatus = data['status']?.toString();
         _resultReceivedAt = data['received_at']?.toString();
       });
       Get.snackbar(
-        '✓ Request Completed',
+        'âœ“ Request Completed',
         data['message']?.toString() ?? 'Request completed successfully',
         backgroundColor: const Color(0xFF27AE60),
         colorText: Colors.white,
@@ -78,7 +81,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
       );
     } else {
-      setState(() { _loading = false; _errorMsg = r.errorMessage ?? 'QR scan failed'; });
+      setState(() {
+        _loading = false;
+        _errorMsg = r.errorMessage ?? 'QR scan failed';
+      });
     }
   }
 
@@ -90,26 +96,30 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Header ──────────────────────────────────────────
+            // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12), shape: BoxShape.circle),
+                      color: Colors.white.withValues(alpha: 0.12),
+                      shape: BoxShape.circle),
                   child: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
+                    icon: const Icon(Icons.close_rounded,
+                        color: Colors.white, size: 22),
                     onPressed: () => Get.back(result: _scanned),
                   ),
                 ),
                 const SizedBox(width: 14),
                 const Text('Scan QR Code',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white)),
               ]),
             ),
 
-            // ── Scanner / Result area ────────────────────────────
+            // â”€â”€ Scanner / Result area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Expanded(
               child: Center(
                 child: Padding(
@@ -119,7 +129,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     children: [
                       // Camera frame or success check
                       Container(
-                        width: 260, height: 260,
+                        width: 260,
+                        height: 260,
                         decoration: BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(24),
@@ -128,7 +139,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                                 ? const Color(0xFF27AE60)
                                 : _errorMsg != null
                                     ? Colors.red
-                                    : Colors.white.withOpacity(0.3),
+                                    : Colors.white.withValues(alpha: 0.3),
                             width: 2,
                           ),
                         ),
@@ -156,10 +167,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.15),
+                              color: Colors.red.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12)),
                           child: Text(_errorMsg!,
-                              style: const TextStyle(color: Colors.red, fontSize: 13),
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 13),
                               textAlign: TextAlign.center),
                         )
                       else
@@ -167,11 +179,12 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           _scanned
                               ? 'Request completed successfully!'
                               : _loading
-                                  ? 'Verifying QR code…'
+                                  ? 'Verifying QR codeâ€¦'
                                   : 'Point your camera at the QR code\nto verify your request',
                           style: TextStyle(
-                              color: Colors.white.withOpacity(0.75),
-                              fontSize: 14, height: 1.5),
+                              color: Colors.white.withValues(alpha: 0.75),
+                              fontSize: 14,
+                              height: 1.5),
                           textAlign: TextAlign.center,
                         ),
 
@@ -182,18 +195,22 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 10),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2)),
                         ),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          const Icon(Icons.tag_rounded, color: Colors.white60, size: 16),
+                          const Icon(Icons.tag_rounded,
+                              color: Colors.white60, size: 16),
                           const SizedBox(width: 8),
                           Text(
                             '#${_resultRef ?? widget.request.ref}',
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 18,
-                                fontWeight: FontWeight.w800, letterSpacing: 1),
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1),
                           ),
                         ]),
                       ),
@@ -219,7 +236,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               ),
             ),
 
-            // ── Done button ──────────────────────────────────────
+            // â”€â”€ Done button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
               child: SizedBox(
@@ -231,16 +248,19 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                           ? () => Get.back(result: true)
                           : null,
                   icon: Icon(
-                    _scanned
-                        ? Icons.check_circle_rounded
-                        : Icons.qr_code_scanner_rounded,
-                    size: 20),
-                  label: Text(_scanned ? 'Done — Request Completed' : 'Waiting for scan…'),
+                      _scanned
+                          ? Icons.check_circle_rounded
+                          : Icons.qr_code_scanner_rounded,
+                      size: 20),
+                  label: Text(_scanned
+                      ? 'Done â€” Request Completed'
+                      : 'Waiting for scanâ€¦'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _scanned
                         ? const Color(0xFF27AE60)
-                        : Colors.white.withOpacity(0.15),
-                    disabledBackgroundColor: Colors.white.withOpacity(0.1),
+                        : Colors.white.withValues(alpha: 0.15),
+                    disabledBackgroundColor:
+                        Colors.white.withValues(alpha: 0.1),
                     foregroundColor: Colors.white,
                     disabledForegroundColor: Colors.white38,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -249,7 +269,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                     textStyle: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w700),
                     elevation: _scanned ? 6 : 0,
-                    shadowColor: const Color(0xFF27AE60).withOpacity(0.4),
+                    shadowColor: const Color(0xFF27AE60).withValues(alpha: 0.4),
                   ),
                 ),
               ),
@@ -261,27 +281,29 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   }
 }
 
-// ── Small result chip ─────────────────────────────────────────────────────────
+// â”€â”€ Small result chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _ResultChip extends StatelessWidget {
   final IconData icon;
-  final String   label;
-  final Color    color;
-  const _ResultChip({required this.icon, required this.label, required this.color});
+  final String label;
+  final Color color;
+  const _ResultChip(
+      {required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, color: color, size: 14),
         const SizedBox(width: 6),
-        Text(label, style: TextStyle(color: color, fontSize: 12,
-            fontWeight: FontWeight.w600)),
+        Text(label,
+            style: TextStyle(
+                color: color, fontSize: 12, fontWeight: FontWeight.w600)),
       ]),
     );
   }

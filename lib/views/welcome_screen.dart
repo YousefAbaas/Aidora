@@ -28,7 +28,7 @@ class WelcomeScreen extends StatelessWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 6),
                     ),
@@ -92,7 +92,7 @@ class WelcomeScreen extends StatelessWidget {
                     textStyle: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
                     elevation: 4,
-                    shadowColor: AppColors.primary.withOpacity(0.35),
+                    shadowColor: AppColors.primary.withValues(alpha: 0.35),
                   ),
                 ),
               ),
@@ -111,7 +111,8 @@ class WelcomeScreen extends StatelessWidget {
                   label: Text('Log In to Account'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    side:
+                        const BorderSide(color: AppColors.primary, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
