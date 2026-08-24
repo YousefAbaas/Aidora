@@ -46,19 +46,19 @@ Aidora aims to provide a structured digital workflow where beneficiaries, organi
 The main idea is simple:
 
 ```text
-                    ┌──────────────────────┐
-                    │        Aidora        │
-                    └──────────┬───────────┘
-                               │
-             ┌─────────────────┼─────────────────┐
-             │                 │                 │
-             ▼                 ▼                 ▼
-       Beneficiaries      Organizations      Volunteers
-             │                 │                 │
-             ▼                 ▼                 ▼
-       Find services      Provide services   Process requests
-       Submit requests   Manage workflows    Verify assistance
-       Track requests    Manage requests     QR workflows
+                     ┌──────────────────────┐
+                     │        Aidora        │
+                     └──────────┬───────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              │                 │                 │
+              ▼                 ▼                 ▼
+        Beneficiaries      Organizations      Volunteers
+              │                 │                 │
+              ▼                 ▼                 ▼
+        Find services      Provide services   Process requests
+        Submit requests   Manage workflows    Verify assistance
+        Track requests    Manage requests     QR workflows
 ```
 
 ---
@@ -623,11 +623,11 @@ The combination provides coverage at multiple levels:
 
 ```text
 Unit
- ↓
+  ↓
 Widget
- ↓
+  ↓
 Integration
- ↓
+  ↓
 Real application behavior
 ```
 
