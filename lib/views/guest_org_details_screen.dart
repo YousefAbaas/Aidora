@@ -30,7 +30,7 @@ class GuestOrgDetailsScreen extends StatefulWidget {
 class _GuestOrgDetailsScreenState extends State<GuestOrgDetailsScreen> {
   static const Color _green = Color(0xFF2C5F4F);
 
-  final OrganizationService _service = OrganizationService.instance;
+  final OrganizationService _service = OrganizationService.effective;
 
   OrganizationDetailModel? _org;
   bool    _isLoading = true;

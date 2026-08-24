@@ -30,7 +30,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen>
   static const Color _green = Color(0xFF2C5F4F);
   static const Color _blue = Color(0xFF1565C0);
 
-  final OrganizationService _service = OrganizationService.instance;
+  final OrganizationService _service = OrganizationService.effective;
 
   List<OrganizationCardModel> _organizations = [];
   bool _isLoading = true;

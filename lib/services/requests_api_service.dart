@@ -1,55 +1,82 @@
 import '../models/my_requests_model.dart';
 import '../models/request_model.dart';
+import 'api_client.dart';
 import 'api_constants.dart';
 import 'api_service.dart';
 
-/// ─────────────────────────────────────────────────────────────────────────────
-/// RequestsApiService
-/// ─────────────────────────────────────────────────────────────────────────────
+/// API service responsible for refugee service requests.
+///
+/// Uses [ApiClient] so real HTTP communication and fake clients can be
+/// injected independently in production and tests.
 class RequestsApiService {
-  RequestsApiService({ApiService? api}) : _api = api ?? ApiService.instance;
+  RequestsApiService({ApiClient? api}) : _api = api ?? ApiService.instance;
 
   RequestsApiService._() : _api = ApiService.instance;
+
   RequestsApiService._withApi(this._api);
 
   static final RequestsApiService instance = RequestsApiService._();
 
-  factory RequestsApiService.testInstance(ApiService api) =>
+  factory RequestsApiService.testInstance(ApiClient api) =>
       RequestsApiService._withApi(api);
 
-  // Widget-test override — injected once, affects the singleton
+// Widget-test override.
   static RequestsApiService? _override;
+
   static void overrideForTest(RequestsApiService svc) => _override = svc;
+
   static void resetOverride() => _override = null;
 
-  /// The singleton, respecting any test override.
+  /// Singleton instance, respecting any test override.
   static RequestsApiService get effective => _override ?? instance;
 
-  final ApiService _api;
+  final ApiClient _api;
 
-  // ── Dashboard summary ──────────────────────────────────────────────────────
+// ── Dashboard summary ────────────────────────────────────────────────────
+
   /// GET /api/requests/list/
-  /// Parses the list response into MyRequestsModel for the dashboard.
+  ///
+  /// Parses the list response into [MyRequestsModel] for the dashboard.
   Future<MyRequestsResult> fetchMyRequests() async {
-    final r = await _api.get(ApiConstants.requestList, requiresAuth: true);
-    if (!r.isSuccess) return MyRequestsResult.error(r.errorMessage!);
+    final r = await _api.get(
+      ApiConstants.requestList,
+      requiresAuth: true,
+    );
+
+    if (!r.isSuccess) {
+      return MyRequestsResult.error(
+        r.errorMessage ?? 'Failed to load requests.',
+      );
+    }
+
     try {
-      final raw = r.data as Map<String, dynamic>;
+      final raw = Map<String, dynamic>.from(r.data as Map);
+
       final counts = raw['counts'] as Map<String, dynamic>? ?? {};
       final data = raw['data'];
 
-      // Parse approved from data.Approved list
-      List<ApprovedRequest> approved = [];
-      List<RejectedRequest> rejected = [];
+      var approved = <ApprovedRequest>[];
+      var rejected = <RejectedRequest>[];
 
       if (data is Map) {
         final approvedList = data['Approved'] as List? ?? [];
+
         approved = approvedList
-            .map((e) => ApprovedRequest.fromJson(e as Map<String, dynamic>))
+            .map(
+              (e) => ApprovedRequest.fromJson(
+                e as Map<String, dynamic>,
+              ),
+            )
             .toList();
+
         final rejectedList = data['Rejected'] as List? ?? [];
+
         rejected = rejectedList
-            .map((e) => RejectedRequest.fromJson(e as Map<String, dynamic>))
+            .map(
+              (e) => RejectedRequest.fromJson(
+                e as Map<String, dynamic>,
+              ),
+            )
             .toList();
       }
 
@@ -61,102 +88,137 @@ class RequestsApiService {
         approvedRequests: approved,
         rejectedRequests: rejected,
       );
+
       return MyRequestsResult.success(model);
     } catch (e) {
       return MyRequestsResult.error('Parse error: $e');
     }
   }
 
-  // ── Full list (with optional status filter) ───────────────────────────────
-  /// GET /api/requests/list/              → all requests
-  /// GET /api/requests/list/?status=xxx  → filtered
+// ── Full list ─────────────────────────────────────────────────────────────
+
+  /// GET /api/requests/list/
   ///
-  /// Response (all):      {counts:{All,Approved,Rejected,Pending,Completed},
-  ///                       data:{Approved:[...], Completed:[...], ...}}
-  /// Response (filtered): {counts:{...}, data:[...]}
-  Future<RequestListResult> fetchRequestList({String? status}) async {
+  /// Returns all requests when [status] is null or "all".
+  ///
+  /// GET /api/requests/list/?status=xxx
+  ///
+  /// Returns filtered requests for a specific status.
+  Future<RequestListResult> fetchRequestList({
+    String? status,
+  }) async {
     final endpoint = status != null && status != 'all'
         ? '${ApiConstants.requestList}?status=$status'
         : ApiConstants.requestList;
 
-    final r = await _api.get(endpoint, requiresAuth: true);
-    if (!r.isSuccess) return RequestListResult.error(r.errorMessage!);
+    final r = await _api.get(
+      endpoint,
+      requiresAuth: true,
+    );
+
+    if (!r.isSuccess) {
+      return RequestListResult.error(
+        r.errorMessage ?? 'Failed to load request list.',
+      );
+    }
 
     try {
-      final raw = r.data as Map<String, dynamic>;
-      final counts = _parseCounts(raw['counts'] as Map<String, dynamic>? ?? {});
-      final items = _parseItems(raw['data'], status);
-      return RequestListResult.success(items: items, counts: counts);
+      final raw = Map<String, dynamic>.from(r.data as Map);
+
+      final counts = _parseCounts(
+        raw['counts'] as Map<String, dynamic>? ?? {},
+      );
+
+      final items = _parseItems(
+        raw['data'],
+        status,
+      );
+
+      return RequestListResult.success(
+        items: items,
+        counts: counts,
+      );
     } catch (e) {
       return RequestListResult.error('Parse error: $e');
     }
   }
 
-  // ── Parsers ────────────────────────────────────────────────────────────────
-  Map<String, int> _parseCounts(Map<String, dynamic> m) => {
-        'All': (m['All'] as num? ?? 0).toInt(),
-        'Approved': (m['Approved'] as num? ?? 0).toInt(),
-        'Rejected': (m['Rejected'] as num? ?? 0).toInt(),
-        'Pending': (m['Pending'] as num? ?? 0).toInt(),
-        'Completed': (m['Completed'] as num? ?? 0).toInt(),
-      };
-
-  List<RequestModel> _parseItems(dynamic data, String? status) {
-    if (data is List) {
-      // Filtered response → data is a flat list
-      return data
-          .map((e) => RequestModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    if (data is Map) {
-      // All response → data is {Approved:[...], Completed:[...], ...}
-      final result = <RequestModel>[];
-      for (final key in data.keys) {
-        final list = data[key] as List? ?? [];
-        result.addAll(
-            list.map((e) => RequestModel.fromJson(e as Map<String, dynamic>)));
-      }
-      return result;
-    }
-    return [];
-  }
-
-  // ── Request details ────────────────────────────────────────────────────────
+// ── Request details ──────────────────────────────────────────────────────
   /// GET /api/requests/<pk>/details/
   Future<RequestDetailsResult> fetchRequestDetails(int id) async {
-    final r =
-        await _api.get(ApiConstants.requestDetails(id), requiresAuth: true);
-    if (!r.isSuccess) return RequestDetailsResult.error(r.errorMessage!);
+    final r = await _api.get(
+      ApiConstants.requestDetails(id),
+      requiresAuth: true,
+    );
+
+    if (!r.isSuccess) {
+      return RequestDetailsResult.error(
+        r.errorMessage ?? 'Failed to load request details.',
+      );
+    }
+
     try {
-      final j = r.data as Map<String, dynamic>;
-      return RequestDetailsResult.success(RequestDetailModel.fromJson(j));
+      final json = Map<String, dynamic>.from(r.data as Map);
+
+      return RequestDetailsResult.success(
+        RequestDetailModel.fromJson(json),
+      );
     } catch (e) {
       return RequestDetailsResult.error('Parse error: $e');
     }
   }
 
-  // ── Submit a service request ───────────────────────────────────────────────
+// ── Service request information ──────────────────────────────────────────
+
   /// GET /api/requests/org/<orgId>/services/<serviceId>/request/
-  /// Fetches service info before showing submit form.
+  ///
+  /// Fetches service information before displaying the submit form.
   Future<ServiceRequestInfoResult> fetchServiceRequestInfo(
-      int orgId, int serviceId) async {
-    final r = await _api.get(ApiConstants.orgServiceRequest(orgId, serviceId),
-        requiresAuth: true);
-    if (!r.isSuccess) return ServiceRequestInfoResult.error(r.errorMessage!);
+    int orgId,
+    int serviceId,
+  ) async {
+    final r = await _api.get(
+      ApiConstants.orgServiceRequest(
+        orgId,
+        serviceId,
+      ),
+      requiresAuth: true,
+    );
+
+    if (!r.isSuccess) {
+      return ServiceRequestInfoResult.error(
+        r.errorMessage ?? 'Failed to load service information.',
+      );
+    }
+
     try {
-      final d = r.data as Map<String, dynamic>;
+      final data = r.data as Map<String, dynamic>;
+
       return ServiceRequestInfoResult.success(
-        serviceName: d['service_name'] as String? ?? '',
-        serviceDescription: d['service_description'] as String? ?? '',
+        serviceName: data['service_name'] as String? ?? '',
+        serviceDescription: data['service_description'] as String? ?? '',
       );
     } catch (e) {
       return ServiceRequestInfoResult.error('Parse error: $e');
     }
   }
 
+// ── Submit service request ───────────────────────────────────────────────
+
   /// POST /api/requests/org/<orgId>/services/<serviceId>/request/
-  /// Body: {family_members, description, location}
-  /// Success: {message, request_id}
+  ///
+  /// Body:
+  /// {
+  ///   family_members,
+  ///   description,
+  ///   location
+  /// }
+  ///
+  /// Success:
+  /// {
+  ///   message,
+  ///   request_id
+  /// }
   Future<SubmitRequestResult> submitServiceRequest({
     required int orgId,
     required int serviceId,
@@ -165,7 +227,10 @@ class RequestsApiService {
     required String location,
   }) async {
     final r = await _api.post(
-      ApiConstants.orgServiceRequest(orgId, serviceId),
+      ApiConstants.orgServiceRequest(
+        orgId,
+        serviceId,
+      ),
       requiresAuth: true,
       body: {
         'family_members': familyMembers,
@@ -173,30 +238,116 @@ class RequestsApiService {
         'location': location,
       },
     );
-    if (!r.isSuccess) return SubmitRequestResult.error(r.errorMessage!);
+
+    if (!r.isSuccess) {
+      return SubmitRequestResult.error(
+        r.errorMessage ?? 'Failed to submit request.',
+      );
+    }
+
     try {
-      final d = r.data as Map<String, dynamic>;
+      final data = r.data as Map<String, dynamic>;
+
       return SubmitRequestResult.success(
-        message: d['message'] as String? ?? 'Request sent successfully',
-        requestId: (d['request_id'] as num?)?.toInt() ?? 0,
+        message: data['message'] as String? ?? 'Request sent successfully',
+        requestId: (data['request_id'] as num?)?.toInt() ?? 0,
       );
     } catch (e) {
       return SubmitRequestResult.error('Parse error: $e');
     }
   }
+
+// ── Parsers ──────────────────────────────────────────────────────────────
+
+  Map<String, int> _parseCounts(
+    Map<String, dynamic> map,
+  ) {
+    return {
+      'All': (map['All'] as num? ?? 0).toInt(),
+      'Approved': (map['Approved'] as num? ?? 0).toInt(),
+      'Rejected': (map['Rejected'] as num? ?? 0).toInt(),
+      'Pending': (map['Pending'] as num? ?? 0).toInt(),
+      'Completed': (map['Completed'] as num? ?? 0).toInt(),
+    };
+  }
+
+  List<RequestModel> _parseItems(
+    dynamic data,
+    String? status,
+  ) {
+    if (data is List) {
+// Filtered response:
+// data = [...]
+      return data
+          .map(
+            (e) => RequestModel.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
+          .toList();
+    }
+
+    if (data is Map) {
+// Full response:
+//
+// data = {
+//   Approved: [...],
+//   Rejected: [...],
+//   Pending: [...],
+//   Completed: [...]
+// }
+      final result = <RequestModel>[];
+
+      for (final key in data.keys) {
+        final list = data[key] as List? ?? [];
+        result.addAll(
+          list.map(
+            (e) => RequestModel.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          ),
+        );
+      }
+
+      return result;
+    }
+
+    return [];
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Result classes
+// ─────────────────────────────────────────────────────────────────────────────
+
 class MyRequestsResult {
   final bool isSuccess;
   final MyRequestsModel? data;
   final String? errorMessage;
-  const MyRequestsResult._(
-      {required this.isSuccess, this.data, this.errorMessage});
-  factory MyRequestsResult.success(MyRequestsModel d) =>
-      MyRequestsResult._(isSuccess: true, data: d);
-  factory MyRequestsResult.error(String msg) =>
-      MyRequestsResult._(isSuccess: false, errorMessage: msg);
+
+  const MyRequestsResult._({
+    required this.isSuccess,
+    this.data,
+    this.errorMessage,
+  });
+
+  factory MyRequestsResult.success(
+    MyRequestsModel data,
+  ) {
+    return MyRequestsResult._(
+      isSuccess: true,
+      data: data,
+    );
+  }
+
+  factory MyRequestsResult.error(
+    String message,
+  ) {
+    return MyRequestsResult._(
+      isSuccess: false,
+      errorMessage: message,
+    );
+  }
 }
 
 class RequestListResult {
@@ -204,19 +355,33 @@ class RequestListResult {
   final List<RequestModel> items;
   final Map<String, int> counts;
   final String? errorMessage;
+
   const RequestListResult._({
     required this.isSuccess,
     this.items = const [],
     this.counts = const {},
     this.errorMessage,
   });
+
   factory RequestListResult.success({
     required List<RequestModel> items,
     required Map<String, int> counts,
-  }) =>
-      RequestListResult._(isSuccess: true, items: items, counts: counts);
-  factory RequestListResult.error(String msg) =>
-      RequestListResult._(isSuccess: false, errorMessage: msg);
+  }) {
+    return RequestListResult._(
+      isSuccess: true,
+      items: items,
+      counts: counts,
+    );
+  }
+
+  factory RequestListResult.error(
+    String message,
+  ) {
+    return RequestListResult._(
+      isSuccess: false,
+      errorMessage: message,
+    );
+  }
 }
 
 class ServiceRequestInfoResult {
@@ -224,22 +389,33 @@ class ServiceRequestInfoResult {
   final String serviceName;
   final String serviceDescription;
   final String? errorMessage;
+
   const ServiceRequestInfoResult._({
     required this.isSuccess,
     this.serviceName = '',
     this.serviceDescription = '',
     this.errorMessage,
   });
+
   factory ServiceRequestInfoResult.success({
     required String serviceName,
     required String serviceDescription,
-  }) =>
-      ServiceRequestInfoResult._(
-          isSuccess: true,
-          serviceName: serviceName,
-          serviceDescription: serviceDescription);
-  factory ServiceRequestInfoResult.error(String msg) =>
-      ServiceRequestInfoResult._(isSuccess: false, errorMessage: msg);
+  }) {
+    return ServiceRequestInfoResult._(
+      isSuccess: true,
+      serviceName: serviceName,
+      serviceDescription: serviceDescription,
+    );
+  }
+
+  factory ServiceRequestInfoResult.error(
+    String message,
+  ) {
+    return ServiceRequestInfoResult._(
+      isSuccess: false,
+      errorMessage: message,
+    );
+  }
 }
 
 class SubmitRequestResult {
@@ -247,21 +423,39 @@ class SubmitRequestResult {
   final String message;
   final int requestId;
   final String? errorMessage;
+
   const SubmitRequestResult._({
     required this.isSuccess,
     this.message = '',
     this.requestId = 0,
     this.errorMessage,
   });
-  factory SubmitRequestResult.success(
-          {required String message, required int requestId}) =>
-      SubmitRequestResult._(
-          isSuccess: true, message: message, requestId: requestId);
-  factory SubmitRequestResult.error(String msg) =>
-      SubmitRequestResult._(isSuccess: false, errorMessage: msg);
+
+  factory SubmitRequestResult.success({
+    required String message,
+    required int requestId,
+  }) {
+    return SubmitRequestResult._(
+      isSuccess: true,
+      message: message,
+      requestId: requestId,
+    );
+  }
+
+  factory SubmitRequestResult.error(
+    String message,
+  ) {
+    return SubmitRequestResult._(
+      isSuccess: false,
+      errorMessage: message,
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Request detail model
+// ─────────────────────────────────────────────────────────────────────────────
+
 /// Model for GET /api/requests/<pk>/details/
 class RequestDetailModel {
   final String ref;
@@ -287,30 +481,50 @@ class RequestDetailModel {
     this.receivedAt,
     this.sector,
   });
-
-  factory RequestDetailModel.fromJson(Map<String, dynamic> j) =>
-      RequestDetailModel(
-        ref: j['ref']?.toString() ?? '',
-        organizationName: j['organization_name']?.toString() ?? '',
-        organizationLogo: j['organization_logo']?.toString(),
-        serviceName: j['service_name']?.toString() ?? '',
-        status: j['status']?.toString() ?? '',
-        serviceType: j['service_type']?.toString() ?? '',
-        familyMembers: (j['family_members'] as num?)?.toInt(),
-        createdAt: j['created_at']?.toString(),
-        receivedAt: j['received_at']?.toString(),
-        sector: j['sector']?.toString(),
-      );
+  factory RequestDetailModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return RequestDetailModel(
+      ref: json['ref']?.toString() ?? '',
+      organizationName: json['organization_name']?.toString() ?? '',
+      organizationLogo: json['organization_logo']?.toString(),
+      serviceName: json['service_name']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      serviceType: json['service_type']?.toString() ?? '',
+      familyMembers: (json['family_members'] as num?)?.toInt(),
+      createdAt: json['created_at']?.toString(),
+      receivedAt: json['received_at']?.toString(),
+      sector: json['sector']?.toString(),
+    );
+  }
 }
 
 class RequestDetailsResult {
   final bool isSuccess;
   final RequestDetailModel? data;
   final String? errorMessage;
-  const RequestDetailsResult._(
-      {required this.isSuccess, this.data, this.errorMessage});
-  factory RequestDetailsResult.success(RequestDetailModel d) =>
-      RequestDetailsResult._(isSuccess: true, data: d);
-  factory RequestDetailsResult.error(String msg) =>
-      RequestDetailsResult._(isSuccess: false, errorMessage: msg);
+
+  const RequestDetailsResult._({
+    required this.isSuccess,
+    this.data,
+    this.errorMessage,
+  });
+
+  factory RequestDetailsResult.success(
+    RequestDetailModel data,
+  ) {
+    return RequestDetailsResult._(
+      isSuccess: true,
+      data: data,
+    );
+  }
+
+  factory RequestDetailsResult.error(
+    String message,
+  ) {
+    return RequestDetailsResult._(
+      isSuccess: false,
+      errorMessage: message,
+    );
+  }
 }

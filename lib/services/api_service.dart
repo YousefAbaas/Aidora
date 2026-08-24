@@ -5,15 +5,18 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import 'api_client.dart';
 import 'api_constants.dart';
 import 'auth_storage.dart';
 import 'token_manager.dart';
 import 'web_http_stub.dart' if (dart.library.html) 'web_http.dart';
 
 /// Central HTTP client — GET · POST · PATCH with full token lifecycle.
-class ApiService {
+class ApiService implements ApiClient {
   ApiService._();
+
   static final ApiService instance = ApiService._();
+
   static const _timeout = Duration(seconds: 25);
 
   /// Persistent HTTP client — reuses TCP connections for better performance.

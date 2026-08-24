@@ -13,7 +13,7 @@ import 'package:aidora/views/login_screen.dart';
 
 import '../helpers/fixtures.dart';
 import '../helpers/fake_api_service.dart';
-
+import 'package:aidora/services/api_service.dart';
 Future<FakeApiService> pumpLogin(WidgetTester tester, {
   String? role,
   ApiResponse? loginResp,
@@ -21,7 +21,7 @@ Future<FakeApiService> pumpLogin(WidgetTester tester, {
   final fake = FakeApiService(
     posts: {
       ApiConstants.login:
-          loginResp ?? fail('not used', 0),
+          loginResp ?? fakeFail('not used', 0),
     },
   );
   AuthService.overrideForTest(fake);
@@ -103,7 +103,7 @@ void main() {
 
     testWidgets('both filled → API called once', (t) async {
       final fake = await pumpLogin(t,
-          loginResp: fail('wrong pw', 401));
+          loginResp: fakeFail('wrong pw', 401));
       await t.enterText(find.byType(TextField).first, 'ahmed@test.com');
       await t.enterText(find.byType(TextField).last,  'password123');
       await t.tap(find.text('Login'));

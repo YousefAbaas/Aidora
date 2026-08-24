@@ -41,7 +41,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const Color _green = Color(0xFF2C5F4F);
 
-  final OrganizationService _orgSvc = OrganizationService.instance;
+  final OrganizationService _orgSvc = OrganizationService.effective;
   final ServicesApiService _svcSvc = ServicesApiService.instance;
 
   List<OrganizationCardModel> _orgs = [];

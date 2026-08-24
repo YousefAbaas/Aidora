@@ -6,7 +6,7 @@ import 'package:aidora/services/requests_api_service.dart';
 import 'package:aidora/services/api_constants.dart';
 import '../helpers/fixtures.dart';
 import '../helpers/fake_api_service.dart';
-
+import 'package:aidora/services/api_service.dart';
 RequestsApiService _svc({
   ApiResponse? list,
   ApiResponse? listApproved,
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('network failure returns error', () async {
-      final r = await _svc(list: fail('Connection refused', 503)).fetchMyRequests();
+      final r = await _svc(list: fakeFail('Connection refused', 503)).fetchMyRequests();
       expect(r.isSuccess,    isFalse);
       expect(r.errorMessage, contains('Connection refused'));
     });
@@ -82,13 +82,17 @@ void main() {
       final r = await _svc(
         listApproved: ok(Map.from(requestsListFilteredApprovedJson)),
       ).fetchRequestList(status: 'approved');
-      expect(r.isSuccess,           isTrue);
+      expect(
+        r.isSuccess,
+        isTrue,
+        reason: 'ERROR = ${r.errorMessage}',
+      );
       expect(r.items,               hasLength(1));
       expect(r.items.first.status,  'approved');
     });
 
     test('network error propagated', () async {
-      final r = await _svc(list: fail('Timeout', 408)).fetchRequestList();
+      final r = await _svc(list: fakeFail('Timeout', 408)).fetchRequestList();
       expect(r.isSuccess, isFalse);
     });
   });
@@ -97,7 +101,11 @@ void main() {
     test('success — all detail fields parsed', () async {
       final r = await _svc(details: ok(Map.from(requestDetailsJson)))
           .fetchRequestDetails(20);
-      expect(r.isSuccess,              isTrue);
+      expect(
+        r.isSuccess,
+        isTrue,
+        reason: 'ERROR = ${r.errorMessage}',
+      );
       expect(r.data!.organizationName, 'UNICEF');
       expect(r.data!.serviceName,      'Education');
       expect(r.data!.status,           'completed');
@@ -106,7 +114,7 @@ void main() {
     });
 
     test('not found returns error', () async {
-      final r = await _svc(details: fail('Not found', 404))
+      final r = await _svc(details: fakeFail('Not found', 404))
           .fetchRequestDetails(20);
       expect(r.isSuccess, isFalse);
     });
