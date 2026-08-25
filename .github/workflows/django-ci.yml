@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -12,6 +12,29 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: aidora_ci
+          POSTGRES_USER: aidora_ci
+          POSTGRES_PASSWORD: aidora_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U aidora_ci -d aidora_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      SECRET_KEY: ci-test-secret-key
+      DB_NAME: aidora_ci
+      DB_USER: aidora_ci
+      DB_PASSWORD: aidora_ci_password
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
 
     steps:
       - name: Checkout repository
@@ -30,11 +53,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django system checks
-        env:
-          SECRET_KEY: ci-test-secret-key
         run: python manage.py check
 
       - name: Run Django tests
-        env:
-          SECRET_KEY: ci-test-secret-key
         run: python manage.py test
