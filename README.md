@@ -19,7 +19,39 @@
 </p>
 
 ---
+## Table of Contents
 
+- [Overview](#overview)
+- [Why Aidora?](#why-aidora)
+- [Core Capabilities](#core-capabilities)
+- [User Roles](#user-roles)
+- [Application Architecture](#application-architecture)
+- [Project Structure](#project-structure)
+- [State Management](#state-management)
+- [Authentication & Session Management](#authentication--session-management)
+- [API Layer](#api-layer)
+- [Data Models](#data-models)
+- [Profile & Image Management](#profile--image-management)
+- [Notifications](#notifications)
+- [QR Verification](#qr-verification)
+- [Local Storage](#local-storage)
+- [Localization](#localization)
+- [Technology Stack](#technology-stack)
+- [Code Quality & Engineering](#code-quality--engineering)
+- [Testing](#testing)
+- [Screenshots](#screenshots)
+- [Getting Started](#getting-started)
+- [CI/CD & Android Build Notes](#cicd--android-build-notes)
+- [Environment Configuration](#environment-configuration)
+- [Backend Integration](#backend-integration)
+- [Security Considerations](#security-considerations)
+- [Development Workflow](#development-workflow)
+- [Engineering Highlights](#engineering-highlights)
+- [Current Quality Status](#current-quality-status)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+---
 ## Overview
 
 **Aidora** is a cross-platform Flutter application designed to improve coordination between displaced communities, humanitarian organizations, and volunteers.
