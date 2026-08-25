@@ -38,7 +38,7 @@ jobs:
 
       - name: Build release APK
         working-directory: android
-        run: ./gradlew app:assembleRelease --no-daemon
+        run: bash gradlew app:assembleRelease --no-daemon
 
       - name: Verify APK exists
         run: |
