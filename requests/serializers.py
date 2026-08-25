@@ -293,8 +293,10 @@ class ApprovedSerializer(serializers.ModelSerializer):
 
 
     def get_approved_at(self, obj):
+        if obj.approved_at is None:
+         return None
         diff = now() - obj.approved_at
-
+   # الباقي بدون تغيير
         if diff.days == 0:
             return "Today"
         elif diff.days == 1:
