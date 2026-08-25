@@ -620,19 +620,41 @@ Do not commit private credentials, API keys, signing credentials, or machine-spe
 
 # Backend Integration
 
-The Flutter application is designed to work with a Django REST Framework backend.
+Aidora follows a client-server architecture consisting of a Flutter mobile client and a Django REST Framework backend.
 
-The backend is responsible for server-side concerns such as:
+The Flutter application communicates with the backend through a REST API secured with JWT authentication.
 
-* User authentication
-* User registration
-* User/profile data
-* Organizations
-* Humanitarian services
+The Django backend is responsible for server-side functionality including:
+
+* User authentication and registration
+* User and profile management
+* Humanitarian organizations
+* Available services
 * Assistance requests
 * Request-related workflows
+* Authorization and backend validation
+* Persistent application data
 
-The Flutter client consumes these capabilities through the REST API and keeps presentation concerns separated from backend communication.
+The Flutter client is intentionally separated from backend and database responsibilities. It consumes the backend through dedicated service classes rather than accessing the database directly.
+
+## Local Development
+
+The Flutter repository contains the client application. A Django backend instance is required for features that depend on the REST API.
+
+The backend and its database are treated as separate runtime components from the Flutter application.
+
+For local development:
+
+1. Start the Django REST API.
+2. Ensure the configured database is available.
+3. Configure the Flutter client with the backend API base URL.
+4. Run the Flutter application.
+
+The released APK is a client application and does not contain the Django backend or its database. API-dependent functionality therefore requires a reachable Django REST Framework backend.
+
+For production deployment, the backend should be hosted on an accessible server with HTTPS, secure secret management, database persistence, authentication and authorization controls, validation, and appropriate rate limiting.
+
+No production database credentials, API secrets, or private server configuration are stored in this repository.
 
 ---
 
