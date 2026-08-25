@@ -1,413 +1,576 @@
-# 🚀 Aidora Backend System
+# Aidora — Humanitarian Aid Coordination Backend
 
-A collaborative, robust backend system built with **Django REST Framework** designed to streamline humanitarian aid operations. It acts as the central bridge connecting **Organizations**, **Volunteers**, and **Refugees**, ensuring secure, role-based access to services and real-time task management.
+A Django REST Framework backend for coordinating humanitarian assistance between **refugees, volunteers, and organizations**.
 
----
+Aidora provides the API layer for a Flutter mobile application and manages the complete aid-request lifecycle — from authentication and profile completion to service requests, organizational processing, volunteer assignment, QR-based delivery confirmation, and notifications.
 
-## 📋 Table of Contents
-- [Team & Contribution](#-team--contribution)
-- [Database Schema](#-database-schema)
-- [Project Overview](#-project-overview)
-- [Tech Stack](#-tech-stack)
-- [Authentication & Authorization](#-authentication--authorization)
-- [Key Features](#-key-features--architecture)
-- [Technical Challenges](#-technical-challenges--solutions)
-- [Workflow](#-workflow-diagram)
-- [Getting Started](#-getting-started)
+The backend focuses on **secure authentication, role-based authorization, modular architecture, PostgreSQL integration, and containerized development**.
 
 ---
 
-## 👥 Team & Contribution
+## Overview
 
-This project was developed collaboratively, with responsibilities divided to ensure clean separation of concerns:
+Aidora addresses a practical humanitarian coordination workflow:
 
-*   **Siedra-Ziedan:**
-    - Responsible for **Accounts**, **Organizations**, and **Requests** modules
-    - Implemented CRUD operations for volunteers and organizations
-    - Designed user structure and initial UI interfaces
-    - **Authentication Core:** Configured JWT (Access & Refresh tokens) with custom login logic
-    - Implemented a complete OTP email verification system for user registration using Django REST Framework:
-        - Secure OTP generation with expiration time
-        - Email verification flow for Refugee and Volunteer accounts
-        - Async OTP email sending using Threads + transaction.on_commit to avoid request timeout issues
-        - Verify OTP API
-        - Resend OTP API
-        - Account activation only after successful verification
-        - Clean role-based registration flow with automatic profile creation via Django signals
-        - Focused on improving security, reliability, and real-world authentication flow architecture
-         - Implemented a secure password recovery flow using Django’s built-in token generator:
-        - Forgot password API
-        - Email reset link delivery
-        - Secure token validation and expiration handling
-        - Password confirmation and reset validation
-        - Deep link-ready reset flow for mobile support
-    - **Security & Automation:** Engineered PIN system with automated email notifications on volunteer approval
-    - **State Management:** Developed `/api/auth/me/` endpoint for intelligent frontend routing
-    - **Database Architecture:** Designed and optimized schema for scalability
-    - Developed the real-time notifications infrastructure for Organizations, enabling automated alerts for volunteer approvals and task status tracking.
-   
-*   **Shahd-Ibraheem :**
-    - Responsible for **Refugees** module and service request 
-    - Implemented all CRUD operations for refugee profiles
-    - **QR Code Scanning Workflow:** Developed secure QR scanning system to validate request completion
-    - Integrated backend with Flutter mobile application
-    - Implemented real-time notifications 
-
----
-
-## 📊 Database Schema
-
-**ER Diagram:** [View ER_Diagram.pdf](ER_Diagram.pdf)
-
-The database is architected to support three primary user roles with role-based access control (RBAC):
-
----
-
-
-## 🧠 Project Overview
-Aidora manages the lifecycle of humanitarian aid. It handles the journey from a refugee requesting aid to a volunteer completing the task via a secure QR scan. The system emphasizes **security**, **automated notifications**, and **dynamic state management** for a seamless mobile experience.
-
----
-
-## ⚙️ Tech Stack
-- **Backend Framework:** Django / Django REST Framework (DRF)
-- **Database:** PostgreSQL
-- **Authentication:** JWT (JSON Web Tokens) with `djangorestframework-simplejwt`
-- **File Handling:** Pillow (Image uploads)
-- **Architecture:** Clean Architecture (Partial), Class-Based Views (ViewSets)
-
----
-
-## 🔐 Authentication & Authorization
-
-### JWT Configuration
-The authentication system uses `djangorestframework-simplejwt` for secure token management:
-
-- **Access Token:** Short-lived token (default: 5 minutes) for protected endpoint access
-- **Refresh Token:** Long-lived token (default: 24 hours) to obtain new access tokens without re-authentication
-- **Login Response:** Includes `role` identifier for immediate frontend user type detection
-
-### The Auth/Me Endpoint Strategy
-
-The `/api/auth/me/` endpoint serves as the routing brain for the frontend application. It returns a dynamic JSON response:
-
-```json
-{
-  "role": "volunteer",
-  "profile_completed": false,
-  "application_status": "pending"
-}
+```text
+Refugee
+   │
+   │ Requests a service
+   ▼
+Organization
+   │
+   │ Reviews / approves
+   ▼
+Volunteer
+   │
+   │ Accepts / completes task
+   ▼
+QR-based confirmation
+   │
+   ▼
+Request completed
 ```
 
-**Field Definitions:**
-- `role`: One of `organization`, `volunteer`, or `refugee`
-- `profile_completed`: Boolean indicating profile setup completion
-- `application_status`: Volunteer-specific field (`null`, `pending`, `approved`, `rejected`)
+The backend is responsible for enforcing the business rules and authorization boundaries throughout this lifecycle.
 
-### Frontend Routing Logic
+### Core capabilities
 
-**Volunteer Flow:**
-| Status | Display |
-|--------|---------|
-| `application_status: null` | Show application form |
-| `application_status: pending` | Show "Application Under Review" screen |
-| `application_status: rejected` | Show rejection details & reapply option |
-| `application_status: approved` + `PIN not verified` | Show "Enter PIN" verification |
-| `application_status: approved` + `profile_completed: true` | Show volunteer dashboard |
-
-**Refugee Flow:**
-| Status | Display |
-|--------|---------|
-| `profile_completed: false` | Show "Complete Profile" form |
-| `profile_completed: true` | Show home screen & service request interface |
-
----
-
-## 🧩 Key Features & Architecture
-
-### 1. **Role-Based Access Control (RBAC)**
-Three distinct user roles with specialized permissions:
-
-| Role | Capabilities |
-|------|---|
-| **Organization** | Manage volunteer applications, approve/reject requests, create tasks, send notifications |
-| **Volunteer** | Apply to organizations, receive task assignments, scan QR codes, rate organizations |
-| **Refugee** | Create service requests, upload profile documents, track request status, interact with volunteers |
-
-### 2. **Automated PIN & Email System**
-Security-first approach to verify volunteer identity:
-
-1. Organization approves volunteer application
-2. Signal automatically triggers PIN generation (4-digit code)
-3. Email notification sent to volunteer with PIN
-4. Volunteer verifies PIN via `/api/auth/verify-pin/`
-5. Profile unlocked, volunteer can accept tasks
-
-### 3. **QR Code Scanning Workflow**
-Ensures task completion occurs at physical location:
-
-1. Organization approves refugee's service request → **Task** generated
-2. Task assigned to matched volunteer
-3. Volunteer receives notification & meets refugee
-4. Volunteer scans **refugee's unique QR code** using mobile app
-5. Backend validates QR and marks task as **`completed`**
-6. Refugee receives completion notification
-7. Volunteer gains ability to rate organization
-
-### 4. **Performance Optimization**
-Production-ready optimization patterns:
-
-- **Pagination:** Implemented on all list endpoints for mobile efficiency
-- **Query Optimization:** Strategic use of `select_related()` and `prefetch_related()`
-- **Caching:** Frequently accessed data cached to reduce database load
-- **Lazy Loading:** Profile images and documents loaded on-demand
+* JWT authentication with access and refresh tokens
+* Refugee and volunteer registration
+* Email OTP verification
+* Password recovery and reset
+* Role-based authorization
+* Profile completion workflow
+* Organization and service management
+* Humanitarian service requests
+* Volunteer applications
+* Task assignment and reassignment
+* Request approval and rejection
+* QR-based request completion
+* Notification infrastructure
+* PostgreSQL database integration
+* Dockerized backend environment
+* Environment-based configuration
 
 ---
 
-## 🛠 Technical Challenges & Solutions
+## Architecture
 
-### Challenge 1: Dynamic Frontend Routing Based on Backend State
-**Problem:** Flutter app needed to determine which screen to show based on complex state combinations (profile done? approved? PIN verified?).
+Aidora is organized into independent Django applications with responsibilities separated by domain.
 
-**Solution:** 
-- Built intelligent `/api/auth/me/` serializer that conditionally includes fields based on user role
-- Volunteer-only fields (`application_status`) only returned for volunteer users
-- Refugee-only logic prevents irrelevant data clutter on refugee clients
-- State combinations map to exact UI screens without client-side complexity
-
-**Implementation:**
-```python
-class AuthMeSerializer(serializers.ModelSerializer):
-    application_status = serializers.SerializerMethodField()
-    
-    def get_application_status(self, obj):
-        if obj.role == 'volunteer':
-            return obj.volunteerapplication.status
-        return None
+```text
+                         ┌─────────────────────┐
+                         │   Flutter Mobile    │
+                         │      Client         │
+                         └──────────┬──────────┘
+                                    │
+                              REST / JSON
+                                    │
+                                    ▼
+                    ┌───────────────────────────┐
+                    │      Django REST API      │
+                    └─────────────┬─────────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │                       │                       │
+          ▼                       ▼                       ▼
+    ┌───────────┐          ┌──────────────┐       ┌─────────────┐
+    │  Accounts │          │ Organizations│       │  Requests   │
+    └─────┬─────┘          └──────┬───────┘       └──────┬──────┘
+          │                       │                       │
+          │                       │                       │
+          └───────────────────────┼───────────────────────┘
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │   PostgreSQL    │
+                         └─────────────────┘
 ```
 
-### Challenge 2: Preventing Fraudulent Task Completion
-**Problem:** Volunteers could claim task completion without actually being present with the refugee.
+### Application responsibilities
 
-**Solution:**
-- Implemented QR code validation system
-- Refugee's unique QR code embedded in profile
-- Task completion endpoint requires valid `qr_code_data`
-- Backend validates QR matches refugee associated with task
-- Only valid scans update task status to `completed`
+| Module          | Responsibility                                                          |
+| --------------- | ----------------------------------------------------------------------- |
+| `accounts`      | Users, authentication, profiles, OTP, password recovery, notifications  |
+| `organizations` | Organizations, services, volunteer applications, organization workflows |
+| `requests`      | Service requests, request lifecycle, volunteer tasks, QR completion     |
 
-**Security Flow:**
-1. Volunteer scans refugee's QR code via mobile app
-2. QR data sent to `/api/tasks/{id}/complete/`
-3. Backend verifies QR belongs to refugee on this task
-4. If valid → update task, notify refugee, unlock rating ability
-5. If invalid → reject with error
-
-### Challenge 3: Fair Rating & Review System
-**Problem:** Volunteers/refugees could rate before completing interaction, leading to bias.
-
-**Solution:**
-- Added validation: ratings only allowed after `task.status == 'completed'`
-- Timestamp recorded to prevent duplicate ratings
-- Only participants in the task can submit ratings
-- Rating endpoint checks task completion status first
-
-**Validation Logic:**
-```python
-def create_rating(self, task_id, rater_id, rating):
-    task = Task.objects.get(id=task_id)
-    if task.status != 'completed':
-        raise ValidationError("Task must be completed before rating")
-    # Proceed with rating creation
-```
+This separation keeps domain logic organized and makes individual modules easier to maintain and extend.
 
 ---
 
+## Tech Stack
 
+| Layer            | Technology                 |
+| ---------------- | -------------------------- |
+| Backend          | Django 6.0                 |
+| API              | Django REST Framework 3.16 |
+| Authentication   | Simple JWT                 |
+| Database         | PostgreSQL                 |
+| Database Driver  | psycopg2                   |
+| Image Processing | Pillow                     |
+| QR Generation    | qrcode                     |
+| CORS             | django-cors-headers        |
+| Containerization | Docker                     |
+| Configuration    | Environment variables      |
+| Client           | Flutter                    |
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
-- Python 3.10+
-- PostgreSQL 12+
-- pip (Python package manager)
+## Authentication & Authorization
 
-### Installation & Setup
+Authentication is implemented using **JWT access and refresh tokens**.
 
-#### 1. Clone the Repository
+```text
+Client
+  │
+  │ username + password
+  ▼
+JWT Token Endpoint
+  │
+  ├── Access Token
+  └── Refresh Token
+          │
+          ▼
+     Authenticated API
+```
+
+### Authentication features
+
+* JWT access tokens
+* JWT refresh tokens
+* Account activation after OTP verification
+* Email OTP verification
+* OTP resend flow
+* Password recovery
+* Password reset tokens
+* `/api/auth/me/` endpoint for frontend session and routing decisions
+
+### Role-based authorization
+
+The backend distinguishes between the main application roles:
+
+```text
+                 Authenticated User
+                         │
+             ┌───────────┼───────────┐
+             ▼           ▼           ▼
+          Refugee     Volunteer   Organization
+             │           │           │
+             ▼           ▼           ▼
+          Requests      Tasks      Management
+```
+
+Role-specific permissions are enforced at the API layer rather than relying solely on frontend restrictions.
+
+---
+
+## Service Request Lifecycle
+
+The service-request workflow is the central business process of Aidora.
+
+```text
+┌─────────┐
+│ Refugee │
+└────┬────┘
+     │
+     │ Create request
+     ▼
+┌─────────┐
+│ Pending │
+└────┬────┘
+     │
+     │ Organization decision
+     ├───────────────┐
+     │               │
+     ▼               ▼
+ Approved         Rejected
+     │
+     │ Volunteer workflow
+     ▼
+ Assigned / Accepted
+     │
+     │ Task completion
+     ▼
+ QR Verification
+     │
+     ▼
+ Completed
+```
+
+The backend controls state transitions and prevents unauthorized users from performing actions outside their role.
+
+---
+
+## QR-based Completion
+
+Aidora uses QR-based verification as part of the service delivery workflow.
+
+The QR workflow allows the backend to associate a physical/service completion action with the corresponding request.
+
+```text
+Volunteer
+    │
+    │ Scan QR
+    ▼
+Backend validation
+    │
+    ├── Valid request
+    ├── Authorized user
+    └── Valid state
+            │
+            ▼
+      Mark request completed
+```
+
+This provides an additional verification layer instead of relying exclusively on client-side state changes.
+
+---
+
+## Notifications
+
+The backend includes notification infrastructure for important workflow events.
+
+Examples include:
+
+* Volunteer application updates
+* Organization approval notifications
+* Task status changes
+* Request lifecycle updates
+
+Notifications are generated from backend events so that important state changes remain synchronized with the application's business logic.
+
+---
+
+## API Structure
+
+The API is organized around clear domain prefixes:
+
+```text
+/api/auth/
+/api/organizations/
+/api/requests/
+```
+
+### Authentication
+
+```text
+/api/auth/token/
+/api/auth/token/refresh/
+/api/auth/login/
+/api/auth/logout/
+/api/auth/register/refugee/
+/api/auth/register/volunteer/
+/api/auth/verify-otp/
+/api/auth/resend-otp/
+/api/auth/forgot-password/
+/api/auth/reset-password/
+/api/auth/me/
+```
+
+### Organizations
+
+```text
+/api/organizations/cards/
+/api/organizations/<id>/
+/api/organizations/<id>/services/
+/api/organizations/dashboard/
+/api/organizations/applications/
+/api/organizations/tasks/
+/api/organizations/my-org/
+```
+
+### Requests
+
+```text
+/api/requests/list/
+/api/requests/my-requests/
+/api/requests/<id>/details/
+/api/requests/<id>/services/
+/api/requests/org/requests/
+/api/requests/volunteer/home/
+/api/requests/volunteer/tasks/
+/api/requests/<id>/scan-qr/
+```
+
+The API surface is intentionally grouped by domain rather than placing all endpoints in a single application.
+
+---
+
+## Database
+
+Aidora uses **PostgreSQL** as its relational database.
+
+The data model is centered around:
+
+```text
+User
+ │
+ ├── RefugeeProfile
+ │
+ └── VolunteerProfile
+
+Organization
+ │
+ ├── OrganizationService
+ │
+ └── Volunteer / Application relationships
+
+ServiceRequest
+ │
+ ├── Refugee
+ ├── Organization
+ ├── Service
+ └── Volunteer / Task lifecycle
+```
+
+The model structure supports the relationships required for authentication, humanitarian requests, organizational processing, and volunteer workflows.
+
+---
+
+## Security & Configuration
+
+Sensitive configuration is loaded from environment variables rather than being hard-coded into the repository.
+
+Examples include:
+
+```text
+SECRET_KEY
+DB_NAME
+DB_USER
+DB_PASSWORD
+DB_HOST
+DB_PORT
+EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD
+```
+
+The repository excludes sensitive local configuration through `.gitignore` and `.dockerignore`.
+
+The application also fails explicitly when required security configuration, such as `SECRET_KEY`, is missing.
+
+This prevents accidental use of insecure fallback values.
+
+---
+
+## Docker
+
+The backend can be built and executed as a Docker container.
+
+Build the image:
+
 ```bash
-git clone https://github.com/your-repo/aidora-backend.git
-cd aidora-backend
+docker build -t aidora-backend .
 ```
 
-#### 2. Create Virtual Environment
+Run the development container:
+
+```bash
+docker run --rm --env-file .env -p 8000:8000 aidora-backend
+```
+
+The containerized setup keeps the backend runtime environment reproducible and separates application dependencies from the host Python installation.
+
+### Container structure
+
+```text
+Dockerfile
+   │
+   ├── Python runtime
+   ├── Application dependencies
+   ├── Django project
+   └── Development server
+```
+
+Local secrets and runtime data are excluded from the Docker build context where appropriate.
+
+---
+
+## Local Development
+
+### Requirements
+
+* Python 3.13+
+* PostgreSQL
+* Docker (optional but recommended)
+* Git
+
+### Without Docker
+
+Create and activate a virtual environment:
+
 ```bash
 python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
 ```
 
-#### 3. Install Dependencies
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 4. Configure Database
+Configure the required environment variables and run:
 
-**Create PostgreSQL Database:**
-```sql
-CREATE DATABASE aidora_db;
-CREATE USER aidora_user WITH PASSWORD 'your_secure_password';
-ALTER ROLE aidora_user SET client_encoding TO 'utf8';
-ALTER ROLE aidora_user SET default_transaction_isolation TO 'read_committed';
-GRANT ALL PRIVILEGES ON DATABASE aidora_db TO aidora_user;
-```
-
-**Update Environment Settings:**
-Create `.env` file in project root:
-```env
-DB_NAME=aidora_db
-DB_USER=aidora_user
-DB_PASSWORD=your_secure_password
-DB_HOST=localhost
-DB_PORT=5432
-SECRET_KEY=your_django_secret_key
-DEBUG=True
-```
-
-#### 5. Run Migrations
 ```bash
-python manage.py makemigrations
 python manage.py migrate
-```
-
-#### 6. Create Superuser (Admin Account)
-```bash
-python manage.py createsuperuser
-```
-
-#### 7. Collect Static Files
-```bash
-python manage.py collectstatic --noinput
-```
-
-#### 8. Start Development Server
-```bash
 python manage.py runserver
 ```
 
-Server runs at: `http://localhost:8000`
-Admin panel: `http://localhost:8000/admin`
+### With Docker
 
----
-
-## 📱 API Documentation
-
-### Core Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| POST | `/api/auth/register/` | User registration |
-| POST | `/api/auth/login/` | User login (returns JWT tokens) |
-| GET | `/api/auth/me/` | Get current user profile & routing data |
-| POST | `/api/auth/verify-pin/` | Verify volunteer PIN |
-| POST | `/api/volunteers/applications/` | Submit volunteer application |
-| GET | `/api/refugees/profile/` | Get refugee profile |
-| POST | `/api/refugees/requests/` | Create service request |
-| GET | `/api/organizations/` | List organizations |
-| POST | `/api/tasks/{id}/complete/` | Mark task as completed (QR scan) |
-
----
-
-## 🔗 External Resources
-
-- **📱 Mobile App (Flutter):** [Aidora Flutter Repository](https://github.com/AsseadIbrahim/Aidora_flutter.git)
-- **🎨 UI/UX Design (Figma):** [Aidora Design System](https://www.figma.com/design/GUgPRg89wodNHTfcDUgC4N/myproject?node-id=1071-281&t=vdtPJTrRQFsro4CL-1)
-- **📊 Database Schema:** [ER_Diagram.pdf](ER_Diagram.pdf)
-
----
-
-## 📝 Project Structure
+```bash
+docker build -t aidora-backend .
+docker run --rm --env-file .env -p 8000:8000 aidora-backend
 ```
+
+The API will then be available at:
+
+```text
+http://localhost:8000/
+```
+
+---
+
+## Project Structure
+
+```text
 Aidora/
-├── accounts/              # User authentication & profiles
-│   ├── models.py         # User, VolunteerProfile, RefugeeProfile
-│   ├── views.py          # Auth endpoints
-│   ├── serializers.py    # DRF serializers
-│   └── signals.py        # PIN generation on approval
-├── organizations/         # Organization management
-│   ├── models.py         # Organization, Service
-│   └── views.py          # Organization CRUD
-├── requests/             # Service requests & tasks
-│   ├── models.py         # Request, Task, Rating
-│   └── views.py          # Task completion (QR scanning)
-├── Aidora/              # Project settings
-│   ├── settings.py      # Django configuration
-│   ├── urls.py          # URL routing
-│   └── wsgi.py          # WSGI configuration
-├── manage.py            # Django CLI
-├── requirements.txt     # Python dependencies
-├── ER_Diagram.pdf       # Database schema diagram
-└── README.md            # This file
+│
+├── Aidora/
+│   ├── settings.py
+│   ├── urls.py
+│   └── ...
+│
+├── accounts/
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── permissions.py
+│   └── ...
+│
+├── organizations/
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   └── ...
+│
+├── requests/
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── permissions.py
+│   └── ...
+│
+├── Dockerfile
+├── .dockerignore
+├── .gitignore
+├── requirements.txt
+├── manage.py
+└── README.md
 ```
 
 ---
 
-## 🧪 Testing
+## Engineering Highlights
 
-### Run All Tests
-```bash
-python manage.py test
-```
+The project demonstrates practical backend engineering concepts rather than only basic CRUD development.
 
-### Run Specific App Tests
-```bash
-python manage.py test accounts.tests
-python manage.py test organizations.tests
-python manage.py test requests.tests
-```
+### Authentication
 
----
+* JWT authentication
+* OTP verification
+* Password recovery
+* Account activation
+* Role-aware access control
 
-## ⚙️ Deployment Checklist
+### API design
 
-- [ ] Set `DEBUG=False` in production
-- [ ] Update `ALLOWED_HOSTS` with your domain
-- [ ] Use PostgreSQL instead of SQLite
-- [ ] Configure CORS for frontend domain
-- [ ] Set up email backend for notifications
-- [ ] Enable HTTPS/SSL
-- [ ] Configure static/media file storage (S3/CDN recommended)
-- [ ] Set up logging and monitoring
-- [ ] Use environment variables for secrets
-- [ ] Test JWT token expiration flow
+* Domain-oriented endpoint organization
+* DRF serializers and API views
+* Explicit permission classes
+* Controlled request state transitions
 
----
+### Data layer
 
-## 👨‍💻 Developer Notes
+* PostgreSQL integration
+* Relational model design
+* Profile relationships
+* Organization/service/request relationships
 
-This project emphasizes:
-- **Security First:** JWT tokens, role-based access, PIN verification
-- **State Management:** Intelligent Auth/Me endpoint for clean frontend routing
-- **Production Ready:** Query optimization, pagination, error handling
-- **Scalability:** Async task processing ready, extensible architecture
+### Security
 
----
+* Environment-based secrets
+* Protected API endpoints
+* Role-based authorization
+* Backend-side validation
+* QR verification workflow
 
-## 📞 Support & Contribution
+### Deployment readiness
 
-For issues, feature requests, or contributions:
-1. Open an issue on GitHub
-2. Create a feature branch
-3. Submit a pull request with clear description
-4. Ensure all tests pass
+* Dockerfile
+* `.dockerignore`
+* Environment-driven configuration
+* Reproducible dependency installation
 
 ---
 
-## 📄 License
+## Team Contributions
 
-This project is part of the Aidora humanitarian aid initiative.
+Aidora was developed collaboratively.
 
-*Built with ❤️ for humanitarian aid.*
+### Siedra-Ziedan
+
+Contributed to:
+
+* Accounts module
+* Organizations module
+* Requests module
+* JWT authentication
+* OTP verification
+* Password recovery
+* Volunteer and organization workflows
+* Role-based authorization
+* Notification infrastructure
+* Database architecture
+
+### Shahd-Ibraheem
+
+Contributed to:
+
+* Refugee module
+* Refugee profile management
+* Service-request functionality
+* QR-based completion workflow
+* Flutter integration
+* Notification-related functionality
+
+---
+
+## Development Status
+
+The backend is actively developed as part of the Aidora humanitarian coordination platform.
+
+Current engineering work focuses on:
+
+* Backend reliability
+* API organization
+* Security hardening
+* Containerized development
+* Database integration
+* Flutter/backend integration
+
+---
+
+## License
+
+This project is currently developed as an academic and portfolio project.
+
+---
+
+## Author
+
+**Yousef Abbas**
+
+Flutter Developer · Django REST Framework
+
+GitHub: **YousefAbaas**
