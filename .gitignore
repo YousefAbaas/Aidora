@@ -209,3 +209,6 @@ __marimo__/
 .env
 media/
 data.json
+# IDE / Editor files
+.idea/
+.vscode/
