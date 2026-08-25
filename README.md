@@ -601,6 +601,27 @@ flutter run
 
 ---
 
+# CI/CD & Android Build Notes
+
+Aidora uses GitHub Actions for continuous integration. Every push to master triggers static analysis, unit/integration tests, and a release APK build.
+
+## Pinned Toolchain Versions
+
+Android builds are sensitive to version alignment between Flutter, the Android Gradle Plugin (AGP), and Gradle itself. The following versions are known to build successfully for this project:
+
+| Tool               | Version   |
+| ------------------- | --------- |
+| Flutter             | 3.47.0    |
+| Android Gradle Plugin (AGP) | 8.12.0 |
+| Gradle              | 8.14.1    |
+
+These are defined in:
+
+`text
+android/settings.gradle              → AGP version
+android/gradle/wrapper/gradle-wrapper.properties → Gradle version
+.github/workflows/flutter-ci.yml     → Flutter version used in CI
+
 # Environment Configuration
 
 The Flutter client communicates with a backend API.
