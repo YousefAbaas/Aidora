@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: aidora-postgres
+    environment:
+      POSTGRES_DB: aidora
+      POSTGRES_USER: aidora
+      POSTGRES_PASSWORD: aidora_password
+    volumes:
+      - aidora-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - aidora-network
+
+  django:
+    build: .
+    image: aidora-django
+    container_name: aidora-django
+    env_file:
+      - .env
+    environment:
+      DB_HOST: aidora-postgres
+      DB_PORT: 5432
+      DB_NAME: aidora
+      DB_USER: aidora
+      DB_PASSWORD: aidora_password
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - aidora-network
+
+volumes:
+  aidora-postgres-data:
+    external: true
+    name: 0c0344486df5f235a9c469431a43cd421271b3309a2a2a643faa242b87a73427
+
+networks:
+  aidora-network:
+    external: true
+    name: aidora-network
