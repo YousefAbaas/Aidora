@@ -17,7 +17,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     if instance.role == 'refugee':
         RefugeeProfile.objects.create(
             user=instance,
-            full_name=getattr(instance, 'username', '') or '',
+            full_name='',
             phone_number='',
             gender='male',
             location='',
