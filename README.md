@@ -1,74 +1,52 @@
-# Aidora — Humanitarian Aid Coordination Backend
+# Aidora — Humanitarian Aid Coordination Platform
 
-A Django REST Framework backend for coordinating humanitarian assistance between **refugees, volunteers, and organizations**.
+<p align="center">
+  <img src="img/aidora_icon.png" alt="Aidora Logo" width="120"/>
+</p>
 
-Aidora provides the API layer for a Flutter mobile application and manages the complete aid-request lifecycle — from authentication and profile completion to service requests, organizational processing, volunteer assignment, QR-based delivery confirmation, and notifications.
+<p align="center">
+  <strong>Connecting displaced communities with humanitarian organizations and volunteers</strong>
+</p>
 
-The backend focuses on **secure authentication, role-based authorization, modular architecture, PostgreSQL integration, and containerized development**.
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-Mobile%20%26%20Web-02569B?logo=flutter" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Dart-3.4%2B-0175C2?logo=dart" alt="Dart"/>
+  <img src="https://img.shields.io/badge/Backend-Django%20REST-092E20?logo=django" alt="Django REST"/>
+  <img src="https://img.shields.io/badge/Auth-JWT-FF6B35" alt="JWT"/>
+  <img src="https://img.shields.io/badge/State%20Management-GetX-8B5CF6" alt="GetX"/>
+  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen" alt="Version"/>
+  <img src="https://img.shields.io/badge/License-Proprietary-lightgrey" alt="License"/>
+</p>
 
 ---
 
 ## Overview
 
-Aidora addresses a practical humanitarian coordination workflow:
+**Aidora** is a full-stack humanitarian aid platform connecting refugees, volunteers, and organizations. It consists of two components living in this monorepo:
 
-```text
-Refugee
-   │
-   │ Requests a service
-   ▼
-Organization
-   │
-   │ Reviews / approves
-   ▼
-Volunteer
-   │
-   │ Accepts / completes task
-   ▼
-QR-based confirmation
-   │
-   ▼
-Request completed
-```
+| Component | Location | Stack | Documentation |
+|---|---|---|---|
+| **Frontend** | repository root (`lib/`, `android/`, `ios/`, `test/`, ...) | Flutter, GetX, JWT client | this file (below) |
+| **Backend** | [`backend/`](backend/) | Django REST Framework, PostgreSQL, Docker | [`backend/README.md`](backend/README.md) |
 
-The backend is responsible for enforcing the business rules and authorization boundaries throughout this lifecycle.
-
-### Core capabilities
-
-* JWT authentication with access and refresh tokens
-* Refugee and volunteer registration
-* Email OTP verification
-* Password recovery and reset
-* Role-based authorization
-* Profile completion workflow
-* Organization and service management
-* Humanitarian service requests
-* Volunteer applications
-* Task assignment and reassignment
-* Request approval and rejection
-* QR-based request completion
-* Notification infrastructure
-* PostgreSQL database integration
-* Dockerized backend environment
-* Environment-based configuration
+The Flutter client communicates with the Django backend through a JWT-secured REST API. See the architecture diagram below for how the two fit together.
 
 ---
 
 ## Architecture
 
-Aidora is organized into independent Django applications with responsibilities separated by domain.
-
 ```text
                          ┌─────────────────────┐
                          │   Flutter Mobile    │
-                         │      Client         │
+                         │   Client (root)     │
                          └──────────┬──────────┘
                                     │
-                              REST / JSON
+                              REST / JSON (JWT)
                                     │
                                     ▼
                     ┌───────────────────────────┐
-                    │      Django REST API      │
+                    │   Django REST API          │
+                    │   (backend/)               │
                     └─────────────┬─────────────┘
                                   │
           ┌───────────────────────┼───────────────────────┐
@@ -78,7 +56,6 @@ Aidora is organized into independent Django applications with responsibilities s
     │  Accounts │          │ Organizations│       │  Requests   │
     └─────┬─────┘          └──────┬───────┘       └──────┬──────┘
           │                       │                       │
-          │                       │                       │
           └───────────────────────┼───────────────────────┘
                                   │
                                   ▼
@@ -87,346 +64,152 @@ Aidora is organized into independent Django applications with responsibilities s
                          └─────────────────┘
 ```
 
-### Application responsibilities
-
-| Module          | Responsibility                                                          |
-| --------------- | ----------------------------------------------------------------------- |
-| `accounts`      | Users, authentication, profiles, OTP, password recovery, notifications  |
-| `organizations` | Organizations, services, volunteer applications, organization workflows |
-| `requests`      | Service requests, request lifecycle, volunteer tasks, QR completion     |
-
-This separation keeps domain logic organized and makes individual modules easier to maintain and extend.
-
 ---
 
-## Tech Stack
+## Quick Start
 
-| Layer            | Technology                 |
-| ---------------- | -------------------------- |
-| Backend          | Django 6.0                 |
-| API              | Django REST Framework 3.16 |
-| Authentication   | Simple JWT                 |
-| Database         | PostgreSQL                 |
-| Database Driver  | psycopg2                   |
-| Image Processing | Pillow                     |
-| QR Generation    | qrcode                     |
-| CORS             | django-cors-headers        |
-| Containerization | Docker                     |
-| Configuration    | Environment variables      |
-| Client           | Flutter                    |
-
----
-
-## Authentication & Authorization
-
-Authentication is implemented using **JWT access and refresh tokens**.
-
-```text
-Client
-  │
-  │ username + password
-  ▼
-JWT Token Endpoint
-  │
-  ├── Access Token
-  └── Refresh Token
-          │
-          ▼
-     Authenticated API
-```
-
-### Authentication features
-
-* JWT access tokens
-* JWT refresh tokens
-* Account activation after OTP verification
-* Email OTP verification
-* OTP resend flow
-* Password recovery
-* Password reset tokens
-* `/api/auth/me/` endpoint for frontend session and routing decisions
-
-### Role-based authorization
-
-The backend distinguishes between the main application roles:
-
-```text
-                 Authenticated User
-                         │
-             ┌───────────┼───────────┐
-             ▼           ▼           ▼
-          Refugee     Volunteer   Organization
-             │           │           │
-             ▼           ▼           ▼
-          Requests      Tasks      Management
-```
-
-Role-specific permissions are enforced at the API layer rather than relying solely on frontend restrictions.
-
----
-
-## Service Request Lifecycle
-
-The service-request workflow is the central business process of Aidora.
-
-```text
-┌─────────┐
-│ Refugee │
-└────┬────┘
-     │
-     │ Create request
-     ▼
-┌─────────┐
-│ Pending │
-└────┬────┘
-     │
-     │ Organization decision
-     ├───────────────┐
-     │               │
-     ▼               ▼
- Approved         Rejected
-     │
-     │ Volunteer workflow
-     ▼
- Assigned / Accepted
-     │
-     │ Task completion
-     ▼
- QR Verification
-     │
-     ▼
- Completed
-```
-
-The backend controls state transitions and prevents unauthorized users from performing actions outside their role.
-
----
-
-## QR-based Completion
-
-Aidora uses QR-based verification as part of the service delivery workflow.
-
-The QR workflow allows the backend to associate a physical/service completion action with the corresponding request.
-
-```text
-Volunteer
-    │
-    │ Scan QR
-    ▼
-Backend validation
-    │
-    ├── Valid request
-    ├── Authorized user
-    └── Valid state
-            │
-            ▼
-      Mark request completed
-```
-
-This provides an additional verification layer instead of relying exclusively on client-side state changes.
-
----
-
-## Notifications
-
-The backend includes notification infrastructure for important workflow events.
-
-Examples include:
-
-* Volunteer application updates
-* Organization approval notifications
-* Task status changes
-* Request lifecycle updates
-
-Notifications are generated from backend events so that important state changes remain synchronized with the application's business logic.
-
----
-
-## API Structure
-
-The API is organized around clear domain prefixes:
-
-```text
-/api/auth/
-/api/organizations/
-/api/requests/
-```
-
-### Authentication
-
-```text
-/api/auth/token/
-/api/auth/token/refresh/
-/api/auth/login/
-/api/auth/logout/
-/api/auth/register/refugee/
-/api/auth/register/volunteer/
-/api/auth/verify-otp/
-/api/auth/resend-otp/
-/api/auth/forgot-password/
-/api/auth/reset-password/
-/api/auth/me/
-```
-
-### Organizations
-
-```text
-/api/organizations/cards/
-/api/organizations/<id>/
-/api/organizations/<id>/services/
-/api/organizations/dashboard/
-/api/organizations/applications/
-/api/organizations/tasks/
-/api/organizations/my-org/
-```
-
-### Requests
-
-```text
-/api/requests/list/
-/api/requests/my-requests/
-/api/requests/<id>/details/
-/api/requests/<id>/services/
-/api/requests/org/requests/
-/api/requests/volunteer/home/
-/api/requests/volunteer/tasks/
-/api/requests/<id>/scan-qr/
-```
-
-The API surface is intentionally grouped by domain rather than placing all endpoints in a single application.
-
----
-
-## Database
-
-Aidora uses **PostgreSQL** as its relational database.
-
-The data model is centered around:
-
-```text
-User
- │
- ├── RefugeeProfile
- │
- └── VolunteerProfile
-
-Organization
- │
- ├── OrganizationService
- │
- └── Volunteer / Application relationships
-
-ServiceRequest
- │
- ├── Refugee
- ├── Organization
- ├── Service
- └── Volunteer / Task lifecycle
-```
-
-The model structure supports the relationships required for authentication, humanitarian requests, organizational processing, and volunteer workflows.
-
----
-
-## Security & Configuration
-
-Sensitive configuration is loaded from environment variables rather than being hard-coded into the repository.
-
-Examples include:
-
-```text
-SECRET_KEY
-DB_NAME
-DB_USER
-DB_PASSWORD
-DB_HOST
-DB_PORT
-EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD
-```
-
-The repository excludes sensitive local configuration through `.gitignore` and `.dockerignore`.
-
-The application also fails explicitly when required security configuration, such as `SECRET_KEY`, is missing.
-
-This prevents accidental use of insecure fallback values.
-
----
-
-## Docker
-
-The backend can be built and executed as a Docker container.
-
-Build the image:
+Clone the repository:
 
 ```bash
-docker build -t aidora-backend .
+git clone https://github.com/YousefAbaas/Aidora.git
+cd Aidora
 ```
 
-Run the development container:
-
-```bash
-docker run --rm --env-file .env -p 8000:8000 aidora-backend
-```
-
-The containerized setup keeps the backend runtime environment reproducible and separates application dependencies from the host Python installation.
-
-### Container structure
-
-```text
-Dockerfile
-   │
-   ├── Python runtime
-   ├── Application dependencies
-   ├── Django project
-   └── Development server
-```
-
-Local secrets and runtime data are excluded from the Docker build context where appropriate.
+- To run the **Flutter app**, see [Getting Started](#getting-started) below.
+- To run the **Django API**, see [`backend/README.md`](backend/README.md).
 
 ---
 
-## Local Development
+## Table of Contents
 
-### Requirements
+- [Why Aidora?](#why-aidora)
+- [Core Capabilities](#core-capabilities)
+- [User Roles](#user-roles)
+- [Frontend Application Architecture](#frontend-application-architecture)
+- [Project Structure](#project-structure)
+- [State Management](#state-management)
+- [Authentication & Session Management](#authentication--session-management)
+- [API Layer](#api-layer)
+- [Data Models](#data-models)
+- [Profile & Image Management](#profile--image-management)
+- [Notifications](#notifications)
+- [QR Verification](#qr-verification)
+- [Local Storage](#local-storage)
+- [Localization](#localization)
+- [Technology Stack](#technology-stack)
+- [Code Quality & Engineering](#code-quality--engineering)
+- [Testing](#testing)
+- [Screenshots](#screenshots)
+- [Getting Started](#getting-started)
+- [CI/CD & Android Build Notes](#cicd--android-build-notes)
+- [Security Considerations](#security-considerations)
+- [Development Workflow](#development-workflow)
+- [Engineering Highlights](#engineering-highlights)
+- [Current Quality Status](#current-quality-status)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
-* Python 3.13+
-* PostgreSQL
-* Docker (optional but recommended)
-* Git
+---
 
-### Without Docker
+## Why Aidora?
 
-Create and activate a virtual environment:
+Humanitarian assistance workflows can become fragmented when people need to identify available services, understand eligibility, submit requests, and communicate with organizations through disconnected channels.
 
-```bash
-python -m venv venv
-```
+Aidora aims to provide a single mobile-first interface where users can:
 
-Install dependencies:
+1. Discover humanitarian organizations.
+2. Explore available services.
+3. Create and manage assistance requests.
+4. Maintain their personal profile.
+5. Receive request-related notifications.
+6. Interact with volunteer and organization workflows.
+7. Verify assistance processes through QR-based workflows.
 
-```bash
-pip install -r requirements.txt
-```
+---
 
-Configure the required environment variables and run:
+## Core Capabilities
 
-```bash
-python manage.py migrate
-python manage.py runserver
-```
+| Capability              | Description                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| Authentication          | JWT-based authentication with login, registration, and token lifecycle handling |
+| OTP Verification        | PIN-based verification workflow using Pinput                                    |
+| Assistance Requests     | Create and manage humanitarian service requests                                 |
+| Organization Discovery  | Browse and search humanitarian organizations                                    |
+| Organization Profiles   | View organization information and available services                            |
+| Guest Mode              | Explore organizations without requiring authentication                          |
+| Profile Management      | Manage personal information and profile data                                    |
+| Profile Images          | Select, upload, cache, and display profile images                               |
+| Notifications           | Local notification infrastructure for application events                        |
+| QR Verification         | QR scanning workflow for volunteer operations                                   |
+| Multilingual UI         | Arabic and English interface support                                            |
+| Smart Search            | Search interface for discovering relevant humanitarian services                 |
+| Persistent Session Data | Local persistence using SharedPreferences                                       |
+| External Links          | Open external resources through the platform URL handler                        |
 
-### With Docker
+---
 
-```bash
-docker build -t aidora-backend .
-docker run --rm --env-file .env -p 8000:8000 aidora-backend
-```
-
-The API will then be available at:
+## User Roles
 
 ```text
-http://localhost:8000/
+                         ┌────────────────────┐
+                         │       Aidora       │
+                         └─────────┬──────────┘
+                                   │
+                ┌──────────────────┼──────────────────┐
+                │                  │                  │
+                ▼                  ▼                  ▼
+        ┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+        │    Refugee    │  │ Organization  │  │   Volunteer   │
+        └───────┬───────┘  └───────┬───────┘  └───────┬───────┘
+                │                  │                  │
+                ▼                  ▼                  ▼
+        Submit requests     Manage services     Process requests
+        Track activity      Organization data   QR verification
+        Manage profile      Service workflows   Request workflows
+```
+
+### Refugee / Beneficiary
+Account registration, authentication, profile completion, organization/service discovery, request submission and tracking, profile image management, notifications.
+
+### Organization
+Organization information, service management workflows, request management, organization-specific screens, reporting workflows.
+
+### Volunteer
+Volunteer profile, request workflows, request status handling, QR scanning and verification.
+
+### Guest
+Unauthenticated users can browse public organization information and explore available services before creating an account.
+
+---
+
+## Frontend Application Architecture
+
+Aidora follows a service-oriented Flutter structure that separates presentation, models, API communication, and reusable UI components.
+
+```text
+┌─────────────────────────────────────────────┐
+│                 Flutter UI                  │
+│ Screens / Views / Widgets / Navigation      │
+└──────────────────────┬──────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────┐
+│             State Management (GetX)          │
+│ Controllers / Reactive State / UI Updates   │
+└──────────────────────┬──────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────┐
+│               Service Layer                 │
+│ API Service / Auth Service / Upload Helpers │
+└──────────────────────┬──────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────┐
+│         REST API (Django REST Framework)     │
+└──────────────────────┬──────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────┐
+│  Backend Services — Authentication/Data/Requests │
+└─────────────────────────────────────────────┘
 ```
 
 ---
@@ -435,142 +218,342 @@ http://localhost:8000/
 
 ```text
 Aidora/
-│
-├── Aidora/
-│   ├── settings.py
-│   ├── urls.py
-│   └── ...
-│
-├── accounts/
-│   ├── models.py
-│   ├── views.py
-│   ├── serializers.py
-│   ├── permissions.py
-│   └── ...
-│
-├── organizations/
-│   ├── models.py
-│   ├── views.py
-│   ├── serializers.py
-│   └── ...
-│
-├── requests/
-│   ├── models.py
-│   ├── views.py
-│   ├── serializers.py
-│   ├── permissions.py
-│   └── ...
-│
-├── Dockerfile
-├── .dockerignore
-├── .gitignore
-├── requirements.txt
-├── manage.py
-└── README.md
+├── lib/
+│   ├── controllers/
+│   ├── models/
+│   ├── services/
+│   ├── utils/
+│   ├── views/
+│   ├── widgets/
+│   └── main.dart
+├── test/
+│   ├── unit/
+│   ├── widget/
+│   └── integration/
+├── android/ ios/ web/ windows/ linux/ macos/
+├── backend/                 ← Django REST Framework API (see backend/README.md)
+└── .github/workflows/
+    ├── flutter-ci.yml
+    └── django-ci.yml
 ```
+
+---
+
+## State Management
+
+Aidora uses **GetX** for reactive application state and controller-based coordination. For example, profile image changes are synchronized between the profile screen, relevant controllers, and other screens that consume the same state, reducing manual refresh logic.
+
+---
+
+## Authentication & Session Management
+
+```text
+User → Login/Registration → Authentication API → JWT credentials
+     → Local session persistence → Authenticated API requests
+          ├── Token valid ───────────────► Continue request
+          └── Token expired → Refresh token → Retry request
+```
+
+Centralized in `lib/services/auth_service.dart` and `lib/services/api_service.dart`.
+
+---
+
+## API Layer
+
+API responsibilities are centralized in dedicated service classes instead of embedding HTTP logic inside screens — consistent HTTP handling, centralized auth behavior, easier error handling, better testability, reduced duplication.
+
+Primary HTTP dependency: `http`. Backend: Django REST Framework with JWT authentication (see [`backend/README.md`](backend/README.md) for API endpoint reference).
+
+---
+
+## Data Models
+
+API responses are represented through dedicated Dart models (organizations, assistance requests, user info, authentication responses, service-related data), keeping serialization predictable.
+
+---
+
+## Profile & Image Management
+
+Selection, upload, caching, and display via `image_picker` and `cached_network_image`. Profile image state is synchronized reactively so updates propagate across screens without manual refresh.
+
+---
+
+## Notifications
+
+Local notification infrastructure via `flutter_local_notifications` and `timezone`.
+
+---
+
+## QR Verification
+
+Volunteer workflows include QR scanning via `mobile_scanner`.
+
+---
+
+## Local Storage
+
+Lightweight persistence via `shared_preferences` for session-related state and preferences.
+
+---
+
+## Localization
+
+Arabic and English UI support via the `intl` package.
+
+---
+
+## Technology Stack
+
+### Frontend
+| Technology   | Purpose                                       |
+| ------------ | --------------------------------------------- |
+| Flutter      | Cross-platform application framework          |
+| Dart         | Application programming language              |
+| GetX         | State management and reactive UI coordination |
+| Google Fonts | Typography                                    |
+| Flutter SVG  | SVG rendering                                 |
+| Pinput       | PIN / OTP input                               |
+| intl         | Internationalization and formatting           |
+
+### Networking & Backend Integration
+| Technology            | Purpose                |
+| --------------------- | ----------------------- |
+| HTTP                  | REST API communication |
+| Django REST Framework | Backend API             |
+| JWT                   | Authentication          |
+
+### Device & Platform Features
+| Package                     | Purpose                 |
+| ---------------------------- | ------------------------ |
+| image_picker                | Image selection         |
+| cached_network_image        | Network image caching   |
+| mobile_scanner              | QR / barcode scanning   |
+| permission_handler          | Runtime permissions     |
+| flutter_local_notifications | Local notifications     |
+| timezone                    | Notification scheduling |
+| url_launcher                 | External URLs            |
+
+### Local Persistence
+| Package            | Purpose                        |
+| ------------------- | -------------------------------- |
+| shared_preferences | Lightweight persistent storage |
+
+### Development & Testing
+| Package       | Purpose                     |
+| ------------- | ---------------------------- |
+| flutter_test  | Flutter testing framework   |
+| Mockito       | Mocking and isolated tests  |
+| build_runner  | Code generation             |
+| flutter_lints | Static analysis and linting |
+
+---
+
+## Code Quality & Engineering
+
+Recent engineering work: hardened the API layer, stabilized Flutter integration/widget tests, improved authentication and API response handling, strengthened image upload/URL handling, synchronized profile state across screens, cleaned unused code, improved null-safety patterns.
+
+```text
+flutter analyze
+No errors
+No warnings
+```
+
+---
+
+## Testing
+
+```text
+test/
+├── unit/
+│   ├── auth_service_test.dart
+│   └── models_test.dart
+├── widget/
+│   └── login_screen_test.dart
+└── integration/
+    └── app_flow_test.dart
+```
+
+Includes authentication service testing, model testing, widget-level UI testing, HTTP behavior isolation, Mockito-based mocking, and local storage isolation.
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="img/SecreenShots/Welcome.jpg" width="30%" alt="Aidora Welcome Screen"/>
+  <img src="img/SecreenShots/Login.jpg" width="30%" alt="Aidora Login Screen"/>
+  <img src="img/SecreenShots/ListOrganizations.jpg" width="30%" alt="Aidora Organizations"/>
+</p>
+
+<p align="center">
+  <img src="img/SecreenShots/RequestDetails.jpg" width="30%" alt="Aidora Request Details"/>
+  <img src="img/SecreenShots/MyRequest.jpg" width="30%" alt="Aidora My Requests"/>
+  <img src="img/SecreenShots/Profil.jpg" width="30%" alt="Aidora Profile"/>
+</p>
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+```bash
+flutter doctor
+flutter --version
+```
+
+Compatible Dart SDK (from `pubspec.yaml`):
+```yaml
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+```
+
+### Installation
+
+```bash
+git clone https://github.com/YousefAbaas/Aidora.git
+cd Aidora
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```
+
+> To run the backend the app depends on, see [`backend/README.md`](backend/README.md).
+
+---
+
+## CI/CD & Android Build Notes
+
+Aidora uses GitHub Actions for continuous integration. Every push triggers static analysis, unit/integration tests, and a release APK build (`flutter-ci.yml`). The Django backend has its own workflow (`django-ci.yml`) — see [`backend/README.md`](backend/README.md) for backend-specific CI notes.
+
+### Pinned Toolchain Versions
+
+| Tool                          | Version |
+| ------------------------------ | -------- |
+| Flutter                       | 3.47.0  |
+| Android Gradle Plugin (AGP)   | 8.12.0  |
+| Gradle                        | 8.14.1  |
+
+Defined in:
+```text
+android/settings.gradle                            → AGP version
+android/gradle/wrapper/gradle-wrapper.properties   → Gradle version
+.github/workflows/flutter-ci.yml                   → Flutter version used in CI
+```
+
+When upgrading Flutter locally, verify these three stay aligned before pushing — a mismatch is the most common cause of a CI build that fails while `flutter analyze`/`flutter test` pass locally.
+
+### CI Pipeline Stages
+
+```text
+Checkout → Set up Flutter → pub get → Analyze → Unit tests → Integration tests → Build APK → Upload artifact
+```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| CI fails but `flutter analyze`/`flutter test` pass locally | Local changes were never committed/pushed | Run `git status`; commit and push all pending changes |
+| `AGP version is lower than Flutter's minimum supported version` | Flutter was upgraded without updating AGP | Bump the version in `com.android.application` in `android/settings.gradle` |
+| Gradle resolves a nonexistent artifact version (e.g. `*-31.11.1.jar`) | A specific AGP patch release had a broken lint-tooling version mapping | Use an adjacent AGP version (e.g. `8.12.0` instead of `8.11.1`) |
+| `Could not download <package>.jar` / socket/SSL errors during build | Unstable network connection during dependency download | Retry on a more stable connection; Gradle resumes from its local cache |
+| Invalid workflow file / yaml syntax error on a specific line | Incorrect indentation or a duplicated step in the `.yml` file | YAML is indentation-sensitive — verify 2-space nesting, no duplicate `uses:` lines |
+| Widget finder test fails with "Found 0 widgets" despite matching text | Source file saved with incorrect encoding, corrupting non-ASCII characters | Rebuild the string programmatically (e.g. `'\u2022' * 8`) instead of pasting the literal character |
+
+---
+
+## Security Considerations
+
+- JWT-based authentication and token lifecycle management
+- Authenticated API requests, separation of API and UI responsibilities
+- No hard-coded secrets on the frontend
+- Local persistence limited to lightweight, non-sensitive data
+- Platform permission handling for protected device capabilities
+
+See [`backend/README.md`](backend/README.md) for backend-side security (environment variables, secret handling).
+
+---
+
+## Development Workflow
+
+Incremental Git-based workflow. Before opening a pull request, verify:
+
+```bash
+flutter analyze
+flutter test
+```
+
+Avoid committing generated files, IDE configuration, secrets, or machine-specific files.
 
 ---
 
 ## Engineering Highlights
 
-The project demonstrates practical backend engineering concepts rather than only basic CRUD development.
+**Architecture:** service-oriented API communication, dedicated auth service, dedicated data models, reusable widgets, controller-based reactive state.
 
-### Authentication
+**Reliability:** defensive API handling, auth lifecycle handling, test isolation, image upload resilience.
 
-* JWT authentication
-* OTP verification
-* Password recovery
-* Account activation
-* Role-aware access control
+**Maintainability:** centralized service responsibilities, static analysis, automated tests, Git-based incremental development.
 
-### API design
-
-* Domain-oriented endpoint organization
-* DRF serializers and API views
-* Explicit permission classes
-* Controlled request state transitions
-
-### Data layer
-
-* PostgreSQL integration
-* Relational model design
-* Profile relationships
-* Organization/service/request relationships
-
-### Security
-
-* Environment-based secrets
-* Protected API endpoints
-* Role-based authorization
-* Backend-side validation
-* QR verification workflow
-
-### Deployment readiness
-
-* Dockerfile
-* `.dockerignore`
-* Environment-driven configuration
-* Reproducible dependency installation
+**Platform Integration:** QR scanning, image selection/upload, local notifications, runtime permissions, external URL handling.
 
 ---
 
-## Team Contributions
+## Current Quality Status
 
-Aidora was developed collaboratively.
-
-### Siedra-Ziedan
-
-Contributed to:
-
-* Accounts module
-* Organizations module
-* Requests module
-* JWT authentication
-* OTP verification
-* Password recovery
-* Volunteer and organization workflows
-* Role-based authorization
-* Notification infrastructure
-* Database architecture
-
-### Shahd-Ibraheem
-
-Contributed to:
-
-* Refugee module
-* Refugee profile management
-* Service-request functionality
-* QR-based completion workflow
-* Flutter integration
-* Notification-related functionality
+| Area                        | Status       |
+| ----------------------------- | ------------- |
+| Flutter Analyzer            | ✅ 0 errors   |
+| Analyzer Warnings           | ✅ 0 warnings |
+| Unit Tests                  | Implemented  |
+| Widget Tests                | Implemented  |
+| Integration Tests           | Implemented  |
+| JWT Authentication          | Implemented  |
+| REST API Integration        | Implemented  |
+| GetX Reactive State         | Implemented  |
+| Profile Image Handling      | Implemented  |
+| QR Scanning                 | Implemented  |
+| Local Notifications         | Implemented  |
+| Arabic / English UI         | Implemented  |
+| Guest Organization Browsing | Implemented  |
+| Flutter CI (GitHub Actions) | ✅ Passing    |
+| Django CI (GitHub Actions)  | ✅ Passing    |
 
 ---
 
-## Development Status
+## Roadmap
 
-The backend is actively developed as part of the Aidora humanitarian coordination platform.
+- Complete Flutter API deprecation migration
+- Improve automated test coverage
+- Expand integration and end-to-end testing
+- Improve offline resilience
+- Introduce stronger centralized error reporting
+- Improve accessibility
+- Add production monitoring and analytics
+- Improve CI/CD automation
 
-Current engineering work focuses on:
+---
 
-* Backend reliability
-* API organization
-* Security hardening
-* Containerized development
-* Database integration
-* Flutter/backend integration
+## Contributing
+
+Aidora is currently maintained as a proprietary project.
+
+1. Create a focused branch.
+2. Keep changes scoped to a single responsibility.
+3. Run static analysis and relevant tests.
+4. Review the Git diff.
+5. Use descriptive commit messages.
+6. Avoid committing generated files, IDE configuration, secrets, or machine-specific files.
 
 ---
 
 ## License
 
-This project is currently developed as an academic and portfolio project.
+This project is currently distributed under a **proprietary license**. The source code, design, assets, and associated project materials are not licensed for unrestricted redistribution or commercial reuse without permission from the project owner.
 
 ---
 
-## Author
+## Project Status
 
-**Yousef Abbas**
-
-Flutter Developer · Django REST Framework
-
-GitHub: **YousefAbaas**
+**Current development version:** `1.0.0`
