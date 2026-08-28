@@ -2,8 +2,7 @@ from django.urls import path
 from .views import OrganizationServicesView 
 from .views import OrganizationApplicationsAPIView ,OrganizationDashboardAPIView, TaskReportAPIView ,AssignTaskAPIView,AssignTaskListAPIView,TaskListAPIView
 from .views import ReassignTaskAPIView ,MyOrganizationView
-#شهد
-
+# from .views import auth_me
 from .views import ServiceTypeListAPIView
 from .views import OrganizationCardListAPIView
 from .views import OrganizationDetailAPIView
@@ -21,7 +20,7 @@ urlpatterns = [
     path('assign-task/',AssignTaskListAPIView.as_view()),
     path('tasks/<int:task_id>/reassign/', ReassignTaskAPIView.as_view()),
     path('my-org/', MyOrganizationView.as_view(), name='my-organization'),
-#شهد
+#     path('me/', auth_me, name='auth-me'),
     #للخدمات
     path('services/', ServiceTypeListAPIView.as_view(), name='service-type-list'),
     #فلترة منظمة حسب الخدمة
