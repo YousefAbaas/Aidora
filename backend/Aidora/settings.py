@@ -32,7 +32,7 @@ AUTH_USER_MODEL = "accounts.User"
 INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "organizations.apps.OrganizationsConfig",
-    "requests.apps.RequestsConfig",
+    "service_requests.apps.ServiceRequestsConfig",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -89,7 +89,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default=config('DATABASE_URL'),
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=os.getenv("ENVIRONMENT", "development") == "production",
     )
 }
 

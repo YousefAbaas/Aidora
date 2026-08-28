@@ -97,7 +97,7 @@ class OrganizationApplicationsAPIView(APIView):
 
 
 from django.db.models import Count
-from requests.models import ServiceRequest,Task
+from service_requests.models import ServiceRequest, Task
 from django.db.models import Q
 from .serializers import OrganizationRequestSerializer,OrganizationTaskSerializer
 class OrganizationDashboardAPIView(APIView):

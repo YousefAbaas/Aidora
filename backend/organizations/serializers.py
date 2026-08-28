@@ -1,9 +1,6 @@
 from rest_framework import serializers
+from service_requests.models import ServiceRequest
 from .models import OrganizationService
-
-
-
-          
 class OrganizationServiceSerializer(serializers.ModelSerializer):
     service_name = serializers.CharField(source='service.name')
 
@@ -156,7 +153,7 @@ class VolunteerApplicationDetailSerializer(serializers.ModelSerializer):
         return data
 
 
-from requests.models import ServiceRequest,Task
+from service_requests.models import ServiceRequest, Task
 class OrganizationRequestSerializer(serializers.ModelSerializer):
     refugee_id = serializers.SerializerMethodField()
     service_type = serializers.SerializerMethodField()

@@ -14,7 +14,7 @@ services:
       - aidora-network
 
   django:
-    build: .
+    build: ./backend
     image: aidora-django
     container_name: aidora-django
     env_file:
@@ -25,6 +25,7 @@ services:
       DB_NAME: aidora
       DB_USER: aidora
       DB_PASSWORD: aidora_password
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@aidora-postgres:${DB_PORT}/${DB_NAME}"
     ports:
       - "8000:8000"
     depends_on:
