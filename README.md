@@ -51,8 +51,9 @@
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- | API | [Live API](https://aidora-z01k.onrender.com) |
-| API Documentation | [Swagger UI](https://aidora-z01k.onrender.com/api/docs/) |
+- - API
+  - [Live API](https://aidora-z01k.onrender.com)
+  - [API Documentation](https://aidora-z01k.onrender.com/api/docs/)
 ---
 ## Overview
 
