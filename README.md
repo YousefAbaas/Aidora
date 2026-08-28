@@ -181,6 +181,35 @@ Unauthenticated users can browse public organization information and explore ava
 
 ---
 
+## API Documentation
+
+Aidora provides a RESTful API built with Django REST Framework and documented using the OpenAPI specification.
+
+The API documentation is available through an interactive Swagger UI, allowing developers to explore endpoints, inspect request and response schemas, authenticate using JWT, and test API operations directly.
+
+### Live API
+
+🌐 API Base URL:  
+https://aidora-z01k.onrender.com
+
+### Interactive API Documentation
+
+📚 Swagger UI:  
+https://aidora-z01k.onrender.com/api/docs/
+
+The API documentation covers:
+
+- 🔐 Authentication and JWT authorization
+- 👤 Volunteer management
+- 🏢 Organization management
+- 📋 Service requests
+- 📦 Request and response schemas
+- 🛡️ Protected API endpoints
+- ⚡ Interactive endpoint testing
+
+> Note: Swagger UI provides an interactive interface for exploring and testing the documented Aidora API endpoints.
+----
+
 # Application Architecture
 
 Aidora follows a service-oriented Flutter structure that separates presentation, models, API communication, and reusable UI components.
