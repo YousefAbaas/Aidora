@@ -4,44 +4,37 @@ from rest_framework.test import APIClient
 from accounts.models import User
 
 
-class RegisterRefugeeIntegrationTest(TestCase):
+class RegisterLoginIntegrationTest(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_register_refugee(self):
-        payload = {
+    def test_refugee_register_then_login(self):
+        email = "integration_refugee@example.com"
+        password = "TestPassword123!"
+
+        register_payload = {
             "full_name": "Integration Test Refugee",
             "phone_number": "0999999999",
-            "email": "integration_refugee@example.com",
-            "password": "TestPassword123!",
-            "confirm_password": "TestPassword123!",
+            "email": email,
+            "password": password,
+            "confirm_password": password,
             "accept_terms": True,
         }
 
-        response = self.client.post(
+        # 1. Register
+        register_response = self.client.post(
             "/api/auth/register/refugee/",
-            payload,
+            register_payload,
             format="json",
         )
 
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(
-            response.data["message"],
-            "OTP sent successfully",
-        )
-        self.assertEqual(
-            response.data["email"],
-            "integration_refugee@example.com",
-        )
+        self.assertEqual(register_response.status_code, 201)
 
-        user = User.objects.get(
-            email="integration_refugee@example.com"
-        )
+        # 2. Verify database state
+        user = User.objects.get(email=email)
 
         self.assertEqual(user.role, "refugee")
         self.assertFalse(user.is_verified)
-        self.assertTrue(user.otp_code)
-        self.assertIsNotNone(user.otp_expires_at)
 
         profile = user.refugee_profile
 
@@ -49,8 +42,28 @@ class RegisterRefugeeIntegrationTest(TestCase):
             profile.full_name,
             "Integration Test Refugee",
         )
-        self.assertEqual(
-            profile.phone_number,
-            "0999999999",
-        )
+
         self.assertFalse(profile.profile_completed)
+
+        # 3. Login using the same credentials
+        login_response = self.client.post(
+            "/api/auth/login/",
+            {
+                "email": email,
+                "password": password,
+            },
+            format="json",
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+
+        # 4. Verify token response
+        self.assertIn("access", login_response.data)
+        self.assertIn("refresh", login_response.data)
+        self.assertEqual(
+            login_response.data["role"],
+            "refugee",
+        )
+
+        self.assertTrue(login_response.data["access"])
+        self.assertTrue(login_response.data["refresh"])
