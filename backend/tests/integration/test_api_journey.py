@@ -9,7 +9,7 @@ class RefugeeAuthenticationJourneyTest(TestCase):
     """
     Integration journey:
 
-    Register → Login → JWT validation
+    Register → Login → JWT validation → Protected API
     """
 
     def setUp(self):
@@ -37,11 +37,11 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         print(f"      → {label}: {value}")
 
     def test_refugee_authentication_journey(self):
-        total_steps = 3
+        total_steps = 4
 
         print()
         print("🚀 Refugee Authentication Journey")
-        print("=" * 45)
+        print("=" * 50)
 
         # ==========================================================
         # 1. REGISTER
@@ -70,21 +70,28 @@ class RefugeeAuthenticationJourneyTest(TestCase):
             msg=f"Register failed: {register_response.data}",
         )
 
-        self._result("Register response", "OTP sent successfully ✅")
+        self._result(
+            "Response",
+            "OTP sent successfully ✅",
+        )
 
-        # Verify User was created.
         user = User.objects.get(email=self.email)
 
         self.assertEqual(user.email, self.email)
         self.assertEqual(user.role, "refugee")
         self.assertFalse(user.is_verified)
 
-        self._result("User created", f"{user.email} ✅")
-        self._result("Role", f"{user.role} ✅")
-        self._result("Verified", f"{user.is_verified} ✅")
         self._result(
-            "OTP",
-            "generated ✅" if user.otp_code else "missing ❌",
+            "User created",
+            f"{user.email} ✅",
+        )
+        self._result(
+            "Role",
+            f"{user.role} ✅",
+        )
+        self._result(
+            "Verified",
+            f"{user.is_verified} ✅",
         )
 
         self.assertTrue(
@@ -94,12 +101,12 @@ class RefugeeAuthenticationJourneyTest(TestCase):
 
         self.assertIsNotNone(
             user.otp_expires_at,
-            "OTP expiration time was not created.",
+            "OTP expiration was not created.",
         )
 
+        self._result("OTP", "generated ✅")
         self._result("OTP expiration", "created ✅")
 
-        # Verify RefugeeProfile.
         profile = user.refugee_profile
 
         self.assertEqual(
@@ -112,9 +119,10 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         )
         self.assertFalse(profile.profile_completed)
 
-        self._result("RefugeeProfile", "created ✅")
-        self._result("Full name", f"{profile.full_name} ✅")
-        self._result("Phone number", f"{profile.phone_number} ✅")
+        self._result(
+            "RefugeeProfile",
+            "created ✅",
+        )
         self._result(
             "Profile completed",
             f"{profile.profile_completed} ✅",
@@ -176,7 +184,6 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         self._step(3, total_steps, "🎫 Validate JWT")
 
         token = AccessToken(access_token)
-
         token_user_id = int(token["user_id"])
 
         self.assertEqual(
@@ -185,7 +192,10 @@ class RefugeeAuthenticationJourneyTest(TestCase):
             "JWT user_id does not match the registered user.",
         )
 
-        self._result("JWT signature", "valid ✅")
+        self._result(
+            "JWT signature",
+            "valid ✅",
+        )
         self._result(
             "JWT user_id",
             f"{token_user_id} ✅",
@@ -195,7 +205,60 @@ class RefugeeAuthenticationJourneyTest(TestCase):
             f"{user.id} ✅",
         )
 
+        # ==========================================================
+        # 4. PROTECTED API
+        # ==========================================================
+        self._step(4, total_steps, "🛡️ Call protected API")
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {access_token}"
+        )
+
+        me_response = self.client.get("/api/auth/me/")
+
+        self._result(
+            "Endpoint",
+            "GET /api/auth/me/",
+        )
+        self._result(
+            "Authorization",
+            "Bearer JWT sent ✅",
+        )
+        self._result(
+            "HTTP status",
+            f"{me_response.status_code} "
+            f"{'✅' if me_response.status_code == 200 else '❌'}",
+        )
+
+        self.assertEqual(
+            me_response.status_code,
+            200,
+            msg=f"Protected API failed: {me_response.data}",
+        )
+
+        self.assertEqual(
+            me_response.data["role"],
+            "refugee",
+        )
+
+        self.assertFalse(
+            me_response.data["profile_completed"]
+        )
+
+        self._result(
+            "Authenticated user",
+            "recognized ✅",
+        )
+        self._result(
+            "Role",
+            f"{me_response.data['role']} ✅",
+        )
+        self._result(
+            "Profile completed",
+            f"{me_response.data['profile_completed']} ✅",
+        )
+
         print()
-        print("=" * 45)
+        print("=" * 50)
         print("🎉 Refugee Authentication Journey PASSED ✅")
-        print("=" * 45)
+        print("=" * 50)
