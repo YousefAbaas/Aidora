@@ -30,6 +30,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Applications
 INSTALLED_APPS = [
+"drf_spectacular",
     "accounts.apps.AccountsConfig",
     "organizations.apps.OrganizationsConfig",
     "service_requests.apps.ServiceRequestsConfig",
@@ -48,7 +49,34 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Aidora API",
+    "DESCRIPTION": (
+        "Humanitarian services API connecting refugees, "
+        "volunteers, and organizations."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 
+    "TAGS": [
+        {
+            "name": "Authentication",
+            "description": "Registration, login, JWT authentication, and account recovery.",
+        },
+        {
+            "name": "Organizations",
+            "description": "Organization discovery, services, and organization details.",
+        },
+        {
+            "name": "Service Requests",
+            "description": "Create and manage humanitarian service requests.",
+        },
+        {
+            "name": "Volunteers",
+            "description": "Volunteer profiles, applications, and volunteer operations.",
+        },
+    ],
+}
 # Middleware
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -132,6 +160,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 

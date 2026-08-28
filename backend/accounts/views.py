@@ -23,38 +23,90 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.viewsets import ViewSet
 from .permissions import IsRole
 from .serializers import ResendOTPSerializer
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 User = get_user_model()
+from rest_framework import serializers
 
-@api_view(['POST'])
+from .serializers import (
+    RegisterSerializer,
+    LoginSerializer,
+    LoginResponseSerializer,
+    ErrorResponseSerializer,
+    AuthMeResponseSerializer,
+)
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiResponse,
+    OpenApiParameter,
+    OpenApiTypes,
+)
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+    )
+@extend_schema(
+    tags=["Authentication"],
+    summary="Login",
+    description=(
+        "Authenticate a user using email and password "
+        "and return JWT access and refresh tokens."
+    ),
+    request=LoginSerializer,
+  responses={
+      200: OpenApiResponse(
+          response=LoginResponseSerializer,
+          description="Login successful.",
+      ),
+      400: OpenApiResponse(
+          response=ErrorResponseSerializer,
+          description=(
+              "Missing credentials, unknown email, "
+              "or incorrect password."
+          ),
+      ),
+  },
+)
+@api_view(["POST"])
+
 def login_api(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
+    email = request.data.get("email")
+    password = request.data.get("password")
 
     if not email or not password:
         return Response(
             {"error": "Email and password are required."},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({"error": "Email does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Email does not exist"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     user = authenticate(username=user.username, password=password)
-    if user is None:
-        return Response({"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Generate tokens using Simple JWT
+    if user is None:
+        return Response(
+            {"error": "Incorrect password"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
-    refresh_token = str(refresh)           
+    refresh_token = str(refresh)
 
-    return Response({
-        "access": access_token,
-        "refresh": refresh_token,
-        "role": user.role
-    })
+    return Response(
+        {
+            "access": access_token,
+            "refresh": refresh_token,
+            "role": user.role,
+        }
+    )
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -89,7 +141,8 @@ from .serializers import (
 from .models import User
 
 
-@api_view(['POST'])
+@extend_schema(tags=["Authentication"])
+@api_view(["POST"])
 def register_refugee(request):
 
     serializer = RegisterSerializer(
@@ -115,7 +168,8 @@ def register_refugee(request):
     )
 
 
-@api_view(['POST'])
+@extend_schema(tags=["Authentication"])
+@api_view(["POST"])
 def register_volunteer(request):
 
     serializer = RegisterSerializer(
@@ -146,7 +200,8 @@ from datetime import timedelta
 from django.core.mail import send_mail
 from .utils import generate_otp
 
-@api_view(['POST'])
+@extend_schema(tags=["Authentication"])
+@api_view(["POST"])
 def resend_otp(request):
 
     serializer = ResendOTPSerializer(data=request.data)
@@ -217,7 +272,8 @@ def resend_otp(request):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
-@api_view(['POST'])
+@extend_schema(tags=["Authentication"])
+@api_view(["POST"])
 def verify_otp(request):
 
     serializer = VerifyOTPSerializer(
@@ -368,17 +424,42 @@ class VolunteerProfileViewSet(ViewSet):
         return Response(serializer.data)
 
 
-
-
-@api_view(['POST'])
+@extend_schema(
+    tags=["Volunteers"],
+    summary="Submit volunteer application",
+    description=(
+        "Submit a volunteer application for a specific organization. "
+        "The authenticated volunteer can select one or more services."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Organization ID.",
+        ),
+    ],
+    request=VolunteerApplicationSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="Volunteer application submitted successfully.",
+        ),
+        400: OpenApiResponse(
+            description="Validation error.",
+        ),
+        401: OpenApiResponse(
+            description="Authentication credentials were not provided or are invalid.",
+        ),
+    },
+)
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def submit_volunteer_application(request, id):
-
     serializer = VolunteerApplicationSerializer(
         data=request.data,
         context={
-            'request': request,
-            'organization_id': id
+            "request": request,
+            "organization_id": id
         }
     )
 
@@ -389,10 +470,28 @@ def submit_volunteer_application(request, id):
             status=status.HTTP_201_CREATED
         )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
-
-@api_view(['GET'])
+@extend_schema(
+    tags=["Authentication"],
+    summary="Get current user",
+    description=(
+        "Return basic information about the authenticated user."
+    ),
+    responses={
+        200: OpenApiResponse(
+            response=AuthMeResponseSerializer,
+            description="Authenticated user information.",
+        ),
+        401: OpenApiResponse(
+            description="Authentication credentials were not provided or are invalid.",
+        ),
+    },
+)
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def auth_me(request):
     user = request.user

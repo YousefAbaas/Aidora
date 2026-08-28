@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-
+from drf_spectacular.utils import extend_schema
+@extend_schema(tags=["Service Requests"])
 class ServiceRequestFormView(APIView):
     permission_classes = [IsAuthenticated, IsProfileCompleted, IsRole]
     allowed_roles = ["refugee"]
@@ -79,7 +80,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Count, Q
 from .models import Task
-
+@extend_schema(tags=["Service Requests"])
 class VolunteerHomeAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["volunteer"]
@@ -125,7 +126,7 @@ class VolunteerHomeAPIView(APIView):
 
 from rest_framework.generics import ListAPIView
 from .serializers import TaskListSerializer
-
+@extend_schema(tags=["Service Requests"])
 class VolunteerTasksAPIView(ListAPIView):
     serializer_class = TaskListSerializer
     permission_classes=[IsAuthenticated,IsRole]
@@ -155,7 +156,7 @@ class VolunteerTasksAPIView(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)        
 
-
+@extend_schema(tags=["Service Requests"])
 class TaskUpdateAPIView(APIView):
     permission_classes=[IsAuthenticated,IsRole]
     allowed_roles = ["volunteer"]
@@ -241,7 +242,7 @@ from .serializers import ApproveButtonSerializer
 from .serializers import RejectButtonSerializer
 from accounts.models import Notification
 
-
+@extend_schema(tags=["Service Requests"])
 class OrganizationServicesAPIView(APIView):
     permission_classes = [IsAuthenticated]
     permission_classes = [IsRole]
@@ -262,7 +263,7 @@ class OrganizationServicesAPIView(APIView):
         ]
 
         return Response(data)
-
+@extend_schema(tags=["Service Requests"])
 class CreateRequestAPIView(APIView):
     permission_classes = [IsAuthenticated]
     permission_classes = [IsRole,IsProfileCompleted]
@@ -286,7 +287,7 @@ class CreateRequestAPIView(APIView):
             return Response({"message": "Request submitted successfully"}, status=201)
 
         return Response(serializer.errors, status=400)
-
+@extend_schema(tags=["Service Requests"])
 class MyRequestsAPIView(APIView):
     permission_classes = [IsAuthenticated]
     permission_classes = [IsRole]
@@ -319,7 +320,7 @@ class MyRequestsAPIView(APIView):
         }
 
         return Response(data)
-
+@extend_schema(tags=["Service Requests"])
 class ServiceRequestDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
     permission_classes = [IsRole]
@@ -336,7 +337,7 @@ class ServiceRequestDetailAPIView(APIView):
         return Response(serializer.data)
 
 from django.utils.timezone import now
-
+@extend_schema(tags=["Service Requests"])
 class ScanQRAPIView(APIView):
     # permission_classes = [IsAuthenticated, IsRole]
     # allowed_roles = ["refugee"]
@@ -396,7 +397,7 @@ class ScanQRAPIView(APIView):
             "status": service_request.status,
             "received_at": service_request.received_at
         }, status=200)
-
+@extend_schema(tags=["Service Requests"])
 class RequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
     permission_classes = [IsRole]
@@ -459,7 +460,7 @@ class RequestsListAPIView(APIView):
             }
         return Response({"counts": counts,"data": serializer}) 
 
-
+@extend_schema(tags=["Service Requests"])
 #تفاصيل عرض الطلبات بواجهة المنظمة
 class OrganizationRequestsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
@@ -487,6 +488,7 @@ class OrganizationRequestsAPIView(APIView):
         )
 
         return Response(serializer.data)
+@extend_schema(tags=["Service Requests"])
 class RequestDetailsAPIView(APIView):
       permission_classes = [IsAuthenticated, IsRole]
       allowed_roles = ["organization"]
@@ -506,7 +508,7 @@ class RequestDetailsAPIView(APIView):
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
+@extend_schema(tags=["Service Requests"])
 #كرمال زر قبول الطلب
 class ApproveButtonAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
@@ -542,7 +544,8 @@ class ApproveButtonAPIView(APIView):
         return Response({
             "message": "Request approved successfully",}, status=200)
 
-#كرمال زر رفض الطلب            
+#كرمال زر رفض الطلب
+@extend_schema(tags=["Service Requests"])
 class RejectButtonAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]

@@ -8,8 +8,8 @@ from .models import Organization
 from accounts.permissions import IsRole
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
-
-
+from drf_spectacular.utils import extend_schema
+@extend_schema(tags=["Organizations"])
 class OrganizationServicesView(APIView):  
     permission_classes = [IsRole,IsAuthenticated]
     allowed_roles = ["volunteer"]
@@ -28,7 +28,7 @@ from accounts.models import VolunteerApplication
 from .serializers import VolunteerApplicationDetailSerializer
 from django.utils.timezone import now    
 from django.shortcuts import get_object_or_404
-
+@extend_schema(tags=["Organizations"])
 class OrganizationApplicationsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -100,6 +100,7 @@ from django.db.models import Count
 from service_requests.models import ServiceRequest, Task
 from django.db.models import Q
 from .serializers import OrganizationRequestSerializer,OrganizationTaskSerializer
+@extend_schema(tags=["Organizations"])
 class OrganizationDashboardAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -152,6 +153,7 @@ class OrganizationDashboardAPIView(APIView):
 
 
 from .serializers import TaskReportSerializer
+@extend_schema(tags=["Organizations"])
 class TaskReportAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -215,7 +217,7 @@ class TaskReportAPIView(APIView):
 from .serializers import AssignTaskGetSerializer, AssignTaskResponseSerializer
 from accounts.models import Notification
 from accounts.models import VolunteerProfile
-
+@extend_schema(tags=["Organizations"])
 class AssignTaskAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -288,6 +290,7 @@ class AssignTaskAPIView(APIView):
 
     
 from .serializers import TaskSerializer
+@extend_schema(tags=["Organizations"])
 class TaskListAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -318,7 +321,7 @@ class TaskListAPIView(APIView):
         })
     
 
-
+@extend_schema(tags=["Organizations"])
 class ReassignTaskAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -348,6 +351,7 @@ class ReassignTaskAPIView(APIView):
             "status": task.status
         })
 from .serializers import VolunteerListSerializer,ApprovedServiceRequestSerializer
+@extend_schema(tags=["Organizations"])
 class AssignTaskListAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -439,14 +443,14 @@ from .serializers import ServiceTypeSerializer
 from .serializers import OrganizationCardSerializer
 from .serializers import OrganizationDetailSerializer
 from .serializers import OrganizationSimpleSerializer
-
+@extend_schema(tags=["Organizations"])
 class ServiceTypeListAPIView(ListAPIView):
     serializer_class = ServiceTypeSerializer
 
     def get_queryset(self):
         # نرجع فقط الـ 10 أنواع الأساسية بدون تكرار
         return Service.objects.order_by('service_type').distinct('service_type')
-
+@extend_schema(tags=["Organizations"])
 class OrganizationsByServiceTypeAPIView(APIView):
     def get(self, request, service_type):
         organizations = Organization.objects.filter(
@@ -464,14 +468,14 @@ class OrganizationsByServiceTypeAPIView(APIView):
         ]
 
         return Response(data)
-
+@extend_schema(tags=["Organizations"])
 class OrganizationCardListAPIView(ListAPIView):
     serializer_class = OrganizationCardSerializer
 
     def get_queryset(self):
         return Organization.objects.all()[:6]
 
-
+@extend_schema(tags=["Organizations"])
 class OrganizationDetailAPIView(generics.RetrieveAPIView):
 
     queryset = Organization.objects.all()
@@ -480,6 +484,7 @@ class OrganizationDetailAPIView(generics.RetrieveAPIView):
 
 
 from .serializers import OrganizationProfileSerializer
+@extend_schema(tags=["Organizations"])
 class MyOrganizationView(APIView):
     permission_classes = [IsAuthenticated]
 

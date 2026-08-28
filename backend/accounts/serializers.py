@@ -19,7 +19,31 @@ from .utils import generate_otp
 from django.conf import settings
 from django.db import transaction
 from threading import Thread
+# from .serializers import (
+#     RegisterSerializer,
+#     LoginSerializer,
+#     LoginResponseSerializer,
+# )
+class AuthMeResponseSerializer(serializers.Serializer):
+    role = serializers.CharField()
+    profile_completed = serializers.BooleanField()
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        write_only=True,
+        style={"input_type": "password"},
+    )
+class ErrorResponseSerializer(serializers.Serializer):
+    error = serializers.CharField()
 
+class LoginResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+    role = serializers.CharField()
+# class LoginResponseSerializer(serializers.Serializer):
+#     access = serializers.CharField()
+#     refresh = serializers.CharField()
+#     role = serializers.CharField()
 
 class RegisterSerializer(serializers.Serializer):
 
