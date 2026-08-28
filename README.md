@@ -51,7 +51,8 @@
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- [![API Docs](https://img.shields.io/badge/API-Swagger%20UI-green)](https://aidora-z01k.onrender.com/api/docs/)
+- | API | [Live API](https://aidora-z01k.onrender.com) |
+| API Documentation | [Swagger UI](https://aidora-z01k.onrender.com/api/docs/) |
 ---
 ## Overview
 
