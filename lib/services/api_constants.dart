@@ -3,12 +3,8 @@ import 'platform_helper.dart';
 class ApiConstants {
   ApiConstants._();
 
-  static const String _realDeviceIp = '';
+  static String get baseUrl => getPlatformBaseUrl();
 
-  static String get baseUrl {
-    if (_realDeviceIp.isNotEmpty) return 'http://$_realDeviceIp:8000';
-    return getPlatformBaseUrl();
-  }
 
   // â”€â”€ Organizations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static const String organizationCards = '/api/organizations/cards/';

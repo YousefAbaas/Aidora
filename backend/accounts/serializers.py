@@ -7,12 +7,12 @@ from organizations.models import Organization, OrganizationService
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import RefugeeProfile, VolunteerProfile
-
+from .utils import send_aidora_email
 User = get_user_model()
 from rest_framework import serializers
 from django.utils import timezone
 from datetime import timedelta
-from django.core.mail import send_mail
+
 
 from .models import User
 from .utils import generate_otp
@@ -108,12 +108,10 @@ class RegisterSerializer(serializers.Serializer):
         # إرسال OTP بعد إتمام عملية الحفظ في قاعدة البيانات لتجنب مشاكل التزام البيانات والـ timeout
         def _send_otp_email(otp_code, user_email):
             try:
-                send_mail(
-                    subject='OTP Verification',
-                    message=f'Your OTP code is: {otp_code}',
-                    from_email=f'Aidora <{settings.EMAIL_HOST_USER}>',
-                    recipient_list=[user_email],
-                    fail_silently=False,
+                send_aidora_email(
+                    subject="OTP Verification",
+                    message=f"Your OTP code is: {otp_code}",
+                    recipient=user_email,
                 )
             except Exception:
                  logger.exception("Failed to send OTP email")

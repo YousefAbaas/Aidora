@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from .utils import send_aidora_email
 # Create your views here.
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.decorators import api_view, permission_classes
@@ -43,6 +43,7 @@ from drf_spectacular.utils import (
 import logging
 
 logger = logging.getLogger(__name__)
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(
@@ -247,13 +248,11 @@ def resend_otp(request):
 
             try:
 
-                send_mail(
-                    subject='OTP Verification',
-                    message=f'Your new OTP code is: {otp_code}',
-                    from_email=f'Aidora <{settings.EMAIL_HOST_USER}>',
-                    recipient_list=[user_email],
-                    fail_silently=False,
-                )
+              send_aidora_email(
+                  subject="OTP Verification",
+                  message=f"Your new OTP code is: {otp_code}",
+                  recipient=user_email,
+              )
 
             except Exception:
                 logger.exception("Failed to resend OTP email")
@@ -544,15 +543,12 @@ def resend_pin(request):
     # توليد أو إعادة الـ PIN الحالي إذا صالح
     pin = get_or_create_pin(profile)
 
-    # إرسال البريد
-    from django.core.mail import send_mail
-    from django.conf import settings
-    send_mail(
-    subject="Aidora Verification PIN",
-    message=f"Your verification PIN is: {pin}",
-    from_email=f"Aidora <{settings.EMAIL_HOST_USER}>",
-    recipient_list=[user.email],
-    )
+
+    send_aidora_email(
+             subject="Aidora Verification PIN",
+             message=f"Your verification PIN is: {pin}",
+             recipient=user.email,
+         )
     return Response({"detail": "Verification PIN resent successfully."}, status=status.HTTP_200_OK)
 resend_pin.allowed_roles = ["volunteer"]
 @api_view(['POST'])
@@ -770,17 +766,15 @@ def forgot_password(request):
 
             try:
 
-                send_mail(
-                    subject='Reset Your Password',
+                send_aidora_email(
+                    subject="Reset Your Password",
                     message=(
-                         f'Hello,\n\n'
-                         f'Click the link below to reset your password:\n\n'
-                         f'{reset_link}\n\n'
-                         f'If you did not request this, ignore this email.'
-                             ),
-                    from_email=f'Aidora <{settings.EMAIL_HOST_USER}>',
-                    recipient_list=[email],
-                    fail_silently=False,
+                        "Hello,\n\n"
+                        "Click the link below to reset your password:\n\n"
+                        f"{reset_link}\n\n"
+                        "If you did not request this, ignore this email."
+                    ),
+                    recipient=email,
                 )
 
             except Exception:

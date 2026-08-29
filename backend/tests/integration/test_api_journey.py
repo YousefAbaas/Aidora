@@ -1,10 +1,10 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
-
+from django.test import override_settings
 from accounts.models import User
 
-
+@override_settings(SECURE_SSL_REDIRECT=False)
 class RefugeeAuthenticationJourneyTest(TestCase):
     """
     Integration journey:
