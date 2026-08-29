@@ -40,6 +40,9 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
 )
+import logging
+
+logger = logging.getLogger(__name__)
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(
@@ -252,9 +255,8 @@ def resend_otp(request):
                     fail_silently=False,
                 )
 
-            except Exception as e:
-
-                print(f"Error sending OTP email: {e}")
+            except Exception:
+                logger.exception("Failed to resend OTP email")
 
         Thread(
             target=_send_otp_email,
@@ -781,9 +783,8 @@ def forgot_password(request):
                     fail_silently=False,
                 )
 
-            except Exception as e:
-
-                print("Email Error:", e)
+            except Exception:
+                logger.exception("Failed to send password reset email")
 
         Thread(target=_send_email).start()
 

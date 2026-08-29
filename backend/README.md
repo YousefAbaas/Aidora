@@ -235,6 +235,97 @@ EMAIL_HOST_PASSWORD
 `.gitignore` and `.dockerignore` exclude sensitive local configuration (`.env`, `media/`). The application fails explicitly when required security configuration (e.g. `SECRET_KEY`) is missing, preventing accidental use of insecure fallback values.
 
 ---
+## Production Security & Hardening
+
+Aidora's Django REST API is deployed on a production environment with explicit security controls enabled at the application and infrastructure configuration layers.
+
+### Runtime & Host Security
+
+* `DEBUG=False` in production.
+* `ALLOWED_HOSTS` is restricted to the deployed Aidora domain.
+* HTTP requests are redirected to HTTPS.
+* Django is configured to trust the HTTPS protocol reported by the production reverse proxy.
+* `SECURE_CONTENT_TYPE_NOSNIFF` is enabled.
+* A strict referrer policy is configured.
+* HSTS is enabled for production HTTPS traffic.
+
+### Authentication & Authorization
+
+* JWT-based authentication is used for API access.
+* Access tokens are short-lived, with refresh-token rotation enabled.
+* Rotated refresh tokens are blacklisted.
+* Protected endpoints use `IsAuthenticated`.
+* Role-based authorization is enforced at the API layer using explicit allowed roles (`refugee`, `volunteer`, and `organization`).
+* Resource ownership is validated in sensitive organization and service-request operations.
+
+### Request Protection
+
+* Django CSRF middleware is enabled.
+* Production CORS is not configured as an allow-all policy.
+* Anonymous API requests are throttled to reduce abuse and excessive request volume.
+
+### Secure Cookies
+
+* Session cookies are restricted to HTTPS connections.
+* CSRF cookies are restricted to HTTPS connections.
+
+### Database Security
+
+* PostgreSQL is used as the production database.
+* Production database connections require SSL/TLS through environment-based configuration.
+* `ENVIRONMENT=production` enables `ssl_require=True` in the Django database configuration.
+
+### Secrets Management
+
+Sensitive values are supplied through environment variables rather than hard-coded into the source code.
+
+Examples include:
+
+```text
+SECRET_KEY
+DATABASE_URL
+DB_PASSWORD
+EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD
+SENTRY_DSN
+```
+
+The application fails explicitly when the required `SECRET_KEY` configuration is missing.
+
+### Error Monitoring
+
+Sentry is integrated with the Django backend for production error monitoring and transaction telemetry.
+
+The Sentry DSN is supplied through the `SENTRY_DSN` environment variable and is not committed to the repository.
+
+### Production Verification
+
+Production hardening was validated using Django deployment checks and live endpoint verification.
+
+Verified controls include:
+
+```text
+DEBUG=False
+Restricted ALLOWED_HOSTS
+HTTPS redirect
+Secure session/CSRF cookies
+HSTS
+JWT authentication
+Role-based permissions
+Anonymous request throttling
+PostgreSQL SSL/TLS
+Environment-based secret management
+```
+
+The production API root responds with:
+
+```json
+{
+  "service": "Aidora API",
+  "status": "online",
+  "environment": "production"
+}
+```
 
 ## Local Development
 

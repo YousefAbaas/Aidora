@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from service_requests.models import ServiceRequest
 from .models import OrganizationService
+import logging
+
+logger = logging.getLogger(__name__)
 class OrganizationServiceSerializer(serializers.ModelSerializer):
     service_name = serializers.CharField(source='service.name')
 

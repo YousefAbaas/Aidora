@@ -9,6 +9,7 @@ from accounts.permissions import IsRole
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
+
 @extend_schema(tags=["Organizations"])
 class OrganizationServicesView(APIView):  
     permission_classes = [IsRole,IsAuthenticated]

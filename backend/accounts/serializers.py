@@ -19,11 +19,9 @@ from .utils import generate_otp
 from django.conf import settings
 from django.db import transaction
 from threading import Thread
-# from .serializers import (
-#     RegisterSerializer,
-#     LoginSerializer,
-#     LoginResponseSerializer,
-# )
+import logging
+
+logger = logging.getLogger(__name__)
 class AuthMeResponseSerializer(serializers.Serializer):
     role = serializers.CharField()
     profile_completed = serializers.BooleanField()
@@ -117,9 +115,8 @@ class RegisterSerializer(serializers.Serializer):
                     recipient_list=[user_email],
                     fail_silently=False,
                 )
-            except Exception as e:
-                # لا نوقف التنفيذ لو فشل الإرسال — فقط نسجل الخطأ
-                print(f"Error sending OTP email: {e}")
+            except Exception:
+                 logger.exception("Failed to send OTP email")
 
         transaction.on_commit(lambda: Thread(target=_send_otp_email, args=(otp, user.email)).start())
 
