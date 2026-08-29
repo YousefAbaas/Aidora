@@ -7,8 +7,9 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+import sentry_sdk
 
-load_dotenv()   # ← هاد السطر الجديد، لازم ينفذ قبل أي os.getenv()
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,6 +18,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY environment variable is not set")
+
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
@@ -25,8 +27,15 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
-AUTH_USER_MODEL = "accounts.User"
+SENTRY_DSN = os.getenv("SENTRY_DSN")
 
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        traces_sample_rate=0.1,
+    )
+
+AUTH_USER_MODEL = "accounts.User"
 
 # Applications
 INSTALLED_APPS = [
