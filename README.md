@@ -1,4 +1,4 @@
-# Aidora — Humanitarian Aid Coordination Platform
+# Aidora ” Humanitarian Aid Coordination Platform
 
 <p align="center">
   <img src="img/aidora_icon.png" alt="Aidora Logo" width="120"/>
@@ -36,32 +36,32 @@ The Flutter client communicates with the Django backend through a JWT-secured RE
 ## Architecture
 
 ```text
-                         ┌─────────────────────┐
-                         │   Flutter Mobile    │
-                         │   Client (root)     │
-                         └──────────┬──────────┘
-                                    │
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â”‚   Flutter Mobile    â”‚
+                         â”‚   Client (root)     â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                    â”‚
                               REST / JSON (JWT)
-                                    │
-                                    ▼
-                    ┌───────────────────────────┐
-                    │   Django REST API          │
-                    │   (backend/)               │
-                    └─────────────┬─────────────┘
-                                  │
-          ┌───────────────────────┼───────────────────────┐
-          │                       │                       │
-          ▼                       ▼                       ▼
-    ┌───────────┐          ┌──────────────┐       ┌─────────────┐
-    │  Accounts │          │ Organizations│       │  Requests   │
-    └─────┬─────┘          └──────┬───────┘       └──────┬──────┘
-          │                       │                       │
-          └───────────────────────┼───────────────────────┘
-                                  │
-                                  ▼
-                         ┌─────────────────┐
-                         │   PostgreSQL    │
-                         └─────────────────┘
+                                    â”‚
+                                    â–¼
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   Django REST API          â”‚
+                    â”‚   (backend/)               â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+          â”‚                       â”‚                       â”‚
+          â–¼                       â–¼                       â–¼
+    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+    â”‚  Accounts â”‚          â”‚ Organizationsâ”‚       â”‚  Requests   â”‚
+    â””â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜          â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜       â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
+          â”‚                       â”‚                       â”‚
+          â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                                  â–¼
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â”‚   PostgreSQL    â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -152,18 +152,18 @@ Aidora aims to provide a single mobile-first interface where users can:
 ## User Roles
 
 ```text
-                         ┌────────────────────┐
-                         │       Aidora       │
-                         └─────────┬──────────┘
-                                   │
-                ┌──────────────────┼──────────────────┐
-                │                  │                  │
-                ▼                  ▼                  ▼
-        ┌───────────────┐  ┌───────────────┐  ┌───────────────┐
-        │    Refugee    │  │ Organization  │  │   Volunteer   │
-        └───────┬───────┘  └───────┬───────┘  └───────┬───────┘
-                │                  │                  │
-                ▼                  ▼                  ▼
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â”‚       Aidora       â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                   â”‚
+                â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                â”‚                  â”‚                  â”‚
+                â–¼                  â–¼                  â–¼
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚    Refugee    â”‚  â”‚ Organization  â”‚  â”‚   Volunteer   â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚                  â”‚                  â”‚
+                â–¼                  â–¼                  â–¼
         Submit requests     Manage services     Process requests
         Track activity      Organization data   QR verification
         Manage profile      Service workflows   Request workflows
@@ -188,28 +188,28 @@ Unauthenticated users can browse public organization information and explore ava
 Aidora follows a service-oriented Flutter structure that separates presentation, models, API communication, and reusable UI components.
 
 ```text
-┌─────────────────────────────────────────────┐
-│                 Flutter UI                  │
-│ Screens / Views / Widgets / Navigation      │
-└──────────────────────┬──────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────┐
-│             State Management (GetX)          │
-│ Controllers / Reactive State / UI Updates   │
-└──────────────────────┬──────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────┐
-│               Service Layer                 │
-│ API Service / Auth Service / Upload Helpers │
-└──────────────────────┬──────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────┐
-│         REST API (Django REST Framework)     │
-└──────────────────────┬──────────────────────┘
-                       ▼
-┌─────────────────────────────────────────────┐
-│  Backend Services — Authentication/Data/Requests │
-└─────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                 Flutter UI                  â”‚
+â”‚ Screens / Views / Widgets / Navigation      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                       â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚             State Management (GetX)          â”‚
+â”‚ Controllers / Reactive State / UI Updates   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                       â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚               Service Layer                 â”‚
+â”‚ API Service / Auth Service / Upload Helpers â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                       â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚         REST API (Django REST Framework)     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                       â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Backend Services â€” Authentication/Data/Requests â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -218,23 +218,23 @@ Aidora follows a service-oriented Flutter structure that separates presentation,
 
 ```text
 Aidora/
-├── lib/
-│   ├── controllers/
-│   ├── models/
-│   ├── services/
-│   ├── utils/
-│   ├── views/
-│   ├── widgets/
-│   └── main.dart
-├── test/
-│   ├── unit/
-│   ├── widget/
-│   └── integration/
-├── android/ ios/ web/ windows/ linux/ macos/
-├── backend/                 ← Django REST Framework API (see backend/README.md)
-└── .github/workflows/
-    ├── flutter-ci.yml
-    └── django-ci.yml
+â”œâ”€â”€ lib/
+â”‚   â”œâ”€â”€ controllers/
+â”‚   â”œâ”€â”€ models/
+â”‚   â”œâ”€â”€ services/
+â”‚   â”œâ”€â”€ utils/
+â”‚   â”œâ”€â”€ views/
+â”‚   â”œâ”€â”€ widgets/
+â”‚   â””â”€â”€ main.dart
+â”œâ”€â”€ test/
+â”‚   â”œâ”€â”€ unit/
+â”‚   â”œâ”€â”€ widget/
+â”‚   â””â”€â”€ integration/
+â”œâ”€â”€ android/ ios/ web/ windows/ linux/ macos/
+â”œâ”€â”€ backend/                 â† Django REST Framework API (see backend/README.md)
+â””â”€â”€ .github/workflows/
+    â”œâ”€â”€ flutter-ci.yml
+    â””â”€â”€ django-ci.yml
 ```
 
 ---
@@ -248,10 +248,10 @@ Aidora uses **GetX** for reactive application state and controller-based coordin
 ## Authentication & Session Management
 
 ```text
-User → Login/Registration → Authentication API → JWT credentials
-     → Local session persistence → Authenticated API requests
-          ├── Token valid ───────────────► Continue request
-          └── Token expired → Refresh token → Retry request
+User â†’ Login/Registration â†’ Authentication API â†’ JWT credentials
+     â†’ Local session persistence â†’ Authenticated API requests
+          â”œâ”€â”€ Token valid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Continue request
+          â””â”€â”€ Token expired â†’ Refresh token â†’ Retry request
 ```
 
 Centralized in `lib/services/auth_service.dart` and `lib/services/api_service.dart`.
@@ -260,7 +260,7 @@ Centralized in `lib/services/auth_service.dart` and `lib/services/api_service.da
 
 ## API Layer
 
-API responsibilities are centralized in dedicated service classes instead of embedding HTTP logic inside screens — consistent HTTP handling, centralized auth behavior, easier error handling, better testability, reduced duplication.
+API responsibilities are centralized in dedicated service classes instead of embedding HTTP logic inside screens â€” consistent HTTP handling, centralized auth behavior, easier error handling, better testability, reduced duplication.
 
 Primary HTTP dependency: `http`. Backend: Django REST Framework with JWT authentication (see [`backend/README.md`](backend/README.md) for API endpoint reference).
 
@@ -364,13 +364,13 @@ No warnings
 
 ```text
 test/
-├── unit/
-│   ├── auth_service_test.dart
-│   └── models_test.dart
-├── widget/
-│   └── login_screen_test.dart
-└── integration/
-    └── app_flow_test.dart
+â”œâ”€â”€ unit/
+â”‚   â”œâ”€â”€ auth_service_test.dart
+â”‚   â””â”€â”€ models_test.dart
+â”œâ”€â”€ widget/
+â”‚   â””â”€â”€ login_screen_test.dart
+â””â”€â”€ integration/
+    â””â”€â”€ app_flow_test.dart
 ```
 
 Includes authentication service testing, model testing, widget-level UI testing, HTTP behavior isolation, Mockito-based mocking, and local storage isolation.
@@ -421,7 +421,7 @@ flutter run
 
 ## CI/CD & Android Build Notes
 
-Aidora uses GitHub Actions for continuous integration. Every push triggers static analysis, unit/integration tests, and a release APK build (`flutter-ci.yml`). The Django backend has its own workflow (`django-ci.yml`) — see [`backend/README.md`](backend/README.md) for backend-specific CI notes.
+Aidora uses GitHub Actions for continuous integration. Every push triggers static analysis, unit/integration tests, and a release APK build (`flutter-ci.yml`). The Django backend has its own workflow (`django-ci.yml`) â€” see [`backend/README.md`](backend/README.md) for backend-specific CI notes.
 
 ### Pinned Toolchain Versions
 
@@ -433,17 +433,17 @@ Aidora uses GitHub Actions for continuous integration. Every push triggers stati
 
 Defined in:
 ```text
-android/settings.gradle                            → AGP version
-android/gradle/wrapper/gradle-wrapper.properties   → Gradle version
-.github/workflows/flutter-ci.yml                   → Flutter version used in CI
+android/settings.gradle                            â†’ AGP version
+android/gradle/wrapper/gradle-wrapper.properties   â†’ Gradle version
+.github/workflows/flutter-ci.yml                   â†’ Flutter version used in CI
 ```
 
-When upgrading Flutter locally, verify these three stay aligned before pushing — a mismatch is the most common cause of a CI build that fails while `flutter analyze`/`flutter test` pass locally.
+When upgrading Flutter locally, verify these three stay aligned before pushing â€” a mismatch is the most common cause of a CI build that fails while `flutter analyze`/`flutter test` pass locally.
 
 ### CI Pipeline Stages
 
 ```text
-Checkout → Set up Flutter → pub get → Analyze → Unit tests → Integration tests → Build APK → Upload artifact
+Checkout â†’ Set up Flutter â†’ pub get â†’ Analyze â†’ Unit tests â†’ Integration tests â†’ Build APK â†’ Upload artifact
 ```
 
 ### Troubleshooting
@@ -454,7 +454,7 @@ Checkout → Set up Flutter → pub get → Analyze → Unit tests → Integrati
 | `AGP version is lower than Flutter's minimum supported version` | Flutter was upgraded without updating AGP | Bump the version in `com.android.application` in `android/settings.gradle` |
 | Gradle resolves a nonexistent artifact version (e.g. `*-31.11.1.jar`) | A specific AGP patch release had a broken lint-tooling version mapping | Use an adjacent AGP version (e.g. `8.12.0` instead of `8.11.1`) |
 | `Could not download <package>.jar` / socket/SSL errors during build | Unstable network connection during dependency download | Retry on a more stable connection; Gradle resumes from its local cache |
-| Invalid workflow file / yaml syntax error on a specific line | Incorrect indentation or a duplicated step in the `.yml` file | YAML is indentation-sensitive — verify 2-space nesting, no duplicate `uses:` lines |
+| Invalid workflow file / yaml syntax error on a specific line | Incorrect indentation or a duplicated step in the `.yml` file | YAML is indentation-sensitive â€” verify 2-space nesting, no duplicate `uses:` lines |
 | Widget finder test fails with "Found 0 widgets" despite matching text | Source file saved with incorrect encoding, corrupting non-ASCII characters | Rebuild the string programmatically (e.g. `'\u2022' * 8`) instead of pasting the literal character |
 
 ---
@@ -500,8 +500,8 @@ Avoid committing generated files, IDE configuration, secrets, or machine-specifi
 
 | Area                        | Status       |
 | ----------------------------- | ------------- |
-| Flutter Analyzer            | ✅ 0 errors   |
-| Analyzer Warnings           | ✅ 0 warnings |
+| Flutter Analyzer            | âœ… 0 errors   |
+| Analyzer Warnings           | âœ… 0 warnings |
 | Unit Tests                  | Implemented  |
 | Widget Tests                | Implemented  |
 | Integration Tests           | Implemented  |
@@ -513,8 +513,8 @@ Avoid committing generated files, IDE configuration, secrets, or machine-specifi
 | Local Notifications         | Implemented  |
 | Arabic / English UI         | Implemented  |
 | Guest Organization Browsing | Implemented  |
-| Flutter CI (GitHub Actions) | ✅ Passing    |
-| Django CI (GitHub Actions)  | ✅ Passing    |
+| Flutter CI (GitHub Actions) | âœ… Passing    |
+| Django CI (GitHub Actions)  | âœ… Passing    |
 
 ---
 
@@ -560,7 +560,7 @@ This project is currently distributed under a **proprietary license**. The sourc
 
 Aidora is an open-source project originally created and maintained by **Yousef Abbas**.
 
-Copyright � 2026 Yousef Abbas.
+Copyright © 2026 Yousef Abbas.
 
 This project is licensed under the **Apache License 2.0**.
 
