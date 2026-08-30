@@ -380,15 +380,11 @@ Includes authentication service testing, model testing, widget-level UI testing,
 ## Screenshots
 
 <p align="center">
-  <img src="img/SecreenShots/Welcome.jpg" width="30%" alt="Aidora Welcome Screen"/>
-  <img src="img/SecreenShots/Login.jpg" width="30%" alt="Aidora Login Screen"/>
-  <img src="img/SecreenShots/ListOrganizations.jpg" width="30%" alt="Aidora Organizations"/>
-</p>
-
-<p align="center">
-  <img src="img/SecreenShots/RequestDetails.jpg" width="30%" alt="Aidora Request Details"/>
-  <img src="img/SecreenShots/MyRequest.jpg" width="30%" alt="Aidora My Requests"/>
-  <img src="img/SecreenShots/Profil.jpg" width="30%" alt="Aidora Profile"/>
+  <img src="screenshots/01-welcome.png" width="18%" alt="Aidora Welcome Screen"/>
+  <img src="screenshots/02-organizations.png" width="18%" alt="Aidora Organizations"/>
+  <img src="screenshots/03-organization-details.png" width="18%" alt="Aidora Organization Details"/>
+  <img src="screenshots/04-home.png" width="18%" alt="Aidora Home Screen"/>
+  <img src="screenshots/05-submit-request.png" width="18%" alt="Aidora Submit Request"/>
 </p>
 
 ---
