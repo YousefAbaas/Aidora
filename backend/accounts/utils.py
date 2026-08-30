@@ -35,7 +35,12 @@ def send_aidora_email(*, subject, message, recipient, sender_name="Aidora"):
 
     if not sender_email:
         raise RuntimeError("BREVO_FROM_EMAIL is not configured")
-
+    logger.info(
+    "Brevo config: key_present=%s key_length=%s sender=%s",
+    bool(api_key),
+    len(api_key) if api_key else 0,
+    sender_email,
+    )
     response = requests.post(
         "https://api.brevo.com/v3/smtp/email",
         headers={
