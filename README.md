@@ -557,3 +557,18 @@ This project is currently distributed under a **proprietary license**. The sourc
 ## Project Status
 
 **Current development version:** `1.0.0`
+
+---
+
+## ?? License & Attribution
+
+Aidora is an open-source project originally created and maintained by **Yousef Abbas**.
+
+Copyright © 2026 Yousef Abbas.
+
+This project is licensed under the **Apache License 2.0**.
+
+You are free to use, modify, and distribute this project in accordance with the license. If you fork, modify, or redistribute Aidora, please preserve the original copyright notices, license information, and attribution.
+
+**Original repository:**  
+https://github.com/YousefAbaas/Aidora
