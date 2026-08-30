@@ -16,17 +16,7 @@ import 'guest_org_details_screen.dart';
 import 'notifications_screen.dart';
 import 'submit_new_request_screen.dart';
 
-// â”€â”€ Top-level Helper Function â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-String _orgKey(String name) {
-  final s = name.toLowerCase();
-  if (s.contains('unicef')) return 'unicef';
-  if (s.contains('intersos')) return 'intersos';
-  if (s.contains('wfp') || s.contains('food pr')) return 'wfp';
-  if (s.contains('unhcr')) return 'unhcr';
-  if (s.contains('who') || s.contains('health or')) return 'who';
-  if (s.contains('red') && s.contains('crescent')) return 'red_crescent';
-  return s.replaceAll(' ', '_');
-}
+// â”€â”€ Top-level Helper Function â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /// HomeScreen  (API-connected)
@@ -365,8 +355,8 @@ class _OrgCard extends StatelessWidget {
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Image.asset(
-              'img/org_${_orgKey(org.name)}.png',
+            child: Image.network(
+              org.logo,
               fit: BoxFit.contain,
               width: 40,
               height: 40,
@@ -574,3 +564,7 @@ class _ServiceFilterSheet extends StatelessWidget {
     );
   }
 }
+
+
+
+
