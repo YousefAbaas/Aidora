@@ -22,7 +22,14 @@ db.sqlite3-journal
 .pytest_cache/
 .coverage
 htmlcov/
-media/
+media/*
+
+!media/organizations/
+!media/organizations/logos/
+!media/organizations/impact/
+
+!media/organizations/logos/*.png
+!media/organizations/impact/*.png
 data.json
 .mypy_cache/
 .ruff_cache/
