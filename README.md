@@ -1,4 +1,4 @@
-# Aidora ” Humanitarian Aid Coordination Platform
+# Aidora  Humanitarian Aid Coordination Platform
 
 <p align="center">
   <img src="img/aidora_icon.png" alt="Aidora Logo" width="120"/>
