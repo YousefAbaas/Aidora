@@ -202,8 +202,8 @@ class RefugeeHomeScreen extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'img/org_${org.id}.png',
+              child: Image.network(
+                org.logo,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
                   return Icon(Icons.business, color: Colors.grey[400]);
@@ -332,3 +332,5 @@ class RefugeeHomeScreen extends StatelessWidget {
     );
   }
 }
+
+
