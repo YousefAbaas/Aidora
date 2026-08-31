@@ -97,6 +97,32 @@ cd Aidora
 - [Contributing](#contributing)
 - [License](#license)
 
+- - API
+  - [Live API](https://aidora-z01k.onrender.com)
+  - [API Documentation](https://aidora-z01k.onrender.com/api/docs/)
+---
+## Overview
+
+**Aidora** is a cross-platform Flutter application designed to improve coordination between displaced communities, humanitarian organizations, and volunteers.
+
+The platform provides a structured digital workflow for discovering humanitarian services, submitting assistance requests, managing user profiles, tracking request-related activity, and supporting organization and volunteer workflows.
+
+Aidora consists of a **Flutter client** integrated with a **Django REST Framework backend** through a JWT-secured API.
+
+The application is designed with a focus on:
+
+* Clear separation between UI, application logic, models, and services
+* Secure authentication and session management
+* Reliable API communication
+* Reactive state management
+* Profile and image management
+* Humanitarian request workflows
+* Organization discovery and service navigation
+* Volunteer-oriented verification workflows
+* Automated testing and static code analysis
+=======
+
+
 ---
 
 ## Why Aidora?
@@ -170,7 +196,39 @@ Unauthenticated users can browse public organization information and explore ava
 
 ---
 
+## API Documentation
+
+Aidora provides a RESTful API built with Django REST Framework and documented using the OpenAPI specification.
+
+The API documentation is available through an interactive Swagger UI, allowing developers to explore endpoints, inspect request and response schemas, authenticate using JWT, and test API operations directly.
+
+### Live API
+
+🌐 API Base URL:  
+https://aidora-z01k.onrender.com
+
+### Interactive API Documentation
+
+📚 Swagger UI:  
+https://aidora-z01k.onrender.com/api/docs/
+
+The API documentation covers:
+
+- 🔐 Authentication and JWT authorization
+- 👤 Volunteer management
+- 🏢 Organization management
+- 📋 Service requests
+- 📦 Request and response schemas
+- 🛡️ Protected API endpoints
+- ⚡ Interactive endpoint testing
+
+> Note: Swagger UI provides an interactive interface for exploring and testing the documented Aidora API endpoints.
+----
+
+# Application Architecture
+=======
 ## Frontend Application Architecture
+
 
 Aidora follows a service-oriented Flutter structure that separates presentation, models, API communication, and reusable UI components.
 
