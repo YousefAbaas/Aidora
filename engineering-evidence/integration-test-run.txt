@@ -1,0 +1,41 @@
+00:00 +0: loading C:/Users/INFINITY/AndroidStudioProjects/Aidora/test/integration/app_flow_test.dart
+00:00 +0: Login  navigate flow successful login navigates away from LoginScreen
+ Tokens saved  role=refugee  name=ahmed
+ Loading refugee profile...
+ fix(abs): http://127.0.0.1:8000/media/profiles/ahmed.jpg  <backend-url>/media/profiles/ahmed.jpg
+ Profile loaded: Ahmed Al-Masri
+ Loading refugee profile...
+ Profile already loading  skipping duplicate request
+ fix(abs): http://127.0.0.1:8000/media/organizations/logos/UNICEF.png  <backend-url>/media/organizations/logos/UNICEF.png
+ fix(abs): http://127.0.0.1:8000/media/organizations/logos/WFP.png  <backend-url>/media/organizations/logos/WFP.png
+ fix(abs): http://127.0.0.1:8000/media/profiles/ahmed.jpg  <backend-url>/media/profiles/ahmed.jpg
+ Profile loaded: Ahmed Al-Masri
+ AFTER LOGIN
+ Remaining Login buttons: 0
+ Remaining email fields: 0
+ Remaining password fields: 0
+ TextFields currently in tree: 1
+ Navigation settled
+ Remaining Login buttons: 0
+ Remaining email fields: 0
+ Remaining password fields: 0
+ TextFields currently in tree: 1
+ Login screen is no longer present
+ TEST CLEANUP START
+ TEST CLEANUP COMPLETE
+ SUCCESSFUL LOGIN TEST COMPLETE
+ TEST TEARDOWN START
+ TEST TEARDOWN COMPLETE
+00:01 +1: Login  navigate flow wrong credentials  error shown, stays on login
+ WRONG LOGIN
+ Error widgets: 1
+ Login buttons: 1
+ Email fields: 1
+ Password fields: 1
+ Wrong credentials stay on LoginScreen
+ TEST CLEANUP START
+ TEST CLEANUP COMPLETE
+ WRONG CREDENTIALS TEST COMPLETE
+ TEST TEARDOWN START
+ TEST TEARDOWN COMPLETE
+00:01 +2: All tests passed!
