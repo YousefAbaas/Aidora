@@ -94,8 +94,8 @@ class OrganizationsScreen extends StatelessWidget {
                   color: AppColors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Image.asset(
-                  'img/org_${org.id}.png',
+                child: Image.network(
+                  org.logo,
                   fit: BoxFit.contain,
                   width: 44,
                   height: 44,
@@ -186,3 +186,5 @@ class OrganizationsScreen extends StatelessWidget {
     );
   }
 }
+
+

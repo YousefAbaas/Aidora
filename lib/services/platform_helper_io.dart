@@ -1,38 +1,36 @@
-// platform_helper_io.dart
-// Used on Flutter NATIVE (Android, iOS, Desktop).
-// dart:io is available here â€” safe to import Platform.
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// NGROK SUPPORT â€” Ù„Ù„Ø§ØªØµØ§Ù„ Ø¨Ø³ÙŠØ±ÙØ± Django Ø§Ù„Ù…Ø­Ù„ÙŠ Ù…Ù† Ø£ÙŠ Ù…ÙƒØ§Ù†
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Ø§Ù„Ø®Ø·ÙˆØ§Øª:
-// 1. Ø´ØºÙ‘Ù„ Django:   python manage.py runserver 0.0.0.0:8000
-// 2. Ø´ØºÙ‘Ù„ ngrok:    ngrok http 8000
-// 3. Ø§Ù†Ø³Ø® Ø§Ù„Ø±Ø§Ø¨Ø· Ø§Ù„Ø¸Ø§Ù‡Ø± Ù…Ø«Ù„: https://abc123.ngrok-free.app
-// 4. Ø¶Ø¹Ù‡ ÙÙŠ Ø§Ù„Ù…ØªØºÙŠØ± Ø£Ø¯Ù†Ø§Ù‡ Ø¨Ø¯ÙˆÙ† / ÙÙŠ Ø§Ù„Ù†Ù‡Ø§ÙŠØ©
-// 5. Ø£Ø¹Ø¯ Ø¨Ù†Ø§Ø¡ Ø§Ù„Ù€ APK
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const String _productionApiUrl = 'https://aidora-z01k.onrender.com';
 const String _ngrokUrl = 'https://defrost-jogging-capital.ngrok-free.dev';
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// LAN IP â€” Ø¥Ø°Ø§ ÙƒØ§Ù† Ø§Ù„Ù…ÙˆØ¨Ø§ÙŠÙ„ ÙˆØ§Ù„Ù„Ø§Ø¨ØªÙˆØ¨ Ø¹Ù„Ù‰ Ù†ÙØ³ Ø§Ù„Ù€ WiFi
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const String _realDeviceLanIp = ''; // e.g. '192.168.1.50'
+const String _realDeviceLanIp = '';
 
 String getPlatformBaseUrl() {
-  // Ø£Ø¹Ù„Ù‰ Ø£ÙˆÙ„ÙˆÙŠØ©: ngrok (ÙŠØ¹Ù…Ù„ Ù…Ù† Ø£ÙŠ Ù…ÙƒØ§Ù† Ø¹Ø¨Ø± Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª)
-  if (_ngrokUrl.isNotEmpty) return _ngrokUrl;
+  // Release builds always use the production API.
+  if (kReleaseMode) {
+    return _productionApiUrl;
+  }
 
-  // Ø«Ø§Ù†ÙŠØ§Ù‹: override Ø¹Ø¨Ø± --dart-define (Ø¨Ø¯ÙˆÙ† Ø¥Ø¹Ø§Ø¯Ø© Ø¨Ù†Ø§Ø¡)
-  const fromDefine = String.fromEnvironment('API_HOST');
-  if (fromDefine.isNotEmpty) return 'http://$fromDefine:8000';
+  // Debug/development override through --dart-define.
+  const fromDefine = String.fromEnvironment('API_BASE_URL');
+  if (fromDefine.isNotEmpty) {
+    return fromDefine;
+  }
 
-  // Ø«Ø§Ù„Ø«Ø§Ù‹: IP Ù…Ø­Ù„ÙŠ ÙŠØ¯ÙˆÙŠ (Ù†ÙØ³ Ø§Ù„Ø´Ø¨ÙƒØ© ÙÙ‚Ø·)
-  if (_realDeviceLanIp.isNotEmpty) return 'http://$_realDeviceLanIp:8000';
+  // Development-only ngrok tunnel.
+  if (_ngrokUrl.isNotEmpty) {
+    return _ngrokUrl;
+  }
 
-  // Ø§Ù„Ù…Ø­Ø§ÙƒÙŠ: 10.0.2.2 ÙŠØ´ÙŠØ± Ù„Ø¬Ù‡Ø§Ø² Ø§Ù„ÙƒÙ…Ø¨ÙŠÙˆØªØ± Ø§Ù„Ù…Ø¶ÙŠÙ
-  if (Platform.isAndroid) return 'http://10.0.2.2:8000';
+  // Development-only LAN IP.
+  if (_realDeviceLanIp.isNotEmpty) {
+    return 'http://$_realDeviceLanIp:8000';
+  }
+
+  // Android emulator → host machine.
+  if (Platform.isAndroid) {
+    return 'http://10.0.2.2:8000';
+  }
 
   return 'http://127.0.0.1:8000';
 }

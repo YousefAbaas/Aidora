@@ -48,7 +48,7 @@ class OrganizationCardModel {
       OrganizationCardModel(
         id: j['id'] as int,
         name: j['name'] as String,
-        logo: ImageUrlHelper.fix(j['logo'] as String?),
+        logo: (j['logo'] ?? '').toString(),
       );
 }
 
@@ -81,7 +81,7 @@ class OrganizationDetailModel {
       OrganizationDetailModel(
         name: j['name'] as String,
         title: j['title'] as String? ?? '',
-        logo: ImageUrlHelper.fix(j['logo'] as String?),
+        logo: (j['logo'] ?? '').toString(),
         about: j['about'] as String? ?? '',
         officialWebsite: j['official_website'] as String?,
         contactEmail: j['contact_email'] as String?,
@@ -124,3 +124,4 @@ class OrgService {
         icon: j['icon'] as String? ?? 'help_outline',
       );
 }
+

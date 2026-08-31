@@ -306,7 +306,14 @@ class _OrgCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[200]!),
             ),
-            child: _staticOrgLogo(org.id.toString()),
+            child: Image.network(
+              org.logo,
+              width: 46,
+              height: 46,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) =>
+                  OrgInitialAvatar(name: org.name, size: 46),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -381,27 +388,8 @@ class _OrgCard extends StatelessWidget {
     );
   }
 
-  /// Returns a static local asset image for the given org id/name.
-  Widget _staticOrgLogo(String idOrName) {
-    final key = _resolveOrgKey(idOrName);
-    final path = 'img/org_$key.png';
-    return Image.asset(
-      path,
-      width: 46,
-      height: 46,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => OrgInitialAvatar(name: idOrName, size: 46),
-    );
-  }
 
-  String _resolveOrgKey(String raw) {
-    final s = raw.toLowerCase();
-    if (s.contains('unicef')) return 'unicef';
-    if (s.contains('intersos')) return 'intersos';
-    if (s.contains('wfp') || s.contains('world food')) return 'wfp';
-    if (s.contains('unhcr')) return 'unhcr';
-    if (s.contains('who') || s.contains('health organ')) return 'who';
-    if (s.contains('red') && s.contains('crescent')) return 'red_crescent';
-    return s.replaceAll(' ', '_');
-  }
+
+
+
 }

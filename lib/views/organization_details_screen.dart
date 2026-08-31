@@ -49,8 +49,8 @@ class OrganizationDetailsScreen extends StatelessWidget {
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.all(20),
-                          child: Image.asset(
-                            'img/org_${organization.id}.png',
+                          child: Image.network(
+                            organization.logo,
                             fit: BoxFit.contain,
                             errorBuilder: (_, __, ___) =>
                                 const Icon(Icons.business, size: 50),
@@ -660,3 +660,5 @@ class OrganizationDetailsScreen extends StatelessWidget {
     }
   }
 }
+
+
