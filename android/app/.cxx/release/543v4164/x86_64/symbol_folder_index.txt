@@ -1,0 +1,1 @@
+C:\Users\INFINITY\AndroidStudioProjects\Aidora\android\app\build\intermediates\cxx\release\543v4164\obj\x86_64

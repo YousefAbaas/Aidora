@@ -1,0 +1,2 @@
+C:/Users/INFINITY/AndroidStudioProjects/Aidora/android/app/.cxx/release/543v4164/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/INFINITY/AndroidStudioProjects/Aidora/android/app/.cxx/release/543v4164/armeabi-v7a/CMakeFiles/rebuild_cache.dir
