@@ -31,6 +31,7 @@ jobs:
           workload_identity_provider: 'projects/241847633661/locations/global/workloadIdentityPools/github-actions/providers/github-actions'
           service_account: 'github-actions-firebase@aidora-a6e20.iam.gserviceaccount.com'
           create_credentials_file: true
+          export_environment_variables: true
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -86,7 +87,10 @@ jobs:
           ls -lh android/app/build/outputs/apk/release/app-release.apk
 
       - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+        run: npm install -g firebase-tools@15.28.1
+
+      - name: Firebase CLI version
+        run: firebase --version
 
       - name: Check Google credentials
         env:
