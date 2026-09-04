@@ -74,6 +74,7 @@ android {
                 artifactType = "APK"
                 groups = "qa-testers"
                 releaseNotes = "Automated release from GitHub Actions"
+                serviceCredentialsFile = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
             }
         }
 
