@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.firebase.appdistribution"
 }
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
@@ -64,6 +65,13 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
+
+            firebaseAppDistribution {
+                appId = "1:241847633661:android:14fa718e2c43121ea92094"
+                artifactType = "APK"
+                groups = "qa-testers"
+                releaseNotes = "Automated release from GitHub Actions"
+            }
         }
 
         debug {
