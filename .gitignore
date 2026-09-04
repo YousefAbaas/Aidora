@@ -61,3 +61,5 @@ android/app/release
 .DS_Store
 Thumbs.db
 ios/Flutter/ephemeral/
+android/key.properties
+*.jks
