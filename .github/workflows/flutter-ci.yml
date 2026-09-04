@@ -31,7 +31,6 @@ jobs:
           workload_identity_provider: 'projects/241847633661/locations/global/workloadIdentityPools/github-actions/providers/github-actions'
           service_account: 'github-actions-firebase@aidora-a6e20.iam.gserviceaccount.com'
           create_credentials_file: true
-          export_environment_variables: true
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -77,37 +76,17 @@ jobs:
           test -f android/app/aidora-release-key.jks
           test -f android/key.properties
 
-      - name: Build release APK
+      - name: Build and distribute release APK
         working-directory: android
-        run: bash gradlew app:assembleRelease --no-daemon
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.google-auth.outputs.credentials_file_path }}
+        run: |
+          bash gradlew assembleRelease appDistributionUploadRelease --no-daemon
 
       - name: Verify APK exists
         run: |
           test -f android/app/build/outputs/apk/release/app-release.apk
           ls -lh android/app/build/outputs/apk/release/app-release.apk
-
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools@15.28.1
-
-      - name: Firebase CLI version
-        run: firebase --version
-
-      - name: Check Google credentials
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.google-auth.outputs.credentials_file_path }}
-        run: |
-          echo "Credentials file: $GOOGLE_APPLICATION_CREDENTIALS"
-          test -f "$GOOGLE_APPLICATION_CREDENTIALS"
-
-      - name: Distribute APK to Firebase App Distribution
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.google-auth.outputs.credentials_file_path }}
-        run: |
-          firebase appdistribution:distribute \
-            android/app/build/outputs/apk/release/app-release.apk \
-            --app "1:241847633661:android:14fa718e2c43121ea92094" \
-            --groups "qa-testers" \
-            --release-notes "Automated release from GitHub Actions"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
