@@ -1,7 +1,8 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
-const String _productionApiUrl = 'https://aidora-z01k.onrender.com';
+const String _productionApiUrl = 'https://workserveys.pythonanywhere.com';
 const String _ngrokUrl = 'https://defrost-jogging-capital.ngrok-free.dev';
 const String _realDeviceLanIp = '';
 
