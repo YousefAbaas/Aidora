@@ -63,3 +63,9 @@ Thumbs.db
 ios/Flutter/ephemeral/
 android/key.properties
 *.jks
+
+# Database exports and production data must never be committed
+backend/*_prod.sql
+*.dump
+*.backup
+*.bak
