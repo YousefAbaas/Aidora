@@ -380,6 +380,8 @@ Checkout → Set up Python → Install dependencies → Django system check → 
 
 ---
 
-## License
+## Licensing status
 
-This project is currently distributed under a **proprietary license**, part of the Aidora platform (see [root README](../README.md)).
+The repository root contains an Apache License 2.0 file, while earlier backend documentation described this component as proprietary. That inconsistency must be resolved before anyone relies on the repository as evidence of reuse or redistribution rights.
+
+This README does not make a separate legal determination about ownership of the backend. Before redistributing, relicensing, or reusing backend code, confirm the rights of the original contributors and any applicable university or course-project agreements, and then make the repository-wide licensing notices consistent. Do not assume that being the primary implementer alone resolves third-party or institutional rights.
