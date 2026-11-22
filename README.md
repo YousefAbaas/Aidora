@@ -1,6 +1,6 @@
 # Aidora — Humanitarian Assistance Coordination Platform
 
-**A full-stack academic software engineering project** connecting displaced communities with humanitarian organisations and volunteers through a Flutter application and a Django REST API.
+**A full-stack academic software engineering project created and owned by Yousef Abbas**, connecting displaced communities with humanitarian organisations and volunteers through a Flutter application and a Django REST API.
 
 <p align="center">
   <img src="img/aidora_icon.png" alt="Aidora logo" width="112" />
@@ -29,9 +29,9 @@ The platform brings key workflows into one system:
 - Coordinate volunteer tasks and QR-based completion checks.
 - Provide Arabic and English user interfaces.
 
-## My role
+## My role and project ownership
 
-**I was responsible for the end-to-end technical design and implementation of Aidora.** My work covered the system architecture and the main engineering layers across the mobile client and backend.
+**I created Aidora, own the project, and serve as its principal developer and technical lead.** I led the end-to-end technical design and implementation across the mobile client, backend, data layer, API integration, testing, and delivery automation.
 
 - Defined the overall client–server architecture and application structure.
 - Designed the database model and REST API structure.
@@ -39,6 +39,7 @@ The platform brings key workflows into one system:
 - Developed the Flutter application and its presentation, state-management, model, and service layers.
 - Implemented and integrated authentication, role-aware workflows, and API communication.
 - Worked across integration, debugging, and the consistency of behaviour between the client and server.
+- Designed and maintained GitHub Actions automation for Flutter analysis and tests, Django checks and tests against PostgreSQL, and signed Android release distribution to Firebase App Distribution.
 
 This project gave me practical experience taking an application from system design through implementation and integration.
 
@@ -176,9 +177,9 @@ Do not commit local environment files, database credentials, signing keys, token
   <img src="screenshots/06-profile.jpg" width="16%" alt="User profile" />
 </p>
 
-## Academic context
+## Academic context and ownership
 
-Aidora was developed as part of the Informatics Engineering programme at Homs University. It represents applied work in requirements-to-implementation development, client–server architecture, API design, data modelling, mobile development, and software integration.
+I originated and developed Aidora as an individual-led academic software engineering project during my Informatics Engineering studies at Homs University. Its academic context describes where the work was developed; I remain the project creator, owner, principal developer, and ongoing maintainer. The repository's Apache License 2.0 grants users the permissions set out in that licence; it does not transfer the project's copyright to recipients. Third-party dependencies and external assets remain subject to their own licence terms.
 
 ## Licence
 
