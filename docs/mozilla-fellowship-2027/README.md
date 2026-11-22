@@ -22,8 +22,15 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 4. [Aidora technical evidence](AIDORA_TECHNICAL_EVIDENCE.md) — ownership, architecture, verifiable commits, CI/CD, successful workflow runs, and evidence boundaries.
 5. [Evidence and gaps](EVIDENCE_AND_GAPS.md) — Aidora proof, early direct community feedback, candid fit assessment, and submission gates.
 6. [Letter of Intent worksheet](APPLICATION_WORKSHEET.md) — official form fields, word limits, and answer-planning notes.
-7. [SRHIN host enquiry draft](HOST_OUTREACH_DRAFT.md) — unsent message for the applicant to review and send personally.
+7. [SRHIN host enquiry record](HOST_OUTREACH_DRAFT.md) — exploratory email sent on 23 November 2026; awaiting response.
 8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
+9. [Discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) — host-led questions, evidence requirements, and build/adapt/no-build decision rules.
+
+## Current status — 23 November 2026
+
+- An exploratory eligibility and remote-participation enquiry was sent to Mozilla Fellowships; written clarification is pending.
+- An exploratory Embedded Fellow enquiry was sent to SRHIN; no host response, endorsement, or partnership is recorded.
+- No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
 
 ## Current evidence
 
