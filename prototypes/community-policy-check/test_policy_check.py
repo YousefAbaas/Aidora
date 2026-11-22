@@ -123,6 +123,29 @@ class PolicyCheckTests(unittest.TestCase):
         request["approvals"][0]["status"] = "maybe"
         self.assertEqual(self.evaluate(request=request)["decision"], "REVIEW")
 
+    def test_unlisted_action_does_not_allow(self):
+        request = valid_request()
+        request["action"] = "copy_dataset"
+        self.assertEqual(self.evaluate(request=request)["decision"], "DENY")
+
+    def test_policy_not_yet_effective_requires_review(self):
+        policy = valid_policy()
+        policy["effective_from"] = "2027-04-01T00:00:00+00:00"
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
+
+    def test_draft_policy_requires_review(self):
+        policy = valid_policy()
+        policy["status"] = "draft"
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
+
+    def test_missing_request_purpose_requires_review(self):
+        request = valid_request()
+        del request["purpose"]
+        self.assertEqual(self.evaluate(request=request)["decision"], "REVIEW")
+
+    def test_non_datetime_evaluation_time_requires_review(self):
+        self.assertEqual(self.evaluate(now="2027-03-01T00:00:00Z")["decision"], "REVIEW")
+
     def test_conflicting_approval_evidence_requires_review(self):
         request = valid_request()
         request["approvals"].append(
