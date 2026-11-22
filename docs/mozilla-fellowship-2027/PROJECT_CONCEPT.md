@@ -11,9 +11,9 @@ Mozilla's 2027–2028 RFP identifies a challenge for SRHIN around community-owne
 
 This is not evidence that SRHIN lacks responsible practices. SRHIN publicly describes co-creation with people with lived experience and has already published the LEEF checklist, an AI mental-health co-design guide, a lived-experience compensation/governance template, an Epistemic Authority Decision Matrix, and a co-production readiness self-assessment. It also describes GENSCORE and GENCurate.
 
-**The narrower hypothesis:** even where good engagement and consent practices exist, can community-defined decisions and obligations be reliably represented in existing data-use standards and carried through the operational lifecycle of health-AI data—from a proposed secondary use, through approval and access, to audit, challenge, and benefit-commitment review?
+**The narrower hypothesis:** is there a missing technical hand-off between community decisions already made through SRHIN's governance processes and the downstream systems that handle data access, secondary use, AI development, audit, and benefit delivery? If so, can that hand-off be made traceable using existing standards and host-approved systems?
 
-The first stage must map SRHIN's current systems, agreements, consent processes, technical controls, and community decision-making—including how its compensation/governance template and Epistemic Authority Decision Matrix are used in practice. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product.
+The first stage must map SRHIN's current systems, agreements, consent processes, technical controls, and community decision-making—including how its compensation/governance template and Epistemic Authority Decision Matrix are used in practice. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product.
 
 ## 2. Novelty: build on standards, do not reinvent them
 
@@ -26,9 +26,9 @@ A preliminary landscape review identified existing work that must be reused and 
 
 These are not interchangeable products, and their applicability to SRHIN's mental-health context must be assessed rather than assumed. In particular, the proposed work must not claim to invent machine-readable data-use conditions, policy passports, or access-control rules.
 
-**The possible contribution is narrower and host-specific:** work with SRHIN and affected communities to determine whether existing standards adequately represent community decision rights, contestation and appeal, context-specific governance, and benefit-sharing commitments—and, only where a validated gap remains, develop an openly documented profile, mapping, workflow, or integration adapter that complements those standards.
+**The possible contribution is narrower and host-specific:** map how SRHIN's existing community-governance instruments connect to consent, data access, secondary use, AI development, audit, and benefit delivery. With SRHIN and affected communities, test whether a technical hand-off or accountability gap remains. Only if one is demonstrated should the project build an openly documented integration or workflow that operationalises—not replaces—existing community-defined authority and compensation processes.
 
-The proposed project is therefore a **technical implementation and accountability bridge for existing community governance**, not a new universal data-use standard, consent app, or replacement policy framework.
+The proposed project is therefore a **technical implementation and accountability bridge for existing community governance**, not a new universal data-use standard, consent app, or replacement policy framework. It must be an independently usable public-interest project co-defined with SRHIN, not simply staff augmentation or delivery of an existing SRHIN programme.
 
 ## 3. Fit with SRHIN's existing work
 
@@ -54,7 +54,7 @@ Participation must be voluntary and accessible. Declining optional research or A
 
 ### Agency — does it put people in control?
 
-The goal is to make individual choices and collective governance decisions understandable, specific, revisable, and contestable. Communities must define who can review, approve, reject, or condition secondary-use requests and how conflicts, appeals, and withdrawal/change requests are handled. A digital interface alone is not agency; assisted and offline routes may be required.
+The goal is not to redesign SRHIN's existing authority framework. It is to test whether decisions already made through community-defined processes can be carried accurately into downstream technical workflows and remain understandable, revisable, and contestable. A digital interface alone is not agency; assisted and offline routes may be required.
 
 ### Commons — does it cultivate open infrastructure?
 
@@ -62,16 +62,16 @@ The project should reuse and contribute to open standards rather than create a p
 
 ### Economic conditions — can it change how markets work?
 
-The work should test whether community-defined benefit commitments can be recorded alongside use decisions, assigned to responsible parties, reviewed, and challenged. Benefits may be financial or non-financial and must be defined by the community. Software cannot itself guarantee fair bargaining, payment, or enforcement; the project must measure whether the workflow improves transparency and accountability in practice.
+SRHIN already publishes a lived-experience compensation/governance template. The project should not create a competing benefit-sharing policy or generic register. It should test whether existing community-defined commitments can be referenced and their fulfilment status made visible in one downstream workflow. Benefits remain community-defined; software cannot guarantee fair bargaining, payment, or enforcement.
 
 ## 6. What may be built — only after validation
 
 A deliberately small, standards-aligned technical scope may include:
 1. **Standards mapping:** map SRHIN's current data-use terms and governance requirements to DUO, GA4GH Data Passports, ODRL, or other relevant standards where appropriate.
-2. **Community governance profile/workflow:** document locally agreed decision rights, approval steps, review, appeal, conflict handling, and change/withdrawal routes.
+2. **Decision hand-off mapping:** map how decisions already made under SRHIN's authority and governance processes are represented in downstream systems; do not recreate the authority framework.
 3. **Interoperability adapter:** translate validated host-approved conditions into existing machine-readable representations where technically and semantically appropriate.
 4. **Policy-check integration:** demonstrate one narrow, approved workflow that checks a proposed use and returns allow, deny, or human/community review.
-5. **Benefit-commitment register:** record community-defined commitments, responsible parties, due dates, evidence, and dispute status, without implying the software enforces external contracts.
+5. **Commitment traceability:** if the host validates a gap, link to existing community-defined compensation/benefit commitments and expose only the minimum approved status, owner, and evidence needed for accountability. Do not replace the host's policy template or imply software enforces external contracts.
 6. **Accessible explanation:** provide a plain-language view of what is proposed, who decides, and how to raise a concern, with low-bandwidth and assisted alternatives.
 
 No new standard should be created if an existing one can represent the requirement. Where no suitable representation exists, document the gap and seek community and standards-community input before proposing an extension.
@@ -110,6 +110,7 @@ During Aidora's initial launch, the applicant spoke directly with refugees and p
 ## 10. Conditions that must be satisfied
 
 - SRHIN confirms a specific unmet technical/operational need after reviewing existing governance tools, workflows, and standards.
+- The host and applicant agree on an independent project scope rather than staff augmentation or delivery of existing programme services.
 - SRHIN is willing to consider the applicant as an Embedded Fellow and support community-led discovery.
 - Affected communities define their decision-making role, compensation, accessibility, and safeguarding arrangements.
 - The proposed work is demonstrably additive to DUO, GA4GH Data Passports, ODRL, and SRHIN's existing work.
