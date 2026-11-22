@@ -104,13 +104,13 @@ Do not assume GENSCORE or GENCurate exposes an extension point. No production co
 
 ## 7. Experimental engineering probe (not a proposed host integration)
 
-An isolated Python reference prototype has been added under `prototypes/community-policy-bridge/`. It evaluates a deliberately minimal, synthetic policy envelope and returns `ALLOW`, `DENY`, or `REVIEW`. The demonstration checks declared policy status, expiry, dataset reference, policy version, purpose, actor role, and the presence of an authority-decision reference.
+The repository already contains a more complete synthetic reference implementation under `prototypes/community-policy-check/`, together with a detailed [reference policy-check specification](REFERENCE_POLICY_CHECK_SPEC.md). It evaluates a deliberately narrow request against a synthetic policy and returns `ALLOW`, `DENY`, or `REVIEW`. It covers declared purpose/action rules, required approval evidence references, context conditions, policy status, effective dates, expiry, and explicit human-review escalation.
 
-The prototype exists to test a narrow engineering question: can an invoked downstream workflow fail closed when declared conditions are missing, expired, or contradictory? It is not connected to Aidora's production backend, SRHIN systems, or any data source. Its field names and reason codes are provisional demo choices—not a new ontology, consent model, or GA4GH/ODRL implementation.
+This is a host-neutral engineering probe only. It is not connected to Aidora's production backend, SRHIN systems, or any real data source. Its policy fields and decision semantics are illustrative and must not be presented as a new standard, ontology, consent model, or GA4GH/ODRL implementation.
 
-**Important limitations:** the prototype does not authenticate actors, verify the authority reference, establish that a community decision is legitimate, interpret legal consent, enforce restrictions outside the calling system, prevent copying, or prove benefit-sharing. An `ALLOW` result means only that the demo's declared checks passed. The caller remains responsible for authentication, authoritative policy retrieval, and enforcement. The prototype must be discarded or adapted if host-led discovery shows it is unnecessary or misaligned.
+**Important limitations:** the prototype does not authenticate actors, verify approval evidence or signatures, establish that a community decision is legitimate, interpret legal consent, enforce restrictions outside the calling system, prevent copying, or prove benefit-sharing. Synthetic approval strings are placeholders, not evidence. An `ALLOW` result means only that the prototype's declared checks passed. A production implementation would require an approved trust model, authoritative policy retrieval, tamper protection, enforcement at the actual access boundary, revocation propagation, human/community challenge routes, and independent security/privacy review.
 
-A dedicated GitHub Actions workflow runs its standard-library unit tests. Do not claim successful CI until the actual workflow run is green.
+A dedicated GitHub Actions workflow has been configured to run the existing prototype's standard-library unit tests. Its actual run result must be verified before claiming CI success. The prototype must be adapted or discarded if host-led discovery shows it is unnecessary, incomplete, or misaligned.
 
 ## 8. Twelve-month engineering plan
 
