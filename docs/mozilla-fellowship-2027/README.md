@@ -26,18 +26,19 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
 9. [Discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) — host-led questions, evidence requirements, and build/adapt/no-build decision rules.
 10. [Reference policy-check specification](REFERENCE_POLICY_CHECK_SPEC.md) — conservative decision semantics, security requirements, and synthetic acceptance cases.
-11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.\n12. [Synthetic policy API adapter](../../prototypes/community-policy-api/README.md) — isolated DRF wrapper and API tests; not mounted in Aidora or connected to a host.
+11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.
+12. [Synthetic policy API adapter](../../prototypes/community-policy-api/README.md) — isolated DRF wrapper and API tests; not mounted in Aidora or connected to a host.
 
 ## Current status — 23 November 2026
 
-- An exploratory eligibility and remote-participation enquiry was sent to Mozilla Fellowships; written clarification is pending.
-- An exploratory Embedded Fellow enquiry was sent to SRHIN; no host response, endorsement, or partnership is recorded.
+- Mozilla's latest response was a generic acknowledgement directing applicants to the FAQ/RFP; Syria-resident funding/payment eligibility and remote participation remain unresolved.
+- The SRHIN host enquiry remains a draft and has not been sent; no host response, endorsement, or partnership is recorded.
 - No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
-- A synthetic ALLOW/DENY/REVIEW reference engine (22 core unit tests) and a separate DRF API adapter (4 API integration tests) are in the repository. The core test workflow's run #10 passed (Python 3.12); the new API workflow is configured, but its first run has not yet been verified. Neither prototype is an SRHIN-specific or production implementation.
+- A synthetic ALLOW/DENY/REVIEW reference engine (30 core unit tests) and a separate DRF API adapter (8 API tests) are in the repository. The latest verified core and API CI runs passed on Python 3.12. The API adapter now resolves a fixed synthetic policy and fake approval references server-side rather than accepting caller-supplied policy/evidence. These fixtures are not a real trust store, and neither prototype is an SRHIN-specific or production implementation.
 
 ## Current evidence
 
-- The repository contains a synthetic policy-check core, its reference specification, and an isolated Django REST Framework adapter. These are experimental engineering probes only; they do not establish an SRHIN-validated need, production access control, valid consent, or GA4GH/ODRL conformance. The core workflow has a passing run; the API workflow is newly configured and still requires a verified CI result.
+- The repository contains a synthetic policy-check core, its reference specification, and an isolated Django REST Framework adapter. These are experimental engineering probes only; they do not establish an SRHIN-validated need, production access control, valid consent, or GA4GH/ODRL conformance. The core and API workflows have passing runs. The API fixture is a trust-boundary demonstration only; it is not cryptographic verification or a production policy registry.
 
 - Aidora was created and is owned by Yousef Abbas, who led its end-to-end technical design and principal implementation and continues to develop it.
 - Aidora is an academic working software project; it has not been confirmed as a live humanitarian deployment.
