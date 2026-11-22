@@ -1,4 +1,4 @@
-# Provisional technical and ethical design — Community Governance Layer for Health-AI Data Use
+# Provisional technical and ethical design — Technical Bridge for Community-Governed Health-AI Data Use
 
 **Status:** Concept architecture only. It is not an approved SRHIN specification or production design. All components require host and community validation.
 
