@@ -1,126 +1,153 @@
-# Provisional technical and ethical design
+# Provisional technical and ethical design — Community Data Use Passport
 
-**This is a hypothesis-driven design note, not a production specification.** It must be revised with SRHIN's technical team, clinical/ethics leads, and the communities involved.
+**Status:** Concept architecture only. It is not an approved SRHIN specification or a production design. Every component must be validated with the host and affected communities before implementation.
 
-## 1. Design principle
+## 1. Design objective
 
-Build a small governance service that sits beside an existing, host-approved data workflow. It should govern permissions and evidence of compliant use, not become a second repository of sensitive mental-health records.
+Operationalise community-defined conditions for how mental-health data may be accessed, reused, and used in AI. The system should complement existing host tools and community-engagement resources; it must not duplicate data capture, transcription, screening, or clinical workflows.
 
-The project should not introduce a blockchain, public ledger, central clinical database, or AI screening model unless community and host discovery demonstrates a compelling need. Simplicity, reversibility, and local maintainability take priority.
+The central technical object is a **versioned Data Use Manifest**: human-readable terms plus machine-readable rules associated with a data contribution, dataset version, or proposed use. A reference policy engine checks proposed use against those terms.
 
-## 2. Candidate architecture
+## 2. Architectural boundary
 
 Participant / trusted facilitator  
-→ Accessible consent and preference interface  
-→ Consent and governance API  
-→ Policy and permission store  
-→ Data-use review workflow  
-→ Host-approved data platform adapter (only if approved)  
-→ Audit and benefit-commitment records
+→ Accessible choice and information interface  
+→ Community governance workflow  
+→ Data Use Manifest registry  
+→ Policy evaluation API  
+→ Host-approved data workflow adapter (only if authorised)  
+→ Audit metadata and benefit-commitment status
 
-Possible technology choices, subject to host preferences:
-- Backend: Python and Django REST Framework, building on the applicant's proven experience.
-- Database: PostgreSQL.
-- Participant interface: accessible web/mobile interface; Flutter is an option, not a predetermined requirement.
-- Integration: versioned REST API and a narrow adapter to GENCurate or another host-selected workflow.
-- Deployment: host-approved environment with secrets management, backups, monitoring, and documented maintenance.
+The service should not store raw clinical narratives, screening results, recordings, or identity documents. It should hold the minimum policy and audit metadata needed to express and check agreed conditions. Even pseudonymous references may be personal data when they can be linked back to a person; the host must approve the data-flow and retention design.
 
-Do not assume the host uses the same stack or will permit direct integration. A clean, documented API and export/import path may be more appropriate than deep coupling.
+## 3. Candidate components
 
-## 3. Minimum data model (candidate only)
+### A. Manifest schema
 
-The governance store should hold the least information required to enforce and demonstrate the agreed rules.
+A versioned JSON Schema and plain-language rendering. Candidate fields, subject to community and legal review:
 
-| Record | Candidate fields | Important boundary |
+| Field | Purpose | Boundary |
 |---|---|---|
-| Participant reference | Random identifier, approved identity-mapping reference | Avoid storing names or clinical narratives in the governance service. |
-| Consent version | Version, language, explanation version, timestamp, method | Retain enough evidence to understand what was agreed. |
-| Permission | Purpose, data category, recipient class, duration, status | Avoid a single blanket “yes to everything”. |
-| Data-use request | Requester role, purpose, dataset/version reference, justification | Must be reviewed according to community-approved rules. |
-| Governance decision | Decision, conditions, reviewer role, date, appeal route | Do not silently override participant or community terms. |
-| Access event | Actor, action, dataset reference, timestamp, outcome | Restrict access to logs and protect them from tampering. |
-| Withdrawal event | Scope, date, requested action, completion status, limitations | Be precise about future use and technical limits. |
-| Benefit commitment | Agreed benefit, responsible party, due date, evidence/status | Community determines acceptable benefit; no assumed token/payment scheme. |
+| Manifest ID and version | Identify the current rules | No direct personal identifier |
+| Data/dataset reference | Point to an approved resource/version | Reference only; no copy of clinical data |
+| Permitted purpose | Describe allowed use | No broad blanket permission |
+| Prohibited purpose | Explicitly exclude unacceptable uses | Must be understandable and reviewable |
+| AI activity | Distinguish training, evaluation, inference, publication, or secondary use | Each activity may have different conditions |
+| Recipient class | Identify who may request or receive access | Community-approved categories |
+| Retention and review date | Set time limits and review triggers | Must match host policy and applicable law |
+| Required approvals | Route use to the authorised community/research body | Decision rights defined locally |
+| Derivative and onward-use rules | State conditions for transformed datasets or model outputs | No promise of perfect downstream control |
+| Withdrawal/change process | Describe prospective changes and technical limits | No false claim of automatic model unlearning |
+| Benefit commitments | Record community-defined commitments, owners, and due dates | Community decides what counts as benefit |
+| Notice and language version | Record which explanation was presented | Must support accessible formats |
 
-The host and community must decide whether these records are personal data, how long they should be retained, where identifiers are stored, and who can see each field.
+Individual-level preferences and collective/community rules must be represented as separate but related authority layers. Applicable law and research ethics requirements remain independent requirements; the software does not decide whether consent is legally sufficient.
 
-## 4. Core workflows to test
+### B. Policy evaluation service
 
-### A. Initial participation and consent
-1. Explain the data use in language and formats selected with participants.
-2. Separate service-care permissions from optional research, AI development, and secondary-use permissions.
-3. Record the exact notice/version, purpose, scope, and method of agreement.
-4. Provide a copy or accessible way to review the current choices.
-5. Make clear that refusing optional data use does not affect access to care or services.
+Input: a proposed use request containing requester role, stated purpose, intended AI activity, data/dataset reference, recipients, retention, and declared downstream use.
 
-### B. New or secondary data use
-1. A researcher or system owner submits a purpose-specific request.
-2. The service checks existing participant permissions and community rules.
-3. If the use is outside the approved scope, it is blocked pending the required review and fresh permission.
-4. An authorised community governance process records the decision and any conditions.
-5. The system records approved access and downstream-use declarations.
+Output:
+- **ALLOW** — request matches the active rules and required approvals;
+- **DENY** — request conflicts with a prohibited purpose or other hard constraint;
+- **REVIEW** — a human/community decision or missing evidence is required.
 
-### C. Change or withdrawal
-1. A participant can request a change or withdrawal through an accessible channel.
-2. The system records the request and identifies affected future processing and data-use permissions.
-3. The responsible data steward confirms what can be stopped, deleted, retained by law, or cannot be technically undone.
-4. The participant receives a clear status and an explanation of any limits.
-5. The project must not claim that withdrawing consent automatically removes information already learned by a trained model. Any model unlearning or dataset removal requires separate technical validation and host-approved policy.
+Each decision returns a reason code and manifest version. Default behaviour is fail closed when required policy information is missing or contradictory. This service only enforces rules inside systems that call it; it cannot prevent copying or use outside the integration boundary.
 
-### D. Benefit-sharing
-1. Community representatives define what benefits are meaningful and fair.
-2. Each approved data-use project records relevant commitments.
-3. The system reports whether commitments were fulfilled, without exposing participant identities.
-4. Community representatives can contest or revise the process.
+### C. Community governance workflow
 
-## 5. Security and privacy threat model
+A governance body or delegated representatives, selected by the affected community with SRHIN, can review new or secondary-use requests, apply conditions, reject a request, and record reasons and an appeal route. The system must not predefine who represents a community or assume one person speaks for all.
 
-| Threat | Example | Candidate mitigation |
+### D. Audit and benefit register
+
+Record policy decisions, authorised approvals, access events supplied by an integrated system, withdrawal/change status, and benefit-commitment progress. Logs should be tamper-evident and access-controlled, but should not contain health narratives, unnecessary identifiers, tokens, or secrets. No blockchain or public ledger is proposed.
+
+### E. Participant-facing access
+
+A low-bandwidth, accessible view should explain current permissions and how to request changes. The interface may use Flutter, a web client, paper-assisted, or facilitator-supported alternatives; selection depends on participant needs and host systems, not developer preference.
+
+## 4. Integration strategy
+
+The first phase maps the actual SRHIN architecture and governance processes, including LEEF, its co-design guidance, GENSCORE and GENCurate as publicly described. The project will identify a single low-risk integration point only if SRHIN confirms one.
+
+Possible integration patterns:
+1. a policy-check API called before a dataset access or secondary-use request;
+2. an exportable manifest attached to a governed dataset version;
+3. a human-reviewed import/export workflow if the host cannot or should not expose a direct API.
+
+Do not assume GENCurate or GENSCORE supports an extension point. Do not connect to production systems without written host authorisation and security review.
+
+## 5. Security, privacy, and ethical safeguards
+
+| Threat | Example | Candidate safeguard |
 |---|---|---|
-| Coercive consent | A person believes care depends on agreeing to AI research | Separate care from optional use; clear refusal route; facilitator training; complaint mechanism. |
-| Re-identification | A pseudonymous record can be linked back to a person | Minimise fields; keep identity mapping outside the service; restrict access; assess linkage risks. |
-| Excessive access | Staff or researchers view data beyond their role | Least privilege, purpose checks, short-lived access, audit review. |
-| Insider misuse | An authorised user exports or repurposes records | Approval workflow, access logs, export controls, incident response. |
-| Consent drift | Data use expands beyond the original explanation | Versioned purpose-specific permissions and re-review before new uses. |
-| Incomplete withdrawal | A dataset copy or derived model remains in use | Data lineage, documented downstream duties, stop-future-use workflow, honest limits. |
-| Data leakage in logs | Logs contain mental-health details or identifiers | Log metadata only; redact secrets and sensitive fields; restrict log access. |
-| Digital exclusion | A participant cannot use a smartphone or read the interface | Assisted/offline alternatives, accessible formats, local-language review, non-digital route. |
-| Governance capture | A small group controls rules without accountability | Representative community process, transparent criteria, rotation/appeals as locally appropriate. |
+| Coercive participation | A person believes care depends on agreeing to AI research | Separate care from optional data use; accessible refusal and complaint path |
+| Overbroad permission | One blanket consent permits unrelated future purposes | Purpose-specific, versioned terms and renewed review |
+| Re-identification | A pseudonymous manifest reference is linked to identity | Data minimisation, segregated identity mapping, access controls, linkage-risk review |
+| Excessive access | Researcher accesses data beyond approved scope | Least privilege, purpose checks, approval workflow, periodic audit |
+| Consent drift | Data is reused after the original purpose changes | Version checks and review before every new use |
+| Incomplete withdrawal | Copies or trained models remain after consent is changed | Prospective stop-use workflow, lineage where feasible, transparent limits; no automatic unlearning claim |
+| Insider misuse | Authorised user exports data for a different purpose | Export controls, logging, incident response, governance review |
+| Sensitive logs | Audit trail exposes a person's health information | Metadata-only events, redaction, restricted log access |
+| Digital exclusion | Participant cannot use the app or read the language | Local-language and accessible formats, assisted/offline alternatives |
+| Governance capture | A small group dominates community decisions | Locally agreed representation, conflict disclosure, review and appeal |
 
-## 6. Ethical and operational gates
+No pilot with real mental-health information begins until SRHIN has approved the scope, ethics review is complete, local legal/data-protection advice is obtained, security controls are assessed, and the community governance process is functioning. Synthetic data is the default for development and automated tests.
 
-No pilot with real mental-health information should begin until all applicable gates have been satisfied:
-- SRHIN confirms the problem and approves the scope.
-- The affected communities participate in defining the rules and representation.
-- The appropriate ethics review and local legal/data-protection review are complete.
-- A data-flow map, threat model, retention schedule, and incident response plan are approved.
-- Roles for data controller/steward, processors, community governance, and clinical oversight are clear.
-- Participation and optional data-use consent are non-coercive and do not affect care.
-- Languages, literacy, disability access, and non-digital participation routes are addressed.
-- A process exists for complaints, safeguarding, and adverse events.
-- The host approves any connection to GENCurate, GENSCORE, or other systems.
+## 6. Twelve-month engineering plan
 
-Early development and security testing should use synthetic data only. A synthetic test fixture must not be generated by copying or lightly altering real patient records.
+### Q1 — Discovery and requirements (June–August 2027)
+- Map current SRHIN systems, policies, LEEF guidance, co-design procedures, data flows and decision rights.
+- Hold host-approved, compensated discovery/co-design activities with the community groups SRHIN identifies.
+- Agree the exact problem, success measures, safeguards and no-build conditions.
+- Deliver a validated requirements brief, data-flow map, threat model and technical decision record.
 
-## 7. Evaluation questions
+### Q2 — Schema and alpha (September–November 2027)
+- Publish a draft manifest schema and plain-language template.
+- Implement a minimal Django REST API, manifest registry and deterministic policy evaluator.
+- Implement allow/deny/review test cases with synthetic fixtures.
+- Deliver an alpha, API documentation, automated tests and initial security review.
 
-Co-design evaluation measures with the host and participants. Candidate measures include:
-- Can participants accurately explain the use(s) to which they agreed?
-- Can a participant or authorised facilitator review and change a permission?
-- Can the system prevent or flag a request outside an approved purpose?
-- Can an auditor reconstruct who approved and accessed a dataset version?
-- Can the service accurately show the status and limitations of a withdrawal request?
-- Do community representatives consider the governance and benefit-sharing process fair and usable?
-- Does the workflow add an acceptable amount of burden for participants and health workers?
+### Q3 — Controlled integration and evaluation (December 2027–February 2028)
+- Build one limited adapter or controlled import/export path if the host approves.
+- Test permissions, versioning, audit metadata, accessibility, and withdrawal/change workflows.
+- Run security, usability, and policy-conformance tests in staging with synthetic or expressly approved de-identified data.
+- Deliver a beta and evaluation findings.
 
-Do not set a target number of participants or success percentage until SRHIN and the relevant ethics process approve a realistic pilot design.
+### Q4 — Approved pilot and public release (March–May 2028)
+- Pilot only if ethics, host, legal, security and community approvals are complete.
+- Evaluate participant understanding, decision traceability, handling of out-of-scope requests, burden, and benefit-commitment status.
+- Release code, schema, API specification, deployment guide and a community-reviewed report without sensitive data.
+- Deliver a maintenance and governance plan.
 
-## 8. Explicit non-goals
+## 7. Evaluation framework
 
-- No diagnosis, treatment recommendation, or replacement for a clinician.
-- No new mental-health screening model.
-- No central store of raw clinical narratives.
-- No public release of identifiable or sensitive data.
-- No claim of automatic deletion of model knowledge after withdrawal.
-- No presumption that GENCurate or GENSCORE lacks features that already meet the need.
-- No blockchain or tokenised benefit model by default.
+Baselines and targets must be set with SRHIN and participants in Q1. Candidate indicators:
+- participant comprehension of specific data uses and available choices;
+- number/proportion of out-of-scope requests blocked or escalated before access;
+- completeness of decision records and manifest-version traceability;
+- time and staff effort to review a secondary-use request;
+- ability to record and communicate the status and limits of change/withdrawal requests;
+- proportion of benefit commitments with named owners, due dates and recorded status;
+- participant and community assessment of fairness, trust, and practical burden.
+
+Do not invent numeric targets before discovery. Document adverse findings and cases where the policy engine cannot enforce a condition.
+
+## 8. Technical choices and non-goals
+
+Candidate stack: Python, Django REST Framework, PostgreSQL, and an accessible web or mobile interface. This reuses the applicant's relevant engineering experience from Aidora, but the host may require a different stack or an integration that avoids deep coupling.
+
+Non-goals:
+- no mental-health diagnosis, treatment advice, or screening model;
+- no replacement for GENSCORE, GENCurate, or clinical systems;
+- no central repository of raw patient records;
+- no automatic promise that model knowledge can be erased after withdrawal;
+- no publication of identifiable or sensitive data;
+- no blockchain, token, or monetisation scheme by default;
+- no claim that software alone solves structural power imbalances.
+
+## 9. Open-source and sustainability plan
+
+Release the reusable schema, reference implementation, tests, documentation, and non-confidential learning openly under licences agreed with Mozilla and the host. Keep sensitive data, security details that could enable abuse, and confidential host information private. Provide a self-hosting guide, minimal deployment profile, versioning policy, contribution guide, and named maintenance pathway.
+
+The project is successful only if communities and independent organisations can understand, govern, adapt, and maintain the tool—not merely if a prototype is demonstrated.
