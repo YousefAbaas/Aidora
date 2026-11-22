@@ -12,10 +12,11 @@ SRHIN's public materials also describe:
 - **GENSCORE**, a research initiative using AI, lived experience, and local knowledge for culturally grounded mental-health screening.
 - **GENCurate**, a data platform described as capturing, transcribing, and analysing patient data.
 
-The proposed direction is therefore **not** to build another patient-data capture or mental-health screening product. It is to investigate, with SRHIN and the communities it serves, whether an interoperable governance layer is needed around consent, permitted data uses, auditability, withdrawal, and benefit-sharing. The existence and exact boundaries of any gap must be validated with SRHIN before implementation.
+The proposed direction is therefore **not** to build another patient-data capture, mental-health screening, or generic consent product. It is to investigate whether a portable community-defined Data Use Manifest and policy-checking layer could carry community terms into downstream data access and AI workflows. This gap must be validated by SRHIN and the communities it serves. The existence and exact boundaries of any gap must be validated with SRHIN before implementation.
 
 ## Documents
 
+- [Mozilla review matrix](MOZILLA_REVIEW_MATRIX.md) — the three investment questions, six selection questions, risks, evidence, and stop conditions.
 - [Project concept](PROJECT_CONCEPT.md) — proposed problem, host fit, scope, outputs, and milestones.
 - [Technical and ethical design](TECHNICAL_AND_ETHICAL_DESIGN.md) — provisional architecture, safeguards, and threat model.
 - [Application worksheet](APPLICATION_WORKSHEET.md) — official Letter of Intent fields, word limits, and evidence to supply.
@@ -25,8 +26,8 @@ The proposed direction is therefore **not** to build another patient-data captur
 ## Non-negotiable accuracy rules
 
 1. Aidora is an academic project and has not been used as a live service by external beneficiaries, based on the applicant's current clarification.
-2. The applicant was the main technical contributor, not necessarily the sole contributor or sole rights-holder.
-3. Some community discussion occurred, but its participants, dates, findings, and design consequences still need to be documented accurately.
+2. The applicant created and owns Aidora and is its principal developer and ongoing technical lead. Third-party dependencies and externally sourced assets remain subject to their own licences.
+3. At Aidora's initial launch, the applicant spoke directly with refugees and people needing assistance and received positive early feedback. No participant count, structured study protocol, or measured outcome has been supplied; this is qualitative early feedback, not formal co-design or deployment evidence.
 4. No SRHIN relationship, endorsement, access to GENSCORE/GENCurate, community consultation in Nigeria, or permission to process mental-health data is claimed.
 5. No real mental-health data should be collected or processed for a prototype before partner approval, community-led design, ethics review, and applicable legal review.
 6. Open-source code and open governance methods do **not** mean making identifiable mental-health data public.
