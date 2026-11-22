@@ -136,8 +136,11 @@ def evaluate_policy(
             return _result("REVIEW", policy, ["approval_evidence_incomplete"])
         if status not in {"approved", "rejected", "pending"}:
             return _result("REVIEW", policy, ["approval_status_unrecognised"])
-        if approval_type in approval_status and approval_status[approval_type] != status:
-            return _result("REVIEW", policy, ["conflicting_approval_evidence"])
+        # A second record for the same approval type is ambiguous even when
+        # the status matches: the evaluator cannot establish which record is
+        # authoritative or whether one was substituted.
+        if approval_type in approval_status:
+            return _result("REVIEW", policy, ["duplicate_or_conflicting_approval_evidence"])
         approval_status[approval_type] = status
 
     for required_type in policy["required_approvals"]:
