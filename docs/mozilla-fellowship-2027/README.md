@@ -32,7 +32,8 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 - The latest visible GitHub Actions runs on `main`, dated 15 November 2026, passed both Django CI and Flutter CI. The Flutter run also completed signed Android release distribution to Firebase App Distribution.
 - The applicant's experience is transferable software engineering, not specialist mental-health or Nigerian data-governance expertise.
 - SRHIN's public materials include GENSCORE, GENCurate, the LEEF pre-launch checklist, and a lived-experience guide for AI mental-health tool design. The proposal must avoid duplication and verify the actual gap with SRHIN.
-- A preliminary novelty review identified GA4GH DUO, GA4GH Passports/Data Passports, GA4GH Machine-Readable Consent Guidance, and W3C ODRL as relevant existing work. The proposal is reframed to build on them, not claim to invent a new data-use passport or ontology.\n- The potential Fellowship project is a concept. No SRHIN partnership, endorsement, access, or community co-design in Nigeria is claimed.
+- A preliminary novelty review identified GA4GH DUO, GA4GH Passports/Data Passports, GA4GH Machine-Readable Consent Guidance, and W3C ODRL as relevant existing work. The proposal is reframed to build on them, not claim to invent a new data-use passport or ontology.
+- The potential Fellowship project is a concept. No SRHIN partnership, endorsement, access, or community co-design in Nigeria is claimed.
 
 ## Accuracy and ethics rules
 
@@ -52,6 +53,11 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 - SRHIN LEEF checklist: https://resources.srhin.org/item/leef-checklist
 - SRHIN lived-experience AI co-design guide: https://resources.srhin.org/item/ai-co-design-guide
 - SRHIN work: https://srhin.org/our-work/
-- SRHIN GENCurate: https://srhin.org/alpha-center/\n- GA4GH DUO: https://www.ga4gh.org/product/data-use-ontology-duo/\n- GA4GH Data Passports: https://www.ga4gh.org/product/data-passports/\n- GA4GH Passports: https://www.ga4gh.org/product/passports/\n- GA4GH Machine-Readable Consent Guidance: https://www.ga4gh.org/product/machine-readable-consent-guidance/\n- W3C ODRL 2.2: https://www.w3.org/TR/odrl-model/
+- SRHIN GENCurate: https://srhin.org/alpha-center/
+- GA4GH DUO: https://www.ga4gh.org/product/data-use-ontology-duo/
+- GA4GH Data Passports: https://www.ga4gh.org/product/data-passports/
+- GA4GH Passports: https://www.ga4gh.org/product/passports/
+- GA4GH Machine-Readable Consent Guidance: https://www.ga4gh.org/product/machine-readable-consent-guidance/
+- W3C ODRL 2.2: https://www.w3.org/TR/odrl-model/
 
 **Letter of Intent deadline:** 17 December 2026, 11:59 PM Pacific (UTC−8). The 12-month Fellowship begins 1 June 2027.
