@@ -33,6 +33,7 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 - An exploratory eligibility and remote-participation enquiry was sent to Mozilla Fellowships; written clarification is pending.
 - An exploratory Embedded Fellow enquiry was sent to SRHIN; no host response, endorsement, or partnership is recorded.
 - No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
+- An AI-assisted internal security review of Aidora was done on 23 November 2026. Fixes are in an open pull request and an unmerged branch; see [Aidora technical evidence, section 6.1](AIDORA_TECHNICAL_EVIDENCE.md). Do not claim them as completed until merged with passing CI.
 - A synthetic ALLOW/DENY/REVIEW reference engine (22 core unit tests) and a separate DRF API adapter (4 API integration tests) are in the repository. The core test workflow's run #10 passed (Python 3.12); the new API workflow is configured, but its first run has not yet been verified. Neither prototype is an SRHIN-specific or production implementation.
 
 ## Current evidence
@@ -56,7 +57,8 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 4. Do not collect or process real mental-health data before host, community, ethics, legal, privacy, safeguarding, and security approval.
 5. Open software and documentation do not mean publishing sensitive or identifiable data.
 6. The applicant's primary residence during the Fellowship, time-zone flexibility, legal ability to receive funding, and bank route must be stated accurately. The FAQ requires an own-name bank account able to accept U.S. funds and legal eligibility in the country of residence/work; Syria-specific eligibility remains unconfirmed and requires written clarification from Mozilla.
-7. Mozilla allows AI for brainstorming, clarification, and translation. Final responses must express the applicant's own ideas and voice and must not be submitted as AI-generated text unchanged.
+7. Mozilla allows AI for brainstorming, clarification, and translation. Final responses must express the applicant's own ideas and voice and must not be submitted as AI-generated text unchanged. The Letter of Intent form asks whether AI tools were used and how; answer truthfully, including AI assistance with this workspace, research, code review and drafting, and keep a short log of what AI was used for.
+8. Open item to verify in the official RFP before relying on a discovery-first plan: whether the call requires a project deliverable within the 12-month Fellowship (a no-build outcome in Q1 may not satisfy that). Third-party summaries say a project that is only an idea is not a fit outside Creative Advocacy; confirm against the RFP text.
 
 ## Official and host references
 
