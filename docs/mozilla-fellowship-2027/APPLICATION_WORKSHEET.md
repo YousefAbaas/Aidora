@@ -47,6 +47,10 @@ Official FAQ: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellow
 
 Use [AIDORA_TECHNICAL_EVIDENCE.md](AIDORA_TECHNICAL_EVIDENCE.md) as the source-of-truth index for the applicant's documented role, architecture, GitHub engineering history, CI/CD implementation, and the limits of what the repository proves.
 
+## Technical evidence
+
+Use [AIDORA_TECHNICAL_EVIDENCE.md](AIDORA_TECHNICAL_EVIDENCE.md) as the source-of-truth index for the applicant's documented role, architecture, verifiable GitHub engineering history, CI/CD implementation, and the limits of what the repository proves.
+
 ## Professional background
 
 | Field | Limit | Evidence |
