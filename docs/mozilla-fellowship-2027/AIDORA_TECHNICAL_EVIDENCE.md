@@ -79,13 +79,22 @@ The workflow configuration:
 
 **Evidence boundary:** The workflow YAML files and related commits establish that the automation has been implemented in the repository. They do not, by themselves, prove the result of the latest GitHub Actions run. Before submission, add links or screenshots of recent successful runs if available.
 
-## 5. Security and engineering judgement
+## 5. Verified GitHub Actions results
+
+The latest runs found on the repository's `main` branch during this review were completed successfully on **15 November 2026**:
+
+- [Django CI — successful run](https://github.com/YousefAbaas/Aidora/actions/runs/43721781747): PostgreSQL service container initialised; Python dependencies installed; Django system checks passed; Django tests passed.
+- [Flutter CI — successful run](https://github.com/YousefAbaas/Aidora/actions/runs/43721781742): Flutter dependencies installed; static analysis and unit/widget/integration test steps passed; signed Android release build and Firebase App Distribution completed; APK verified and uploaded as an artifact; signing files cleaned up.
+
+These links provide direct evidence that the configured pipelines have run successfully on `main`. They do not mean that the Mozilla preparation branch has been run through CI, and they do not establish real-world beneficiary use of Aidora.
+
+## 6. Security and engineering judgement
 
 The repository documents environment-based secret configuration, JWT authentication, API-level role checks, database SSL/TLS settings for production, and protections against committing local secrets and database exports. The commit history also records removal of a production database dump and rules to ignore database backups.
 
 These are evidence of security-conscious engineering practices. They should not be described as an independent penetration test, formal security certification, or comprehensive privacy audit.
 
-## 6. What this evidence does — and does not — establish
+## 7. What this evidence does — and does not — establish
 
 It supports that the applicant:
 
@@ -97,6 +106,6 @@ It supports that the applicant:
 
 It does **not** establish that Aidora has been deployed by an NGO, has an active verified user base, or generated measured field outcomes. The applicant confirms that, during the initial launch, he spoke directly with refugees and people seeking assistance and received positive initial feedback. No participant count, structured study protocol, written quotations, or measured outcome has been supplied. This should be described as early qualitative feedback, not a formal user study or formal co-design unless additional evidence supports that description.
 
-## 7. Relevance to the Mozilla proposal
+## 8. Relevance to the Mozilla proposal
 
 Aidora is evidence of transferable software engineering capability, not the proposed mental-health data-governance product itself. The proposed Mozilla project remains a concept that must be validated with SRHIN and affected communities. No integration with GENCurate or GENSCORE, access to sensitive records, or host endorsement should be claimed before explicit approval.
