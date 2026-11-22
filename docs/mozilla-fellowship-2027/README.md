@@ -22,22 +22,22 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 4. [Aidora technical evidence](AIDORA_TECHNICAL_EVIDENCE.md) — ownership, architecture, verifiable commits, CI/CD, successful workflow runs, and evidence boundaries.
 5. [Evidence and gaps](EVIDENCE_AND_GAPS.md) — Aidora proof, early direct community feedback, candid fit assessment, and submission gates.
 6. [Letter of Intent worksheet](APPLICATION_WORKSHEET.md) — official form fields, word limits, and answer-planning notes.
-7. [SRHIN host enquiry record](HOST_OUTREACH_DRAFT.md) — exploratory email sent on 23 November 2026; awaiting response.
+7. [SRHIN host enquiry draft](HOST_OUTREACH_DRAFT.md) — prepared for review; not sent.
 8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
 9. [Discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) — host-led questions, evidence requirements, and build/adapt/no-build decision rules.
 10. [Reference policy-check specification](REFERENCE_POLICY_CHECK_SPEC.md) — conservative decision semantics, security requirements, and synthetic acceptance cases.
-11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.
+11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.\n12. [Synthetic policy API adapter](../../prototypes/community-policy-api/README.md) — isolated DRF wrapper and API tests; not mounted in Aidora or connected to a host.
 
 ## Current status — 23 November 2026
 
 - An exploratory eligibility and remote-participation enquiry was sent to Mozilla Fellowships; written clarification is pending.
 - An exploratory Embedded Fellow enquiry was sent to SRHIN; no host response, endorsement, or partnership is recorded.
 - No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
-- A synthetic ALLOW/DENY/REVIEW reference engine and 22 unit tests are in the repository; GitHub Actions run #10 passed (Python 3.12). This is not an SRHIN-specific or production implementation.
+- A synthetic ALLOW/DENY/REVIEW reference engine (22 core unit tests) and a separate DRF API adapter (4 API integration tests) are in the repository. The core test workflow's run #10 passed (Python 3.12); the new API workflow is configured, but its first run has not yet been verified. Neither prototype is an SRHIN-specific or production implementation.
 
 ## Current evidence
 
-- The repository already contains a more complete synthetic policy-check prototype and a companion reference specification. These are experimental engineering probes only; they do not establish an SRHIN-validated need, production access control, valid consent, or GA4GH/ODRL conformance. A dedicated GitHub Actions workflow is configured for the existing prototype; verify its run before claiming tests pass.
+- The repository contains a synthetic policy-check core, its reference specification, and an isolated Django REST Framework adapter. These are experimental engineering probes only; they do not establish an SRHIN-validated need, production access control, valid consent, or GA4GH/ODRL conformance. The core workflow has a passing run; the API workflow is newly configured and still requires a verified CI result.
 
 - Aidora was created and is owned by Yousef Abbas, who led its end-to-end technical design and principal implementation and continues to develop it.
 - Aidora is an academic working software project; it has not been confirmed as a live humanitarian deployment.
