@@ -4,7 +4,7 @@
 
 ## 1. Design objective
 
-Investigate whether community-defined governance decisions and benefit commitments can be represented and operationalised using existing open standards, rather than inventing a new data-use ontology or passport.
+Investigate whether decisions already made through SRHIN's community-governance processes can be carried accurately into downstream data/AI workflows using existing systems and standards. Do not recreate the host's governance framework or invent a new data-use ontology or passport.
 
 Candidate standards include:
 - **GA4GH DUO** for standardised, machine-readable data-use terms;
@@ -18,7 +18,7 @@ These standards have different purposes and are not automatically interchangeabl
 
 Affected person / trusted facilitator  
 → accessible explanation and choice support  
-→ community-defined governance and review process  
+→ existing community-defined governance decision (made through the host's approved process)  
 → existing host consent, data-use, and access systems  
 → standards mapping / profile only where needed  
 → host-approved policy check at one workflow boundary  
@@ -43,7 +43,7 @@ The standards mapping must answer:
 4. Which community rights—such as collective approval, appeal, contestation, or benefit-sharing oversight—are not adequately represented by the existing workflow?
 5. Can those gaps be addressed through agreements and governance rather than additional software?
 
-No new ontology, universal passport, or replacement community-governance framework is a deliverable by default. SRHIN's existing compensation/governance template and Epistemic Authority Decision Matrix must be treated as starting assets.
+No new ontology, universal passport, or replacement community-governance framework is a deliverable by default. SRHIN's compensation/governance template, Epistemic Authority Decision Matrix, and co-production readiness tool are existing host-authored assets—not requirements to be reimplemented.
 
 ## 4. Candidate technical components — only if the gap is validated
 
@@ -51,16 +51,11 @@ No new ontology, universal passport, or replacement community-governance framewo
 
 A small, versioned mapping layer may translate host-approved policy fields into DUO terms or ODRL expressions where the meaning is genuinely equivalent. It must preserve provenance and flag any field that cannot be represented without loss. It must never silently convert a community decision into a weaker permission.
 
-### B. Governance workflow
+### B. Decision hand-off and traceability
 
-A host-approved workflow may support:
-- submission of a proposed secondary use;
-- routing to the community-designated reviewer or committee;
-- approve, reject, condition, or request-more-information decisions;
-- reason capture, conflict-of-interest declaration, expiry, and appeal;
-- a traceable record of the governing policy version.
+Do not build a new community decision-making workflow unless SRHIN and affected communities explicitly identify that as a gap. The preferred first option is to consume or reference a decision already made through an existing host-approved process, preserve its provenance and applicable version, and carry its approved conditions to one downstream data/AI workflow. If no safe, authorised interface exists, document the hand-off rather than inventing one.
 
-The affected community and SRHIN define who holds decision authority. The software must not invent representation or assume one individual speaks for everyone.
+The affected community and SRHIN—not the developer—define who holds decision authority.
 
 ### C. Policy check
 
@@ -71,9 +66,9 @@ A narrow policy-check API may return:
 
 Every response should include a reason code, applicable policy or agreement version, and provenance. Missing or contradictory information should fail closed. It can enforce conditions only within systems that call it; it cannot prevent copying or use outside those integration boundaries.
 
-### D. Benefit-commitment record
+### D. Benefit/compensation traceability
 
-Record community-defined commitments, the responsible party, due date, evidence of delivery, review status, and a route to contest non-delivery. This is an accountability record, not a payment system or guarantee of legal enforcement. Benefit types and acceptable evidence must be defined by the community.
+SRHIN already publishes a lived-experience compensation and governance template. Do not create a competing policy or generic register. If the host and affected community identify a technical gap, link to the existing approved commitment record or agreement and expose only the minimum status, responsible party, and delivery evidence needed for review. This is not a payment system or guarantee of legal enforcement.
 
 ### E. Accessible explanation and challenge
 
@@ -108,13 +103,13 @@ Do not assume GENSCORE or GENCurate exposes an extension point. No production co
 ## 7. Twelve-month engineering plan
 
 ### Q1 — Discovery and standards fit (June–August 2027)
-- Map SRHIN systems, policies, LEEF guidance, co-design processes, data flows, and decision rights.
+- Map SRHIN systems, policies, LEEF guidance, co-design processes, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, data flows, and decision hand-offs.
 - Conduct host-approved, compensated discovery with community groups identified by SRHIN.
 - Compare requirements against DUO, GA4GH Passports/Data Passports, ODRL, and relevant host controls.
 - Deliver a gap analysis and a build/adapt/no-build decision.
 
 ### Q2 — Specification and alpha (September–November 2027)
-- If a gap is validated, specify a minimal governance workflow and standards mapping.
+- If a gap is validated, specify a minimal technical hand-off and standards mapping that complement the host's existing governance process.
 - Build an alpha adapter or workflow with synthetic data.
 - Add automated conformance, policy, and security tests.
 - Deliver documentation of semantic limitations and unresolved requirements.
