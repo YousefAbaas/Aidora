@@ -7,7 +7,7 @@ This prototype exists to make one narrow engineering idea inspectable: a downstr
 ## What it demonstrates
 
 - Three explicit outcomes: `ALLOW`, `DENY`, and `REVIEW`.
-- Fail-closed behaviour: incomplete, malformed, expired, conflicting, or unrecognised inputs never produce ALLOW.
+- Fail-closed behaviour for malformed, expired, duplicate/conflicting, or unrecognised approval inputs; explicit DENY takes precedence over approvals and REVIEW flags.
 - Version and reason-code traceability in the response.
 - A small, deterministic core that can be tested with Python's standard library.
 - Synthetic inputs only; no names, participant IDs, clinical narratives, or real host policy.
@@ -69,7 +69,11 @@ result = evaluate_policy(
 print(result["decision"])  # ALLOW
 ```
 
-The references above are fake placeholders. A real implementation would require an approved trust model and verifiable evidence; a string reference is not proof of approval.
+The references above are fake placeholders. A real implementation would require an approved trust model and verifiable evidence; a string reference is not proof of approval. Adversarial tests intentionally demonstrate that this prototype still trusts caller-supplied policy objects and non-empty approval-reference strings: an attacker able to alter those inputs can manufacture an ALLOW. These are documented prototype limitations, not acceptable production behaviour.
+
+## Adversarial test coverage
+
+The negative tests cover duplicate/conflicting approval records, expiry boundaries and malformed expiry values, explicit DENY precedence, and REVIEW precedence. Two tests deliberately expose unresolved trust-boundary weaknesses: fabricated approval references and caller-modified policy objects. The expected ALLOW in those tests is a warning that this function is not a security boundary. A future design would need a trusted policy registry, immutable/version-pinned policy retrieval, authenticated and verifiable approval evidence, and a separately reviewed enforcement boundary.
 
 ## Design rule
 
