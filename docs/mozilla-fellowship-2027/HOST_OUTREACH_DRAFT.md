@@ -10,7 +10,7 @@ Mozilla Foundation 2027 Embedded Fellowship — exploratory technical collaborat
 
 Hello SRHIN team,
 
-I am an Informatics Engineering student and software developer with hands-on experience building a full-stack humanitarian assistance platform called Aidora. I led most of its technical implementation using Flutter/Dart, Django REST Framework, PostgreSQL, REST APIs, authentication, and role-based workflows. Aidora was an academic project and has not been deployed as a live service, so I would describe it as engineering experience rather than field impact.
+I am an Informatics Engineering student and software developer. I created and own Aidora, a full-stack humanitarian assistance coordination platform, and serve as its principal developer and ongoing technical lead. I led its end-to-end design and implementation using Flutter/Dart, Django REST Framework, PostgreSQL, REST APIs, authentication, role-aware workflows, automated testing, and GitHub Actions delivery pipelines. Aidora was developed in an academic context and has not been deployed as a live humanitarian service, so I present it as evidence of engineering capability rather than field impact.
 
 I am exploring an application to the Mozilla Foundation 2027–2028 Fellowship, Track I (Embedded Fellows), and I am particularly interested in SRHIN's published challenge around community governance, consent, privacy, and benefit-sharing for mental-health data used in AI.
 
@@ -33,6 +33,6 @@ Best regards,
 - Add your preferred name and signature.
 - Describe your current university status accurately.
 - Confirm the primary country/time zone from which you would work.
-- Link Aidora only after checking contributor and university rights.
+- Link the Aidora repository and technical evidence; describe it as an academic prototype and do not imply a live humanitarian deployment.
 - Do not claim community co-design in Nigeria or a pre-existing relationship with SRHIN.
 - Do not send identity, medical, displacement, or financial documents at this introductory stage.
