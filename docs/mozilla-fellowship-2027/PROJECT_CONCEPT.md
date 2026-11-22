@@ -1,6 +1,6 @@
-# Project concept — Community Governance Layer for Health-AI Data Use
+# Project concept — Technical Bridge for Community-Governed Health-AI Data Use
 
-**Working title:** Community Governance Layer for Health-AI Data Use  
+**Working title:** Technical Bridge for Community-Governed Health-AI Data Use  
 **Track under consideration:** Mozilla Foundation Track I — Embedded Fellow  
 **Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria  
 **Status:** A proposal for discussion only. It is not approved by SRHIN, not co-designed with Nigerian communities, and not a working product.
