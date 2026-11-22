@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "prototypes/community-policy-check/**"
-      - ".github/workflows/community-policy-check.yml"
+      - ".github/workflows/community-policy-bridge.yml"
   pull_request:
     paths:
       - "prototypes/community-policy-check/**"
