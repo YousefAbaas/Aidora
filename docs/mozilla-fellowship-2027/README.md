@@ -25,7 +25,6 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 7. [SRHIN host enquiry record](HOST_OUTREACH_DRAFT.md) — exploratory email sent on 23 November 2026; awaiting response.
 8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
 9. [Discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) — host-led questions, evidence requirements, and build/adapt/no-build decision rules.
-10. [Experimental policy bridge prototype](../../prototypes/community-policy-bridge/README.md) — isolated Python demonstration using synthetic metadata only; not an SRHIN integration or standards implementation.
 10. [Reference policy-check specification](REFERENCE_POLICY_CHECK_SPEC.md) — conservative decision semantics, security requirements, and synthetic acceptance cases.
 11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.
 
@@ -37,7 +36,7 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 
 ## Current evidence
 
-- An isolated, host-neutral Python reference prototype now demonstrates fail-closed evaluation of a minimal policy envelope (`ALLOW` / `DENY` / `REVIEW`) using synthetic metadata. It is explicitly experimental and is not evidence of an SRHIN-validated need, a production control, valid consent, or conformance to GA4GH/ODRL. A dedicated GitHub Actions test workflow has been added; its run result must be checked before claiming tests pass.
+- The repository already contains a more complete synthetic policy-check prototype and a companion reference specification. These are experimental engineering probes only; they do not establish an SRHIN-validated need, production access control, valid consent, or GA4GH/ODRL conformance. A dedicated GitHub Actions workflow is configured for the existing prototype; verify its run before claiming tests pass.
 
 - Aidora was created and is owned by Yousef Abbas, who led its end-to-end technical design and principal implementation and continues to develop it.
 - Aidora is an academic working software project; it has not been confirmed as a live humanitarian deployment.
