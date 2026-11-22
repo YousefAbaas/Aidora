@@ -42,3 +42,17 @@ A successful evaluation returns HTTP 200 with `decision` (`ALLOW`, `DENY`, or `R
 - Do not use it to protect real data. Any host-specific implementation must first be co-designed and validated with the host and affected communities, and must reuse existing governance tools where appropriate.
 
 The core evaluator and its limitations are documented in `../community-policy-check/README.md`.
+
+## Synthetic audit-log experiment
+
+`audit_log.py` provides a small in-memory hash-chained event log for demonstrations. It records only the decision, policy identifier/version, reason codes, timestamp, sequence, previous hash, and event hash. It deliberately does not record request context, approval references, participant information, or raw data.
+
+Run its tests with:
+
+```bash
+python -m unittest -v test_audit_log.py
+```
+
+The adversarial tests cover event modification, middle-event deletion, reordering, previous-hash changes, event-hash changes, and malformed input. They also demonstrate an important limitation: deleting the final event leaves a valid shorter prefix. Detecting tail truncation requires an independently protected checkpoint or external anchoring of the latest chain hash.
+
+This implementation is an integrity demonstration only. The list is mutable in memory, hashes are not signatures, and there is no durable or independently protected storage. It is not an immutable audit system and must not be used for real or sensitive data.
