@@ -1,4 +1,4 @@
-name: Community Policy Bridge Prototype
+name: Synthetic Community Policy Check CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
       - "prototypes/community-policy-check/**"
-      - ".github/workflows/community-policy-check.yml"
+      - ".github/workflows/community-policy-bridge.yml"
   workflow_dispatch:
 
 permissions:
