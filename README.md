@@ -165,6 +165,7 @@ Do not commit local environment files, database credentials, signing keys, token
 - [CI/CD Notes](docs/ci-cd.md)
 - [Backend Setup and API](backend/README.md)
 - [API Integration Guide](API_INTEGRATION_GUIDE.md)
+- [Mozilla Fellowship preparation dossier](docs/mozilla-fellowship-2027/README.md)
 
 ## Screenshots
 
