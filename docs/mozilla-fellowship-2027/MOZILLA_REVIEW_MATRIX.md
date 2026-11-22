@@ -4,7 +4,7 @@
 
 ## Executive assessment
 
-The strongest defensible case is a **rising technical builder with an inspectable full-stack project (Aidora), early direct qualitative feedback from intended users, and a focused proposal to apply existing open data-use standards to community-defined governance and benefit-sharing in health AI**.
+The strongest defensible case is a **rising technical builder with an inspectable full-stack project (Aidora), early direct qualitative feedback from intended users, and a narrowly scoped proposal to connect SRHIN's existing community-governance decisions to downstream data/AI workflows—if a real technical gap is confirmed**.
 
 The main risks are not coding ability. They are:
 1. whether SRHIN confirms a specific, non-duplicative need after its existing community-engagement resources and systems are mapped;
@@ -19,7 +19,7 @@ The main risks are not coding ability. They are:
 
 The initial novelty check identified existing work that must be reused and credited: GA4GH DUO describes permitted data uses; GA4GH Passports and Data Passports address researcher permissions and data-level policy attributes; GA4GH Machine-Readable Consent Guidance maps consent language to DUO; W3C ODRL 2.2 expresses permissions, prohibitions, constraints, and duties. The proposal must not claim to invent a new data-use ontology, passport, or policy language.
 
-The only defensible potential contribution is a host- and community-validated governance workflow or standards mapping that addresses a demonstrated gap around collective decision rights, contestation/appeal, and benefit-commitment accountability. If existing standards and SRHIN's current processes already address that gap, do not build a new tool.
+The only defensible potential contribution is a host- and community-validated technical hand-off or integration that carries decisions already made through SRHIN's existing authority and compensation processes into one downstream data/AI workflow. If SRHIN's current processes and systems already do this adequately, do not build a new tool.
 
 ## B. The three questions Mozilla asks of every investment
 
@@ -29,8 +29,8 @@ The only defensible potential contribution is a host- and community-validated go
 - Separate individual preferences and collective/community governance rules.
 - Purpose-specific conditions rather than blanket permission.
 - Plain-language access to current choices and a route to request changes.
-- Community-designated authority to review, approve, reject, or condition secondary-use requests.
-- A record of what was decided, by whom, under which applicable policy version, and why.
+- Faithfully carry community-designated decisions—made through existing approved processes—into downstream requests without weakening or reinterpreting them.
+- A traceable reference to what was decided, by whom, under which applicable policy/agreement version, and why—only to the extent approved by the host and community.
 
 **What reviewers may challenge**
 - A consent screen is not meaningful control by itself.
@@ -72,7 +72,7 @@ The only defensible potential contribution is a host- and community-validated go
 
 **What the proposal offers**
 - Community-defined data-use conditions for data-access and AI-use requests.
-- A record of benefit commitments, owners, deadlines, and delivery evidence.
+- A minimal link to existing community-defined compensation/benefit commitments and approved delivery-status evidence, not a replacement policy or generic register.
 - Greater transparency when researchers or organisations request secondary use.
 - Potential leverage for communities to negotiate conditions before data is reused.
 
