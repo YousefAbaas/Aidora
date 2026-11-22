@@ -43,6 +43,10 @@ Official FAQ: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellow
 | Public benefit | 150 words | Explain how open governance tools and methods could help beyond the pilot. |
 | Work in the open | Select | Open-source software, documentation, educational materials, research, workshops. Never publish sensitive data merely for openness. |
 
+## Technical evidence
+
+Use [AIDORA_TECHNICAL_EVIDENCE.md](AIDORA_TECHNICAL_EVIDENCE.md) as the source-of-truth index for the applicant's documented role, architecture, GitHub engineering history, CI/CD implementation, and the limits of what the repository proves.
+
 ## Professional background
 
 | Field | Limit | Evidence |
