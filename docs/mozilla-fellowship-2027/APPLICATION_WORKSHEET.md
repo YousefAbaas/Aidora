@@ -32,7 +32,7 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 
 | Official field / limit | Preparation direction |
 |---|---|
-| Project title — 10 words max | Community Governance for Health-AI Data Use |
+| Project title — 10 words max | Technical Bridge for Community-Governed Health-AI Data Use |
 | Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF, co-design, compensation/governance, Epistemic Authority Decision Matrix, and co-production readiness resources; acknowledge relevant GA4GH/W3C standards; define the narrower question of whether a technical hand-off gap remains between those existing community decisions and downstream data/AI workflows; state Q1 validation and build/adapt/no-build condition. Explain the independent public-interest project will be co-defined with the host, not merely deliver a service to existing SRHIN programmes. |
 | One-liner — 30 words | A community-led technical bridge connecting existing community-governance decisions to downstream health-AI data workflows—only if SRHIN and affected communities validate a real gap. |
 | Target users — 50 words | Young people and people with lived experience; community health workers/facilitators; community-designated data stewards; researchers and technical teams. Confirm actual groups with SRHIN. |
