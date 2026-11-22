@@ -3,12 +3,12 @@ name: Community Policy Bridge Prototype
 on:
   push:
     paths:
-      - "prototypes/community-policy-bridge/**"
-      - ".github/workflows/community-policy-bridge.yml"
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-check.yml"
   pull_request:
     paths:
-      - "prototypes/community-policy-bridge/**"
-      - ".github/workflows/community-policy-bridge.yml"
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-check.yml"
   workflow_dispatch:
 
 permissions:
@@ -27,5 +27,5 @@ jobs:
           python-version: "3.12"
 
       - name: Run unit tests
-        working-directory: prototypes/community-policy-bridge
+        working-directory: prototypes/community-policy-check
         run: python -m unittest -v
