@@ -86,7 +86,7 @@ class TokenManager {
           )
           .timeout(const Duration(seconds: 15));
 
-      debugPrint('   â† ${response.statusCode} ${response.body}');
+      if (kDebugMode) debugPrint('   <- refresh status ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
