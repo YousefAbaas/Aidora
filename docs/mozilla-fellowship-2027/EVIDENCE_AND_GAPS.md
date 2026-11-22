@@ -112,13 +112,13 @@ Potential strength: a portable manifest schema, open API, reference implementati
 Proof needed: a clean open-source release, interoperable documentation, maintenance plan, and evidence that the approach is not locked to one vendor. Sensitive data must remain private.
 
 ### Economic conditions
-Potential strength: traceable community-defined benefit commitments may improve accountability and bargaining power.
+Potential strength: technically traceable follow-through on community-defined benefit and compensation commitments may improve accountability. SRHIN already publishes a compensation/governance template, so the unresolved question is implementation and accountability—not inventing another policy template.
 
 Proof needed: the community itself must define benefits and the mechanism through which commitments are negotiated, monitored, and contested. A register alone does not change market power; the project must test whether it changes practice.
 
 ## 9. Critical submission gates
 
-1. SRHIN confirms that a real, non-duplicative gap exists and is willing to support the applicant's Embedded project.
+1. SRHIN confirms that a real, non-duplicative technical/operational gap remains after reviewing its existing governance resources and is willing to support the applicant's Embedded project.
 2. Community groups and decision-making authority are defined by the host and affected people, not assumed by the applicant.
 3. The applicant confirms the primary city/country where he will reside and work during the Fellowship, time-zone flexibility, legal ability to receive funds in that country, and a personal bank account that can receive U.S. funds.
 4. The exact pilot, ethics approval, local data-protection/legal review, security review, and safeguarding arrangements are agreed before real mental-health data is used.
@@ -128,8 +128,8 @@ Proof needed: the community itself must define benefits and the mechanism throug
 ## 10. Recommended order of work
 
 1. Send the SRHIN exploratory enquiry after the applicant reviews and personally approves it.
-2. Map SRHIN's LEEF, co-design guide, GENSCORE, GENCurate, consent processes, data-use agreements, and governance.
-3. Validate whether a portable policy manifest and policy-checking reference implementation solve a real gap.
+2. Map SRHIN's LEEF, co-design guide, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent processes, data-use agreements, and governance.
+3. Validate whether an integration/workflow that carries SRHIN-defined authority and obligations into an actual data-use/AI lifecycle solves a real gap; do not assume a new schema is needed.
 4. Assemble Aidora technical evidence and a short, honest demo.
 5. Resolve primary residence, funding/banking eligibility, and remote/time-zone feasibility before legal self-certification.
 6. Only then prepare the applicant's own Letter of Intent responses.
