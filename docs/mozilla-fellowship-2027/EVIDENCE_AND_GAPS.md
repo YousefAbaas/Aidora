@@ -132,9 +132,9 @@ Proof needed: the community itself must define benefits and the mechanism throug
 
 ## 10. Recommended order of work
 
-1. Send the SRHIN exploratory enquiry after the applicant reviews and personally approves it.
+1. SRHIN exploratory enquiry sent on 23 November 2026; await its response and pursue at most one polite follow-up after a reasonable interval.
 2. Map SRHIN's LEEF, co-design guide, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent processes, data-use agreements, and governance.
 3. Validate whether an integration/workflow that carries SRHIN-defined authority and obligations into an actual data-use/AI lifecycle solves a real gap; do not assume a new schema is needed.
-4. Assemble Aidora technical evidence and a short, honest demo.
+4. An isolated synthetic policy-evaluation prototype has been added as an engineering probe. Verify its dedicated CI run, review its limitations, and do not present it as host-validated or production-ready.
 5. Resolve primary residence, funding/banking eligibility, and remote/time-zone feasibility before legal self-certification.
 6. Only then prepare the applicant's own Letter of Intent responses.
