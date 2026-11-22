@@ -43,7 +43,7 @@ The standards mapping must answer:
 4. Which community rights—such as collective approval, appeal, contestation, or benefit-sharing oversight—are not adequately represented by the existing workflow?
 5. Can those gaps be addressed through agreements and governance rather than additional software?
 
-No new ontology or universal passport is a deliverable by default.
+No new ontology, universal passport, or replacement community-governance framework is a deliverable by default. SRHIN's existing compensation/governance template and Epistemic Authority Decision Matrix must be treated as starting assets.
 
 ## 4. Candidate technical components — only if the gap is validated
 
@@ -69,7 +69,7 @@ A narrow policy-check API may return:
 - **DENY** — it conflicts with an explicit prohibition or hard constraint;
 - **REVIEW** — human/community decision or missing evidence is required.
 
-Every response should include a reason code, policy/manifest version, and provenance. Missing or contradictory information should fail closed. It can enforce conditions only within systems that call it; it cannot prevent copying or use outside those integration boundaries.
+Every response should include a reason code, applicable policy or agreement version, and provenance. Missing or contradictory information should fail closed. It can enforce conditions only within systems that call it; it cannot prevent copying or use outside those integration boundaries.
 
 ### D. Benefit-commitment record
 
