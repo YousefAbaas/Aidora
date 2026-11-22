@@ -1,14 +1,14 @@
-# Aidora evidence and Fellowship readiness gaps
+# Aidora evidence and Mozilla Fellowship readiness gaps
 
-This document distinguishes repository evidence from claims that still need confirmation. It is intended to prevent accidental overstatement in the Mozilla application.
+This document distinguishes what is evidenced by the repository and applicant confirmation from what remains a hypothesis or must be independently validated. It is designed to prevent overstating Aidora's traction or the new Fellowship proposal.
 
-## 1. Evidence visible in the repository
+## 1. Aidora — verified engineering evidence
 
 Repository: https://github.com/YousefAbaas/Aidora
 
-The public README currently describes Aidora as a fourth-year Informatics Engineering academic project for coordinating humanitarian assistance between displaced communities, organisations, and volunteers.
+The applicant confirms that he created and owns Aidora and is its principal developer and ongoing technical lead. The repository identifies his role in end-to-end technical design and implementation.
 
-The README and documentation describe:
+The project contains:
 - Flutter/Dart mobile application using GetX.
 - Django REST Framework backend and PostgreSQL persistence.
 - REST/JSON client-server integration.
@@ -16,98 +16,112 @@ The README and documentation describe:
 - Assistance requests, service discovery, volunteer tasks, and QR completion checks.
 - Arabic and English user interfaces.
 - Backend domains for accounts, organisations, and service requests.
-- Unit, widget, and integration test structure.
-- GitHub Actions workflows and Docker development setup.
+- Unit, widget, integration, and Django test structures.
+- Separate GitHub Actions workflows for Flutter and Django.
+- Android build/signing and Firebase App Distribution automation.
+- Docker/Docker Compose development setup.
 
-The project README and architecture documentation identify Yousef Abbas as the creator, owner, principal developer, and lead for the end-to-end technical design and implementation. The applicant has directly confirmed that Aidora is his project and that he is its primary ongoing developer.
-
-Useful links:
+Useful evidence:
 - Project README: https://github.com/YousefAbaas/Aidora
-- Architecture: https://github.com/YousefAbaas/Aidora/blob/main/docs/architecture.md
-- Backend README: https://github.com/YousefAbaas/Aidora/blob/main/backend/README.md
-- Engineering decisions: https://github.com/YousefAbaas/Aidora/blob/main/docs/engineering-decisions.md
-- Test suite description: https://github.com/YousefAbaas/Aidora/blob/main/test/README.md
+- Architecture: https://github.com/YousefAbaas/Aidora/blob/mozilla-2027-prep/docs/architecture.md
+- Backend documentation: https://github.com/YousefAbaas/Aidora/blob/mozilla-2027-prep/backend/README.md
+- CI/CD notes: https://github.com/YousefAbaas/Aidora/blob/mozilla-2027-prep/docs/ci-cd.md
+- Mozilla technical evidence dossier: AIDORA_TECHNICAL_EVIDENCE.md
 
-## 2. Confirmed limitations from the applicant's current answers
+Illustrative commits document architecture, API integration, PostgreSQL CI configuration, Firebase distribution automation, and removal/ignoring of production database dumps. Workflow definitions prove that automation is configured in the repository; the latest successful run must be checked separately before making a CI success claim.
 
-| Topic | Current known position | How to describe it honestly |
+## 2. Direct community feedback on Aidora — applicant-confirmed
+
+The applicant has confirmed that, during Aidora's initial launch, he spoke directly with refugees and people who needed assistance and asked for their views on the application. The initial feedback was positive.
+
+This should be described as **early, qualitative community feedback**. No participant count, dates, structured research protocol, written quotations, formal consent record, or measured outcome has been supplied so far.
+
+Appropriate wording:
+- “I sought direct feedback from refugees and people seeking assistance during Aidora's initial launch; the early responses were positive.”
+- “Those conversations reinforced the importance of listening to intended users while building a service.”
+
+Do not describe this as:
+- a formal user study or representative survey;
+- formal participatory co-design unless there is evidence of shared design decisions;
+- a deployed humanitarian service or active-user base;
+- measured improvement in access to aid or any other outcome;
+- evidence of consultation with Nigerian mental-health communities.
+
+If the applicant can later provide approximate dates, setting, number of conversations (only if known), the topics raised, and specific design changes made, this section can be strengthened without naming participants.
+
+## 3. Ownership and licence
+
+Aidora is identified as created and owned by Yousef Abbas, who led its end-to-end technical design and principal implementation. The repository's Apache License 2.0 notice identifies **Copyright 2026 Yousef Abbas**. Copyright ownership is compatible with Apache 2.0: the owner retains copyright while granting recipients the licence permissions, subject to the licence conditions.
+
+Third-party packages, libraries, fonts, and externally sourced assets remain governed by their respective licences. Do not claim ownership of those materials.
+
+## 4. What Aidora does and does not establish
+
+It establishes a credible record of building a multi-layer software system and maintaining an engineering repository. It supports the applicant's ability to build an API, role-aware workflows, a database-backed application, tests, and a delivery pipeline.
+
+It does not establish specialist expertise in clinical mental-health research, Nigerian health data governance, privacy law, or SRHIN's internal systems. The application should present the applicant as a capable software builder ready to learn from the host's clinical, ethics, technical, and community expertise.
+
+## 5. SRHIN context discovered in public materials
+
+The 2027–2028 Mozilla RFP asks SRHIN to explore community-owned tools for governance, consent, privacy, and benefit-sharing around mental-health data used in AI, and to pilot with young people, people with lived experience, and community health workers.
+
+SRHIN also publicly describes:
+- GENSCORE and its work combining AI, lived experience, and local knowledge;
+- GENCurate as a data capture/transcription/analysis platform;
+- community-centred and lived-experience approaches;
+- the LEEF pre-launch checklist for digital mental-health tools;
+- a guide for people with lived experience to participate in AI mental-health tool design.
+
+The project must build on these existing assets. Its initial hypothesis is not that SRHIN lacks co-design or consent principles. It is that a specific operational gap may remain in carrying community-defined data-use conditions through downstream access, reuse, AI training/evaluation, audit, withdrawal and benefit-sharing. Only SRHIN and the affected communities can validate this.
+
+Relevant public resources:
+- LEEF checklist: https://resources.srhin.org/item/leef-checklist
+- Lived-experience AI co-design guide: https://resources.srhin.org/item/ai-co-design-guide
+- SRHIN work: https://srhin.org/our-work/
+- GENCurate: https://srhin.org/alpha-center/
+
+## 6. Mozilla's six decision questions — candid assessment
+
+| Mozilla question | Current evidence | Remaining gap / required action |
 |---|---|---|
-| Actual use | Academic only; no external real-world deployment confirmed | “Academic project / working prototype”, not “deployed humanitarian platform”. |
-| Community input | Some engagement or discussion occurred | Record who, when, what they said, and which design choices changed. Do not call it formal co-design unless that is accurate. |
-| Code ownership | Applicant confirms that he created and owns Aidora and is its principal developer | State clearly that he is the project creator and owner. Attribute third-party libraries and assets under their own licences. |
-| SRHIN relationship | None established in this preparation work | Do not imply SRHIN endorsement, partnership, access, or approval. |
-| New governance project | Concept only | Select “Concept or wireframe only” unless a separate prototype is actually built. |
-| Mental-health research | No established direct experience evidenced here | Be candid; explain relevant transferable engineering skills and willingness to learn from the host. |
+| Is it early? | The RFP defines a community-owned governance challenge; the proposed portable policy manifest and policy-checking layer are a possible technical response. | Prove the gap is not already addressed by SRHIN's existing tools, agreements, or governance processes. |
+| Who is it for? | RFP identifies young people, people with lived experience, and community health workers. | SRHIN and those communities must identify actual users, workflows, languages, and decision-makers. |
+| Can you build it? | Aidora provides evidence of full-stack implementation, API/data architecture, tests, CI/CD, and release automation. | Prepare a demonstrable clean build, current CI run links, and a focused 12-month definition of done. |
+| Who holds the power? | Applicant has experience asking intended users for feedback on Aidora. | That feedback is not Nigerian co-design. The Fellowship project must give affected communities real authority over rules, approvals, review, and evaluation. |
+| What do you bring to / take from the cohort? | Applicant brings practical mobile/backend engineering and experience engaging intended users. | Articulate a specific contribution and learning agenda covering data governance, privacy engineering, community research, and public-interest technology. |
+| Could you become a defining voice? | Aidora and the proposed open governance tool provide a credible foundation for an emerging public-interest software builder. | This requires a distinctive, shipped result, public documentation, peer exchange, and sustained community accountability—not a title claim. |
 
-## 3. Technical claims that need evidence before submission
+## 7. Mozilla's three investment questions
 
-- Demonstrate that the public repository builds and tests from a clean checkout.
-- Capture a short demo or screen recording of real Aidora workflows, with test accounts and no real beneficiary data.
-- Provide a simple architecture diagram and explain what the applicant personally implemented.
-- Distinguish code that is complete from functionality documented but not independently verified.
-- Verify current CI status in GitHub Actions; the presence of a workflow file alone does not prove a successful current run.
-- Avoid describing the production security configuration as independently audited. Backend documentation describes security controls, but a repository review is not a penetration test or compliance audit.
-- Remove or rotate any credential, token, signing material, private URL, or personal data if one is ever found in source control. No such disclosure is alleged by this note.
+### Agency
+Potential strength: individual permissions and community-level rules can be specific, reviewable, revisable, and linked to governance decisions.
 
-## 4. Project ownership and open-source licensing
+Proof needed: evidence that participants understand their choices and that a community-designated body can approve/reject/condition proposed uses. The tool must not imply that an individual click alone resolves every ethical or legal issue.
 
-The applicant has confirmed that Aidora is his project: he created it, owns it, leads its ongoing development, and is its principal technical contributor. The root README and architecture documentation describe his end-to-end role across the Flutter client, Django backend, database and API design, integration, testing, and delivery automation.
+### Commons
+Potential strength: a portable manifest schema, open API, reference implementation, tests, and implementation guide could be reusable by other organisations and platforms.
 
-The repository's Apache License 2.0 notice now identifies **Copyright 2026 Yousef Abbas**. The backend README and project README use consistent authorship and licensing language. Copyright ownership and an open-source licence are compatible: the creator retains copyright while granting users the permissions stated in Apache 2.0, subject to its conditions.
+Proof needed: a clean open-source release, interoperable documentation, maintenance plan, and evidence that the approach is not locked to one vendor. Sensitive data must remain private.
 
-Third-party dependencies and externally sourced assets remain under their respective licences. The application should not claim ownership of those separate materials. The prior backend wording that described the backend as proprietary has been removed because it contradicted the repository-wide Apache 2.0 notice.
+### Economic conditions
+Potential strength: traceable community-defined benefit commitments may improve accountability and bargaining power.
 
-## 5. Community evidence to assemble
+Proof needed: the community itself must define benefits and the mechanism through which commitments are negotiated, monitored, and contested. A register alone does not change market power; the project must test whether it changes practice.
 
-For every discussion or feedback activity the applicant mentioned, record privately:
-- Approximate date and setting.
-- Participant group (avoid names and unnecessary personal data).
-- Number of participants, only if known.
-- How participants were invited and whether participation was voluntary.
-- The questions or topics discussed.
-- Key themes in participants' own terms.
-- What changed in Aidora as a result.
-- What did not change and why.
-- Whether notes, consent, or supervisor confirmation exist.
+## 8. Critical submission gates
 
-Do not reconstruct or invent participant quotes, counts, or outcomes. If there are no written records, describe the discussion as informal and limited.
+1. SRHIN confirms that a real, non-duplicative gap exists and is willing to support the applicant's Embedded project.
+2. Community groups and decision-making authority are defined by the host and affected people, not assumed by the applicant.
+3. The applicant confirms the primary city/country where he will reside and work during the Fellowship, time-zone flexibility, legal ability to receive funds in that country, and a personal bank account that can receive U.S. funds.
+4. The exact pilot, ethics approval, local data-protection/legal review, security review, and safeguarding arrangements are agreed before real mental-health data is used.
+5. Aidora demo and current CI run status are verified.
+6. The final application is written in the applicant's own ideas and voice. Mozilla allows AI for brainstorming, clarification, and translation, but warns against AI-generated complete responses.
 
-## 6. SRHIN-specific evidence to obtain
+## 9. Recommended order of work
 
-Public information reviewed for this preparation:
-- SRHIN describes work in mental health, digital health/AI/data science, community organising, research, and lived experience.
-- SRHIN describes GENSCORE as an initiative bringing together AI, lived experience, and local knowledge for culturally grounded screening.
-- SRHIN describes GENCurate as a data platform for capturing, transcribing, and analysing patient data.
-- The Mozilla RFP separately identifies a community-governance, consent, privacy, and benefit-sharing challenge for SRHIN.
-
-What is not known:
-- Whether SRHIN has already implemented consent, data-use governance, withdrawal, audit, and benefit-sharing controls.
-- Whether SRHIN would consider the applicant for a remote Embedded role.
-- Whether it has an integration point or technical preference for a governance layer.
-- Which communities would want to participate and on what terms.
-- Whether the host expects a particular language, clinical background, or Nigeria-based experience beyond the published preferences.
-
-The first conversation should validate these matters before any technical assumptions are treated as requirements.
-
-## 7. Applicant eligibility and practical feasibility
-
-Resolve before answering “Yes” to Mozilla's legal eligibility question:
-- Primary city and country of residence during the Fellowship (June 2027 onward).
-- Whether the applicant can legally receive a grant/stipend from Mozilla in that country.
-- Whether an account in the applicant's own name can receive USD payments from the U.S.-based funder.
-- Whether any applicable sanctions, banking restrictions, local rules, or transfer screening affect the proposed route.
-- Tax and reporting obligations in the place of residence/work.
-
-For Embedded Track I:
-- Confirm the applicant can work flexibly with the host's WAT (UTC+1) schedule.
-- The RFP identifies Nigeria as SRHIN's location preference; being remote from elsewhere is not an automatic guarantee of host preference.
-- Confirm availability for the full 12-month project and cohort participation.
-
-## 8. Immediate priority order
-
-1. Contact SRHIN to ask whether it would consider a remote applicant and to validate the project gap.
-2. Resolve grant/banking eligibility with Mozilla and the receiving bank before the legal self-certification.
-3. Document the actual community feedback already received for Aidora.
-4. Resolve contributor and university rights before making a public licensing claim.
-5. Prepare an honest Aidora demo and technical evidence package.
-6. Only then turn the concept into the applicant's own Letter of Intent answers.
+1. Send the SRHIN exploratory enquiry after the applicant reviews and personally approves it.
+2. Map SRHIN's LEEF, co-design guide, GENSCORE, GENCurate, consent processes, data-use agreements, and governance.
+3. Validate whether a portable policy manifest and policy-checking reference implementation solve a real gap.
+4. Assemble Aidora technical evidence and a short, honest demo.
+5. Resolve primary residence, funding/banking eligibility, and remote/time-zone feasibility before legal self-certification.
+6. Only then prepare the applicant's own Letter of Intent responses.
