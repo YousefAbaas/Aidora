@@ -47,8 +47,8 @@ Official FAQ: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellow
 
 | Field | Limit | Evidence |
 |---|---:|---|
-| Relevant experience | 150 words | Aidora plus other substantiated projects. Clearly state academic context and your personal contribution. |
-| Technical expertise | 100 words | Flutter/Dart, Python, Django REST Framework, REST APIs, PostgreSQL, authentication, role-aware workflows, integration and testing actually implemented. |
+| Relevant experience | 150 words | Aidora was created and is owned by the applicant, who led its end-to-end technical design and principal implementation. State its academic context honestly and support the technical role with repository and commit evidence. |
+| Technical expertise | 100 words | Flutter/Dart, Python, Django REST Framework, REST APIs, PostgreSQL, authentication, role-aware workflows, integration, automated Flutter/Django tests, GitHub Actions, Android signing and Firebase App Distribution automation actually implemented. |
 | Your role in the field | 150 words | Your own credible professional direction in public-interest technology. |
 | What's next? | 150 words | Potential maintenance, wider adoption, and open standards as possibilities, not commitments. |
 
@@ -67,7 +67,7 @@ If AI tools helped prepare the application, disclose their use accurately. The f
 - [ ] Existing GENSCORE/GENCurate workflows are understood sufficiently to avoid duplication.
 - [ ] Grant and banking eligibility are confirmed for the primary residence/work country.
 - [ ] The 12-month commitment and cohort/time-zone requirements are feasible.
-- [ ] Aidora contributor, university, and licensing rights are sufficiently clarified.
+- [ ] Aidora is consistently attributed to Yousef Abbas as creator and owner; the repository's Apache 2.0 notice is consistent and third-party components retain their own licence notices.
 - [ ] Community discussions, project outcomes, deployments, users, and technical features are evidenced accurately.
 - [ ] Final answers are in the applicant's own voice.
 
