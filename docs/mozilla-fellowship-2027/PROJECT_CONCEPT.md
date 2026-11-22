@@ -13,7 +13,7 @@ This is not evidence that SRHIN lacks responsible practices. SRHIN publicly desc
 
 **The narrower hypothesis:** even where good engagement and consent practices exist, can community-defined decisions and obligations be reliably represented in existing data-use standards and carried through the operational lifecycle of health-AI data—from a proposed secondary use, through approval and access, to audit, challenge, and benefit-commitment review?
 
-The first stage must map SRHIN's current systems, agreements, consent processes, technical controls, governance, and community decision-making. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product.
+The first stage must map SRHIN's current systems, agreements, consent processes, technical controls, and community decision-making—including how its compensation/governance template and Epistemic Authority Decision Matrix are used in practice. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product. If existing tools already meet the need, the project must adapt or stop. It must not build a duplicate product.
 
 ## 2. Novelty: build on standards, do not reinvent them
 
@@ -28,13 +28,13 @@ These are not interchangeable products, and their applicability to SRHIN's menta
 
 **The possible contribution is narrower and host-specific:** work with SRHIN and affected communities to determine whether existing standards adequately represent community decision rights, contestation and appeal, context-specific governance, and benefit-sharing commitments—and, only where a validated gap remains, develop an openly documented profile, mapping, workflow, or integration adapter that complements those standards.
 
-The proposed project is therefore a **community-governance and accountability layer**, not a new universal data-use standard or a new consent app.
+The proposed project is therefore a **technical implementation and accountability bridge for existing community governance**, not a new universal data-use standard, consent app, or replacement policy framework.
 
 ## 3. Fit with SRHIN's existing work
 
 The proposal is intended to complement, not replace:
 - **LEEF:** build on the lived-experience pre-launch checklist.
-- **The lived-experience AI co-design guide:** use it as a starting point for accessible, meaningful participation.
+- **The lived-experience AI co-design guide, compensation/governance template, Epistemic Authority Decision Matrix, and co-production readiness tool:** treat these as existing host-authored foundations; do not reproduce them. Determine whether and how they are used in actual data/AI workflows.
 - **GENSCORE:** do not build another screening model or diagnostic tool.
 - **GENCurate:** do not rebuild patient-data capture, transcription, or analysis; investigate downstream governance only if discovery identifies a genuine gap.
 
@@ -78,7 +78,7 @@ No new standard should be created if an existing one can represent the requireme
 
 ## 7. A realistic 12-month pathway
 
-**Q1 — Discover and decide (June–August 2027).** Map SRHIN systems, policies, LEEF/co-design processes, consent, data flows, governance, benefit expectations, and relevant standards. Conduct host-approved, compensated discovery with the groups SRHIN identifies. Deliver a jointly validated gap analysis and a build / adapt / no-build decision.
+**Q1 — Discover and decide (June–August 2027).** Map SRHIN systems, policies, LEEF/co-design processes, compensation/governance tools, consent, data flows, governance, benefit expectations, and relevant standards. Conduct host-approved, compensated discovery with the groups SRHIN identifies. Deliver a jointly validated gap analysis and a build / adapt / no-build decision.
 
 **Q2 — Specify and prototype (September–November 2027).** If a gap is validated, define the smallest community governance workflow and standards mapping. Build an alpha using synthetic data, with tests for policy interpretation and human-review paths.
 
@@ -109,7 +109,7 @@ During Aidora's initial launch, the applicant spoke directly with refugees and p
 
 ## 10. Conditions that must be satisfied
 
-- SRHIN confirms a specific unmet need after reviewing existing tools and standards.
+- SRHIN confirms a specific unmet technical/operational need after reviewing existing governance tools, workflows, and standards.
 - SRHIN is willing to consider the applicant as an Embedded Fellow and support community-led discovery.
 - Affected communities define their decision-making role, compensation, accessibility, and safeguarding arrangements.
 - The proposed work is demonstrably additive to DUO, GA4GH Data Passports, ODRL, and SRHIN's existing work.
