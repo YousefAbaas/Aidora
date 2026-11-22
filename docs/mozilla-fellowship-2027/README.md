@@ -10,7 +10,7 @@ This is a provisional fit because the RFP specifically identifies SRHIN's challe
 
 ## The proposal in one sentence
 
-Explore whether a portable, community-defined **Data Use Manifest** and a small open policy-checking service can carry agreed data-use conditions into downstream access and AI workflows, making decisions, audit, withdrawal limits, and benefit commitments more visible and accountable.
+Explore whether existing open standards—GA4GH DUO, GA4GH Passports/Data Passports, and W3C ODRL—can be applied to community-defined decision rights and benefit commitments in SRHIN's health-AI data workflows, with a small adapter or governance workflow only if a validated gap remains.
 
 This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery and validation phase. A no-build or pivot decision is acceptable if SRHIN and affected communities find the gap is already addressed.
 
@@ -18,7 +18,7 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 
 1. [Mozilla review matrix](MOZILLA_REVIEW_MATRIX.md) — the three investment questions, six selection questions, risks, evidence, and stop conditions.
 2. [Project concept](PROJECT_CONCEPT.md) — problem hypothesis, host fit, intended users, scope, and 12-month outputs.
-3. [Technical and ethical design](TECHNICAL_AND_ETHICAL_DESIGN.md) — manifest schema, policy API, policy engine, safeguards, integration, testing, and release.
+3. [Technical and ethical design](TECHNICAL_AND_ETHICAL_DESIGN.md) — standards mapping, governance workflow, possible adapter, safeguards, integration, testing, and release.
 4. [Aidora technical evidence](AIDORA_TECHNICAL_EVIDENCE.md) — ownership, architecture, verifiable commits, CI/CD, successful workflow runs, and evidence boundaries.
 5. [Evidence and gaps](EVIDENCE_AND_GAPS.md) — Aidora proof, early direct community feedback, candid fit assessment, and submission gates.
 6. [Letter of Intent worksheet](APPLICATION_WORKSHEET.md) — official form fields, word limits, and answer-planning notes.
@@ -32,7 +32,7 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 - The latest visible GitHub Actions runs on `main`, dated 15 November 2026, passed both Django CI and Flutter CI. The Flutter run also completed signed Android release distribution to Firebase App Distribution.
 - The applicant's experience is transferable software engineering, not specialist mental-health or Nigerian data-governance expertise.
 - SRHIN's public materials include GENSCORE, GENCurate, the LEEF pre-launch checklist, and a lived-experience guide for AI mental-health tool design. The proposal must avoid duplication and verify the actual gap with SRHIN.
-- The potential Fellowship project is a concept. No SRHIN partnership, endorsement, access, or community co-design in Nigeria is claimed.
+- A preliminary novelty review identified GA4GH DUO, GA4GH Passports/Data Passports, GA4GH Machine-Readable Consent Guidance, and W3C ODRL as relevant existing work. The proposal is reframed to build on them, not claim to invent a new data-use passport or ontology.\n- The potential Fellowship project is a concept. No SRHIN partnership, endorsement, access, or community co-design in Nigeria is claimed.
 
 ## Accuracy and ethics rules
 
@@ -52,6 +52,6 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 - SRHIN LEEF checklist: https://resources.srhin.org/item/leef-checklist
 - SRHIN lived-experience AI co-design guide: https://resources.srhin.org/item/ai-co-design-guide
 - SRHIN work: https://srhin.org/our-work/
-- SRHIN GENCurate: https://srhin.org/alpha-center/
+- SRHIN GENCurate: https://srhin.org/alpha-center/\n- GA4GH DUO: https://www.ga4gh.org/product/data-use-ontology-duo/\n- GA4GH Data Passports: https://www.ga4gh.org/product/data-passports/\n- GA4GH Passports: https://www.ga4gh.org/product/passports/\n- GA4GH Machine-Readable Consent Guidance: https://www.ga4gh.org/product/machine-readable-consent-guidance/\n- W3C ODRL 2.2: https://www.w3.org/TR/odrl-model/
 
 **Letter of Intent deadline:** 17 December 2026, 11:59 PM Pacific (UTC−8). The 12-month Fellowship begins 1 June 2027.
