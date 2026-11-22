@@ -4,7 +4,7 @@
 
 ## Executive assessment
 
-The strongest defensible case is a **rising technical builder with an inspectable full-stack project (Aidora), early direct qualitative feedback from intended users, and a focused proposal to operationalise community-defined data-use rules for health AI**.
+The strongest defensible case is a **rising technical builder with an inspectable full-stack project (Aidora), early direct qualitative feedback from intended users, and a focused proposal to apply existing open data-use standards to community-defined governance and benefit-sharing in health AI**.
 
 The main risks are not coding ability. They are:
 1. whether SRHIN confirms a specific, non-duplicative need after its existing community-engagement resources and systems are mapped;
@@ -15,7 +15,7 @@ The main risks are not coding ability. They are:
 
 **Do not call the application “10/10” until these gates are resolved.** The target is a complete, evidence-backed application with no avoidable weaknesses—not a fabricated guarantee of selection.
 
-## A. The three questions Mozilla asks of every investment
+## A. Novelty and standards landscape\n\nThe initial novelty check identified existing work that must be reused and credited: GA4GH DUO describes permitted data uses; GA4GH Passports and Data Passports address researcher permissions and data-level policy attributes; GA4GH Machine-Readable Consent Guidance maps consent language to DUO; W3C ODRL 2.2 expresses permissions, prohibitions, constraints, and duties. The proposal must not claim to invent a new data-use ontology, passport, or policy language.\n\nThe only defensible potential contribution is a host- and community-validated governance workflow or standards mapping that addresses a demonstrated gap around collective decision rights, contestation/appeal, and benefit-commitment accountability. If existing standards and SRHIN's current processes already address that gap, do not build a new tool.\n\n## B. The three questions Mozilla asks of every investment
 
 ### 1. Agency — does it put people in control?
 
@@ -44,7 +44,7 @@ The main risks are not coding ability. They are:
 ### 2. Commons — does it cultivate open infrastructure?
 
 **What the proposal offers**
-- A versioned, human- and machine-readable Data Use Manifest schema.
+- An open, standards-aligned mapping or adapter only where existing standards do not cover a validated host/community need.
 - A documented policy-check API and reference implementation.
 - Reusable tests, governance workflow templates, deployment instructions, and implementation guidance.
 - A design that independent organisations can adopt without buying a proprietary product.
@@ -55,7 +55,7 @@ The main risks are not coding ability. They are:
 - Open-sourcing sensitive information would create harm.
 
 **What makes the case credible**
-- Publish a versioned schema, reference implementation, tests, and integration guide.
+- Reuse and contribute to DUO, GA4GH Passports/Data Passports, and ODRL where appropriate; publish only validated mappings, adapters, tests, and governance workflow documentation.
 - Demonstrate a clean, documented integration pattern where approved.
 - Keep health records and personal data private; openness applies to code, schema, methods, and non-confidential learning.
 - Include self-hosting and maintenance documentation.
@@ -83,18 +83,18 @@ The main risks are not coding ability. They are:
 
 **Status:** currently the least evidenced dimension. It requires substantive community design, not merely a database feature.
 
-## B. Mozilla's six selection questions
+## C. Mozilla's six selection questions
 
 | RFP question | Current case | Evidence / action needed |
 |---|---|---|
-| **1. Is it early?** | The RFP defines a community-owned governance challenge; a portable, checkable data-use manifest is a focused possible response. | Map SRHIN's current LEEF, co-design, consent, agreements, and platform controls. If the gap is solved, pivot or stop. |
+| **1. Is it early?** | The RFP defines a community-owned governance challenge; a standards-aligned community governance workflow may be a focused response, if discovery proves a gap. | Map SRHIN's LEEF, co-design, consent, agreements, platform controls, and relevant standards. If the gap is solved, do not build. |
 | **2. Who is it for?** | Potential users: young people and people with lived experience, community health workers/facilitators, community data stewards, and research/technical teams. | SRHIN and affected communities must identify actual users, languages, contexts, and decision-makers. |
-| **3. Can you build it?** | Aidora demonstrates full-stack implementation across Flutter, Django REST Framework, PostgreSQL, APIs, authentication, role-aware workflows, tests, CI/CD, and Android release automation. | Prepare a clean build/demo and verify current workflow runs. Keep the plan focused on one manifest schema, one policy API, and one approved integration path. |
+| **3. Can you build it?** | Aidora demonstrates full-stack implementation across Flutter, Django REST Framework, PostgreSQL, APIs, authentication, role-aware workflows, tests, CI/CD, and Android release automation. | Prepare a clean build/demo and verify current workflow runs. Keep the plan focused on one validated governance workflow, one standards mapping/adapter, and one approved integration path. |
 | **4. Who holds the power?** | The applicant has experience listening directly to refugees and people seeking assistance during Aidora's initial launch; early feedback was positive. | That is not Nigerian co-design. Give affected communities real authority to define terms, governance, review, and evaluation before implementation. |
 | **5. What do you bring to / take from the cohort?** | Bring full-stack engineering, product integration, automation, and an emerging public-interest technology perspective. | Explain the learning agenda: privacy engineering, data governance, participatory research, health-AI oversight, and sustainable open infrastructure. Be ready to share technical methods. |
 | **6. Could you become a defining voice?** | There is a plausible trajectory from Aidora to open, community-governed data infrastructure. | Do not claim current field leadership. Show how a shipped, openly documented project, community accountability, public writing, and peer collaboration could establish this role. |
 
-## C. Applicant evidence — strengths and limits
+## D. Applicant evidence — strengths and limits
 
 ### Strong, inspectable evidence
 - Aidora is identified by the applicant as his created and owned project; he is its principal developer and ongoing technical lead.
@@ -110,7 +110,7 @@ It is not evidence of a formal or representative user study, formal co-design, a
 ### Limits to acknowledge
 The applicant is not claiming clinical mental-health research expertise, specialist Nigerian community knowledge, or prior experience with SRHIN's internal systems. The strongest case is as a software builder ready to learn from SRHIN's technical, clinical, ethics, and community expertise.
 
-## D. Host fit — SRHIN
+## E. Host fit — SRHIN
 
 The RFP describes SRHIN's challenge as community-owned governance, consent, privacy, and benefit-sharing for mental-health data used in AI, with piloting among young people, people with lived experience, and community health workers.
 
@@ -118,7 +118,7 @@ SRHIN's public materials show existing work on GENSCORE, GENCurate, the LEEF pre
 
 The proposal must be more precise than “build a consent app”. Its potential differentiator is an operational layer that carries community-set use conditions into downstream data and AI requests and makes enforcement and audit reviewable. This remains a hypothesis until SRHIN confirms the actual workflow gap.
 
-## E. Scope test — can it be delivered in 12 months?
+## F. Scope test — can it be delivered in 12 months?
 
 **Definition of done**
 1. A community-validated problem statement and workflow map.
@@ -140,7 +140,7 @@ The proposal must be more precise than “build a consent app”. Its potential 
 
 A no-build or pivot decision in Q1 is evidence of rigour, not failure.
 
-## F. Risk register
+## G. Risk register
 
 | Risk | Severity | Mitigation |
 |---|---|---|
@@ -154,7 +154,7 @@ A no-build or pivot decision in Q1 is evidence of rigour, not failure.
 | Host/time-zone/location/funding eligibility | Critical | Host response and funding/banking confirmation before legal self-certification |
 | Applicant claims exceed evidence | High | Evidence ledger; no invented numbers, deployment, impact, or partnership |
 
-## G. Readiness conclusion
+## H. Readiness conclusion
 
 The proposal has a credible technical foundation and a more precise fit to the RFP than simply expanding Aidora. Aidora is evidence of the applicant's ability to build; it is not itself the proposed Mozilla project.
 
