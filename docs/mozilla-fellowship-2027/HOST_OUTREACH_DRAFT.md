@@ -15,9 +15,9 @@ I am an Informatics Engineering student and software developer. I created and ow
 
 I am exploring an application to the Mozilla Foundation 2027–2028 Fellowship, Track I (Embedded Fellows), and am interested in the challenge described in the Fellowship RFP around community-owned governance, consent, privacy, and benefit-sharing for mental-health data used in AI.
 
-I have also reviewed SRHIN's public work, including GENSCORE, GENCurate, the LEEF pre-launch checklist, and your guide for people with lived experience to participate in AI mental-health tool design. I do not want to duplicate these initiatives or assume that your current systems lack appropriate safeguards.
+I have also reviewed SRHIN's public work, including GENSCORE, GENCurate, the LEEF checklist, the AI mental-health co-design guide, the lived-experience compensation/governance template, the Epistemic Authority Decision Matrix, and the co-production readiness self-assessment. I do not want to duplicate these initiatives or assume that your current systems lack appropriate safeguards.
 
-My initial hypothesis is narrower: would there be value in examining whether existing open standards—such as GA4GH DUO, GA4GH Passports/Data Passports, and W3C ODRL—can adequately represent and operationalise community-defined decision rights, review/appeal processes, and benefit-sharing commitments in your health-AI data workflows? I do not propose inventing another data-use ontology or passport. Any adapter or workflow would be developed only if your team and the communities identify a specific gap that existing tools do not address.
+My initial hypothesis is narrower: rather than create another governance framework, could there be value in mapping how SRHIN's existing community-defined authority and compensation processes are carried through consent, data access, secondary use, AI development, audit, and benefit delivery? I would also examine whether standards such as GA4GH DUO, GA4GH Passports/Data Passports, and W3C ODRL can help with specific technical hand-offs. Any integration or workflow would be developed only if your team and affected communities identify a concrete gap not already addressed by your tools and processes.
 
 Would you be open to clarifying:
 1. Whether this is a genuine unmet need alongside your existing technical, ethical, and community-governance work;
