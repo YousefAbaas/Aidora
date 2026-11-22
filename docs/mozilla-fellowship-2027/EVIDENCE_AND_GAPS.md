@@ -19,7 +19,7 @@ The README and documentation describe:
 - Unit, widget, and integration test structure.
 - GitHub Actions workflows and Docker development setup.
 
-The architecture documentation attributes the end-to-end technical design and implementation to the applicant, but this should be worded in line with actual team contributions and any university requirements.
+The project README and architecture documentation identify Yousef Abbas as the creator, owner, principal developer, and lead for the end-to-end technical design and implementation. The applicant has directly confirmed that Aidora is his project and that he is its primary ongoing developer.
 
 Useful links:
 - Project README: https://github.com/YousefAbaas/Aidora
@@ -34,7 +34,7 @@ Useful links:
 |---|---|---|
 | Actual use | Academic only; no external real-world deployment confirmed | “Academic project / working prototype”, not “deployed humanitarian platform”. |
 | Community input | Some engagement or discussion occurred | Record who, when, what they said, and which design choices changed. Do not call it formal co-design unless that is accurate. |
-| Code ownership | Applicant was the main technical contributor | Do not claim sole authorship or exclusive IP until all contributor and university rights are confirmed. |
+| Code ownership | Applicant confirms that he created and owns Aidora and is its principal developer | State clearly that he is the project creator and owner. Attribute third-party libraries and assets under their own licences. |
 | SRHIN relationship | None established in this preparation work | Do not imply SRHIN endorsement, partnership, access, or approval. |
 | New governance project | Concept only | Select “Concept or wireframe only” unless a separate prototype is actually built. |
 | Mental-health research | No established direct experience evidenced here | Be candid; explain relevant transferable engineering skills and willingness to learn from the host. |
@@ -49,19 +49,13 @@ Useful links:
 - Avoid describing the production security configuration as independently audited. Backend documentation describes security controls, but a repository review is not a penetration test or compliance audit.
 - Remove or rotate any credential, token, signing material, private URL, or personal data if one is ever found in source control. No such disclosure is alleged by this note.
 
-## 4. Licensing and institutional rights — unresolved
+## 4. Project ownership and open-source licensing
 
-There is a visible inconsistency:
-- The repository root contains an Apache License 2.0 file and a README badge describing Apache 2.0.
-- The backend README previously described the backend as proprietary.
+The applicant has confirmed that Aidora is his project: he created it, owns it, leads its ongoing development, and is its principal technical contributor. The root README and architecture documentation describe his end-to-end role across the Flutter client, Django backend, database and API design, integration, testing, and delivery automation.
 
-Before presenting Aidora as an openly reusable work, confirm:
-1. Whether the project was individual or group work and who contributed code, design, assets, and documentation.
-2. Whether Homs University or the course/supervisor has ownership, approval, or distribution conditions.
-3. Whether any third-party assets or packages impose separate restrictions.
-4. Whether the existing Apache notice was intentionally applied to all repository content and whether the rights-holder had authority to do so.
+The repository's Apache License 2.0 notice now identifies **Copyright 2026 Yousef Abbas**. The backend README and project README use consistent authorship and licensing language. Copyright ownership and an open-source licence are compatible: the creator retains copyright while granting users the permissions stated in Apache 2.0, subject to its conditions.
 
-The applicant's being the primary implementer is relevant evidence of contribution, but does not by itself settle all copyright or institutional rights. The branch `mozilla-2027-prep` makes the backend documentation neutral pending verification; it does not make a legal determination.
+Third-party dependencies and externally sourced assets remain under their respective licences. The application should not claim ownership of those separate materials. The prior backend wording that described the backend as proprietary has been removed because it contradicted the repository-wide Apache 2.0 notice.
 
 ## 5. Community evidence to assemble
 
