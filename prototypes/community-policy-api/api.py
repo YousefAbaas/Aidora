@@ -3,10 +3,17 @@
 This endpoint is an isolated demonstration only. Do not mount it in Aidora's
 production API or use it to authorize access to real or sensitive data.
 """
+from pathlib import Path
+import sys
+
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+_CORE_DIR = Path(__file__).resolve().parents[1] / "community-policy-check"
+if str(_CORE_DIR) not in sys.path:
+    sys.path.insert(0, str(_CORE_DIR))
 
 from policy_check import evaluate_policy
 
