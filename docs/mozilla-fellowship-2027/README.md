@@ -4,15 +4,15 @@
 
 ## Recommended route under review
 
-**Track I — Embedded Fellow; potential host: Slum & Rural Health Initiative (SRHIN), Nigeria.**
+**Track I — Embedded Fellow; potential host: Slum & Rural Health Initiative (SRHIN), Nigeria.** The RFP's Track I package is $100,000 total ($75,000 stipend + $25,000 project budget), not the $125,000 Independent track package.
 
 This is a provisional fit because the RFP specifically identifies SRHIN's challenge around community-owned governance, consent, privacy, and benefit-sharing for mental-health data used in AI. SRHIN also publicly describes existing community-engagement practices and resources. The proposed project must build on those assets, not duplicate them.
 
 ## The proposal in one sentence
 
-Explore whether existing open standards—GA4GH DUO, GA4GH Passports/Data Passports, and W3C ODRL—can be applied to community-defined decision rights and benefit commitments in SRHIN's health-AI data workflows, with a small adapter or governance workflow only if a validated gap remains.
+Test whether a technical hand-off gap remains between SRHIN's existing community-governance instruments and downstream data/AI workflows. Reuse relevant open standards and build a narrow integration only if SRHIN and affected communities validate the need.
 
-This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery and validation phase. A no-build or pivot decision is acceptable if SRHIN and affected communities find the gap is already addressed.
+This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation/governance template, Epistemic Authority Decision Matrix, and co-production readiness tool make duplication a real risk. Q1 is explicitly a discovery and validation phase; a no-build or pivot decision is acceptable.
 
 ## Start here
 
@@ -42,7 +42,7 @@ This is a hypothesis, not a confirmed unmet need. Q1 is explicitly a discovery a
 3. Do not imply that SRHIN has endorsed the applicant or that its existing systems lack safeguards.
 4. Do not collect or process real mental-health data before host, community, ethics, legal, privacy, safeguarding, and security approval.
 5. Open software and documentation do not mean publishing sensitive or identifiable data.
-6. The applicant's primary residence during the Fellowship, time-zone flexibility, legal ability to receive funding, and bank route must be stated accurately.
+6. The applicant's primary residence during the Fellowship, time-zone flexibility, legal ability to receive funding, and bank route must be stated accurately. The FAQ requires an own-name bank account able to accept U.S. funds and legal eligibility in the country of residence/work; Syria-specific eligibility remains unconfirmed and requires written clarification from Mozilla.
 7. Mozilla allows AI for brainstorming, clarification, and translation. Final responses must express the applicant's own ideas and voice and must not be submitted as AI-generated text unchanged.
 
 ## Official and host references
