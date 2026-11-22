@@ -1,153 +1,163 @@
-# Provisional technical and ethical design — Community Data Use Passport
+# Provisional technical and ethical design — Community Governance Layer for Health-AI Data Use
 
-**Status:** Concept architecture only. It is not an approved SRHIN specification or a production design. Every component must be validated with the host and affected communities before implementation.
+**Status:** Concept architecture only. It is not an approved SRHIN specification or production design. All components require host and community validation.
 
 ## 1. Design objective
 
-Operationalise community-defined conditions for how mental-health data may be accessed, reused, and used in AI. The system should complement existing host tools and community-engagement resources; it must not duplicate data capture, transcription, screening, or clinical workflows.
+Investigate whether community-defined governance decisions and benefit commitments can be represented and operationalised using existing open standards, rather than inventing a new data-use ontology or passport.
 
-The central technical object is a **versioned Data Use Manifest**: human-readable terms plus machine-readable rules associated with a data contribution, dataset version, or proposed use. A reference policy engine checks proposed use against those terms.
+Candidate standards include:
+- **GA4GH DUO** for standardised, machine-readable data-use terms;
+- **GA4GH Passports / Data Passports** for researcher authorisation and data-level policy attributes, subject to their scope and maturity;
+- **GA4GH Machine-Readable Consent Guidance** for mapping consent language to DUO;
+- **W3C ODRL 2.2** for expressing permissions, prohibitions, constraints, and duties.
 
-## 2. Architectural boundary
+These standards have different purposes and are not automatically interchangeable. Q1 must assess their suitability for SRHIN's mental-health data workflows and document gaps. The project must not claim to replace them.
 
-Participant / trusted facilitator  
-→ Accessible choice and information interface  
-→ Community governance workflow  
-→ Data Use Manifest registry  
-→ Policy evaluation API  
-→ Host-approved data workflow adapter (only if authorised)  
-→ Audit metadata and benefit-commitment status
+## 2. Provisional architecture
 
-The service should not store raw clinical narratives, screening results, recordings, or identity documents. It should hold the minimum policy and audit metadata needed to express and check agreed conditions. Even pseudonymous references may be personal data when they can be linked back to a person; the host must approve the data-flow and retention design.
+Affected person / trusted facilitator  
+→ accessible explanation and choice support  
+→ community-defined governance and review process  
+→ existing host consent, data-use, and access systems  
+→ standards mapping / profile only where needed  
+→ host-approved policy check at one workflow boundary  
+→ audit metadata and benefit-commitment status
 
-## 3. Candidate components
+The service should not store raw clinical narratives, screening results, recordings, or identity documents. It should hold only the minimum policy and audit metadata approved by SRHIN. Even pseudonymous references may be personal data if linkable; the host must approve data flows and retention.
 
-### A. Manifest schema
+## 3. Discovery and standards mapping
 
-A versioned JSON Schema and plain-language rendering. Candidate fields, subject to community and legal review:
+Before implementation, produce a matrix with:
+- SRHIN workflow and existing system;
+- the community decision or obligation that must be represented;
+- current legal, ethical, contractual, and technical control;
+- candidate standard (DUO, GA4GH Passports/Data Passports, ODRL, or none);
+- semantic fit and known limitation;
+- whether an adapter, profile, governance process, or no new software is required.
 
-| Field | Purpose | Boundary |
-|---|---|---|
-| Manifest ID and version | Identify the current rules | No direct personal identifier |
-| Data/dataset reference | Point to an approved resource/version | Reference only; no copy of clinical data |
-| Permitted purpose | Describe allowed use | No broad blanket permission |
-| Prohibited purpose | Explicitly exclude unacceptable uses | Must be understandable and reviewable |
-| AI activity | Distinguish training, evaluation, inference, publication, or secondary use | Each activity may have different conditions |
-| Recipient class | Identify who may request or receive access | Community-approved categories |
-| Retention and review date | Set time limits and review triggers | Must match host policy and applicable law |
-| Required approvals | Route use to the authorised community/research body | Decision rights defined locally |
-| Derivative and onward-use rules | State conditions for transformed datasets or model outputs | No promise of perfect downstream control |
-| Withdrawal/change process | Describe prospective changes and technical limits | No false claim of automatic model unlearning |
-| Benefit commitments | Record community-defined commitments, owners, and due dates | Community decides what counts as benefit |
-| Notice and language version | Record which explanation was presented | Must support accessible formats |
+The standards mapping must answer:
+1. Can DUO express the relevant permitted-use category, or is the issue actually a governance decision rather than a vocabulary term?
+2. Can GA4GH Passports/Data Passports represent the relevant researcher or data-level policy attribute in the intended environment?
+3. Can ODRL express the relevant permission, prohibition, constraint, or duty without inventing ambiguous semantics?
+4. Which community rights—such as collective approval, appeal, contestation, or benefit-sharing oversight—are not adequately represented by the existing workflow?
+5. Can those gaps be addressed through agreements and governance rather than additional software?
 
-Individual-level preferences and collective/community rules must be represented as separate but related authority layers. Applicable law and research ethics requirements remain independent requirements; the software does not decide whether consent is legally sufficient.
+No new ontology or universal passport is a deliverable by default.
 
-### B. Policy evaluation service
+## 4. Candidate technical components — only if the gap is validated
 
-Input: a proposed use request containing requester role, stated purpose, intended AI activity, data/dataset reference, recipients, retention, and declared downstream use.
+### A. Standards adapter
 
-Output:
-- **ALLOW** — request matches the active rules and required approvals;
-- **DENY** — request conflicts with a prohibited purpose or other hard constraint;
-- **REVIEW** — a human/community decision or missing evidence is required.
+A small, versioned mapping layer may translate host-approved policy fields into DUO terms or ODRL expressions where the meaning is genuinely equivalent. It must preserve provenance and flag any field that cannot be represented without loss. It must never silently convert a community decision into a weaker permission.
 
-Each decision returns a reason code and manifest version. Default behaviour is fail closed when required policy information is missing or contradictory. This service only enforces rules inside systems that call it; it cannot prevent copying or use outside the integration boundary.
+### B. Governance workflow
 
-### C. Community governance workflow
+A host-approved workflow may support:
+- submission of a proposed secondary use;
+- routing to the community-designated reviewer or committee;
+- approve, reject, condition, or request-more-information decisions;
+- reason capture, conflict-of-interest declaration, expiry, and appeal;
+- a traceable record of the governing policy version.
 
-A governance body or delegated representatives, selected by the affected community with SRHIN, can review new or secondary-use requests, apply conditions, reject a request, and record reasons and an appeal route. The system must not predefine who represents a community or assume one person speaks for all.
+The affected community and SRHIN define who holds decision authority. The software must not invent representation or assume one individual speaks for everyone.
 
-### D. Audit and benefit register
+### C. Policy check
 
-Record policy decisions, authorised approvals, access events supplied by an integrated system, withdrawal/change status, and benefit-commitment progress. Logs should be tamper-evident and access-controlled, but should not contain health narratives, unnecessary identifiers, tokens, or secrets. No blockchain or public ledger is proposed.
+A narrow policy-check API may return:
+- **ALLOW** — the request matches active conditions and required approvals are present;
+- **DENY** — it conflicts with an explicit prohibition or hard constraint;
+- **REVIEW** — human/community decision or missing evidence is required.
 
-### E. Participant-facing access
+Every response should include a reason code, policy/manifest version, and provenance. Missing or contradictory information should fail closed. It can enforce conditions only within systems that call it; it cannot prevent copying or use outside those integration boundaries.
 
-A low-bandwidth, accessible view should explain current permissions and how to request changes. The interface may use Flutter, a web client, paper-assisted, or facilitator-supported alternatives; selection depends on participant needs and host systems, not developer preference.
+### D. Benefit-commitment record
 
-## 4. Integration strategy
+Record community-defined commitments, the responsible party, due date, evidence of delivery, review status, and a route to contest non-delivery. This is an accountability record, not a payment system or guarantee of legal enforcement. Benefit types and acceptable evidence must be defined by the community.
 
-The first phase maps the actual SRHIN architecture and governance processes, including LEEF, its co-design guidance, GENSCORE and GENCurate as publicly described. The project will identify a single low-risk integration point only if SRHIN confirms one.
+### E. Accessible explanation and challenge
 
-Possible integration patterns:
-1. a policy-check API called before a dataset access or secondary-use request;
-2. an exportable manifest attached to a governed dataset version;
-3. a human-reviewed import/export workflow if the host cannot or should not expose a direct API.
-
-Do not assume GENCurate or GENSCORE supports an extension point. Do not connect to production systems without written host authorisation and security review.
+Provide plain-language explanations of proposed use, the decision route, current status, and how to raise a concern. Test language, literacy, disability access, low-bandwidth, and assisted/offline needs with the community. Do not assume an app is the right interface.
 
 ## 5. Security, privacy, and ethical safeguards
 
 | Threat | Example | Candidate safeguard |
 |---|---|---|
-| Coercive participation | A person believes care depends on agreeing to AI research | Separate care from optional data use; accessible refusal and complaint path |
-| Overbroad permission | One blanket consent permits unrelated future purposes | Purpose-specific, versioned terms and renewed review |
-| Re-identification | A pseudonymous manifest reference is linked to identity | Data minimisation, segregated identity mapping, access controls, linkage-risk review |
-| Excessive access | Researcher accesses data beyond approved scope | Least privilege, purpose checks, approval workflow, periodic audit |
-| Consent drift | Data is reused after the original purpose changes | Version checks and review before every new use |
-| Incomplete withdrawal | Copies or trained models remain after consent is changed | Prospective stop-use workflow, lineage where feasible, transparent limits; no automatic unlearning claim |
-| Insider misuse | Authorised user exports data for a different purpose | Export controls, logging, incident response, governance review |
-| Sensitive logs | Audit trail exposes a person's health information | Metadata-only events, redaction, restricted log access |
-| Digital exclusion | Participant cannot use the app or read the language | Local-language and accessible formats, assisted/offline alternatives |
-| Governance capture | A small group dominates community decisions | Locally agreed representation, conflict disclosure, review and appeal |
+| Coercive participation | A person believes care depends on agreeing to AI research | Separate care from optional use; accessible refusal and complaint route |
+| Overbroad permission | One blanket consent permits unrelated future purposes | Purpose-specific conditions and renewed review |
+| Standards mismatch | Adapter maps a community condition to an inaccurate DUO/ODRL term | Human-reviewed mappings, provenance, conformance tests, explicit unmapped state |
+| Governance capture | A small group dominates decisions | Locally agreed representation, conflict disclosure, review, appeal |
+| Re-identification | A pseudonymous policy reference is linked to identity | Data minimisation, segregated identity mapping, linkage-risk review |
+| Excessive access | Researcher accesses data beyond approved scope | Least privilege, policy checks, approval workflow, periodic audit |
+| Consent drift | Data is reused after purpose changes | Version checks and review before new use |
+| Incomplete withdrawal | Copies or trained models remain after consent changes | Prospective stop-use workflow, lineage where feasible, transparent limits; no unlearning guarantee |
+| Sensitive logs | Audit trail exposes health information | Metadata-only events, redaction, restricted log access |
+| Digital exclusion | Participant cannot use app or read the language | Local-language formats and assisted/offline alternatives |
 
-No pilot with real mental-health information begins until SRHIN has approved the scope, ethics review is complete, local legal/data-protection advice is obtained, security controls are assessed, and the community governance process is functioning. Synthetic data is the default for development and automated tests.
+No real-data pilot begins until SRHIN approves the scope, ethics review is complete, local legal/data-protection advice is obtained, security controls are assessed, and the community governance process is functioning. Synthetic data is the default for development and automated tests.
 
-## 6. Twelve-month engineering plan
+## 6. Integration strategy
 
-### Q1 — Discovery and requirements (June–August 2027)
-- Map current SRHIN systems, policies, LEEF guidance, co-design procedures, data flows and decision rights.
-- Hold host-approved, compensated discovery/co-design activities with the community groups SRHIN identifies.
-- Agree the exact problem, success measures, safeguards and no-build conditions.
-- Deliver a validated requirements brief, data-flow map, threat model and technical decision record.
+The project should select one low-risk workflow only after mapping the host's actual architecture. Possible patterns:
+1. call an approved policy-check endpoint before a secondary-use request;
+2. attach a standards-aligned policy representation to an approved dataset/version;
+3. use a controlled human-reviewed import/export process if a direct integration is unsuitable.
 
-### Q2 — Schema and alpha (September–November 2027)
-- Publish a draft manifest schema and plain-language template.
-- Implement a minimal Django REST API, manifest registry and deterministic policy evaluator.
-- Implement allow/deny/review test cases with synthetic fixtures.
-- Deliver an alpha, API documentation, automated tests and initial security review.
+Do not assume GENSCORE or GENCurate exposes an extension point. No production connection without written host authorisation and security review.
+
+## 7. Twelve-month engineering plan
+
+### Q1 — Discovery and standards fit (June–August 2027)
+- Map SRHIN systems, policies, LEEF guidance, co-design processes, data flows, and decision rights.
+- Conduct host-approved, compensated discovery with community groups identified by SRHIN.
+- Compare requirements against DUO, GA4GH Passports/Data Passports, ODRL, and relevant host controls.
+- Deliver a gap analysis and a build/adapt/no-build decision.
+
+### Q2 — Specification and alpha (September–November 2027)
+- If a gap is validated, specify a minimal governance workflow and standards mapping.
+- Build an alpha adapter or workflow with synthetic data.
+- Add automated conformance, policy, and security tests.
+- Deliver documentation of semantic limitations and unresolved requirements.
 
 ### Q3 — Controlled integration and evaluation (December 2027–February 2028)
-- Build one limited adapter or controlled import/export path if the host approves.
-- Test permissions, versioning, audit metadata, accessibility, and withdrawal/change workflows.
-- Run security, usability, and policy-conformance tests in staging with synthetic or expressly approved de-identified data.
-- Deliver a beta and evaluation findings.
+- Implement one host-approved staging integration or controlled import/export path.
+- Test access decisions, versioning, audit metadata, accessibility, and change/appeal processes.
+- Conduct security, usability, and policy-conformance tests.
 
-### Q4 — Approved pilot and public release (March–May 2028)
-- Pilot only if ethics, host, legal, security and community approvals are complete.
-- Evaluate participant understanding, decision traceability, handling of out-of-scope requests, burden, and benefit-commitment status.
-- Release code, schema, API specification, deployment guide and a community-reviewed report without sensitive data.
-- Deliver a maintenance and governance plan.
+### Q4 — Approved pilot and open release (March–May 2028)
+- Pilot only after host, community, ethics, legal, privacy, and security approvals.
+- Evaluate participant understanding, decision traceability, challenge/appeal handling, operational burden, and benefit-commitment status.
+- Release reusable mappings, code, tests, implementation guidance, and a community-reviewed report without sensitive data.
 
-## 7. Evaluation framework
+## 8. Evaluation framework
 
-Baselines and targets must be set with SRHIN and participants in Q1. Candidate indicators:
-- participant comprehension of specific data uses and available choices;
-- number/proportion of out-of-scope requests blocked or escalated before access;
-- completeness of decision records and manifest-version traceability;
-- time and staff effort to review a secondary-use request;
-- ability to record and communicate the status and limits of change/withdrawal requests;
-- proportion of benefit commitments with named owners, due dates and recorded status;
-- participant and community assessment of fairness, trust, and practical burden.
+Baselines and targets must be set with SRHIN and community participants in Q1. Candidate indicators:
+- participant understanding of data-use choices and routes to challenge decisions;
+- proportion of requests blocked or escalated before access when conditions are unmet;
+- traceability of the policy version, decision authority, and reasons;
+- community assessment of legitimacy and accessibility of review/appeal;
+- benefit commitments with named owners, due dates, and recorded evidence/status;
+- mapping accuracy and interoperability with existing standards;
+- staff and participant burden.
 
-Do not invent numeric targets before discovery. Document adverse findings and cases where the policy engine cannot enforce a condition.
+Do not invent numeric targets before discovery. Report limitations and adverse findings.
 
-## 8. Technical choices and non-goals
+## 9. Technical choices and non-goals
 
-Candidate stack: Python, Django REST Framework, PostgreSQL, and an accessible web or mobile interface. This reuses the applicant's relevant engineering experience from Aidora, but the host may require a different stack or an integration that avoids deep coupling.
+Candidate implementation stack: Python, Django REST Framework, PostgreSQL, and an accessible web/mobile interface. This draws on the applicant's experience with Aidora, but the host's architecture and needs determine the final stack.
 
 Non-goals:
+- no new universal data-use ontology or passport by default;
 - no mental-health diagnosis, treatment advice, or screening model;
 - no replacement for GENSCORE, GENCurate, or clinical systems;
 - no central repository of raw patient records;
-- no automatic promise that model knowledge can be erased after withdrawal;
+- no guarantee of automatic model unlearning or control beyond integration boundaries;
 - no publication of identifiable or sensitive data;
 - no blockchain, token, or monetisation scheme by default;
 - no claim that software alone solves structural power imbalances.
 
-## 9. Open-source and sustainability plan
+## 10. Open-source and sustainability
 
-Release the reusable schema, reference implementation, tests, documentation, and non-confidential learning openly under licences agreed with Mozilla and the host. Keep sensitive data, security details that could enable abuse, and confidential host information private. Provide a self-hosting guide, minimal deployment profile, versioning policy, contribution guide, and named maintenance pathway.
+Prefer contributions to existing standards and upstream communities where appropriate. Publish any host-approved adapter, mappings, tests, documentation, and non-confidential learning under licences agreed with Mozilla and SRHIN. Provide self-hosting and maintenance guidance. Keep sensitive data, confidential host information, and security-sensitive details private.
 
-The project is successful only if communities and independent organisations can understand, govern, adapt, and maintain the tool—not merely if a prototype is demonstrated.
+The project succeeds only if it improves community agency and accountability in a real workflow—not merely if code is shipped.
