@@ -34,6 +34,7 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 - Mozilla's latest response was a generic acknowledgement directing applicants to the FAQ/RFP; Syria-resident funding/payment eligibility and remote participation remain unresolved.
 - The SRHIN host enquiry remains a draft and has not been sent; no host response, endorsement, or partnership is recorded.
 - No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
+- An AI-assisted internal security review of Aidora was added to [technical evidence, section 6.1](AIDORA_TECHNICAL_EVIDENCE.md). It is not an independent audit; backend remediation remains in open PR #1 and mobile remediation remains on `fix/flutter-hardening`, not yet verified as merged and passing CI.
 - A synthetic ALLOW/DENY/REVIEW reference engine (30 core unit tests) and a separate DRF API adapter (8 API tests) are in the repository. The latest core CI run passed on Python 3.12. The earlier API version also passed CI, but the revised server-side policy/evidence resolution has new API CI runs still in progress. The adapter now resolves a fixed synthetic policy and fake approval references server-side rather than accepting caller-supplied policy/evidence. These fixtures are not a real trust store, and neither prototype is an SRHIN-specific or production implementation.
 
 ## Current evidence
