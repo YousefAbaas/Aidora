@@ -25,6 +25,8 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 7. [SRHIN host enquiry record](HOST_OUTREACH_DRAFT.md) — exploratory email sent on 23 November 2026; awaiting response.
 8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
 9. [Discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) — host-led questions, evidence requirements, and build/adapt/no-build decision rules.
+10. [Reference policy-check specification](REFERENCE_POLICY_CHECK_SPEC.md) — conservative decision semantics, security requirements, and synthetic acceptance cases.
+11. [Synthetic policy-check prototype](../../prototypes/community-policy-check/README.md) — dependency-free reference implementation and unit tests; not a host integration.
 
 ## Current status — 23 November 2026
 
