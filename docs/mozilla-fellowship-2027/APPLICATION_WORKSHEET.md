@@ -1,85 +1,82 @@
 # Mozilla Fellowship 2027–2028 — Letter of Intent worksheet
 
-**Preparation checklist, not a finished application.** The final submission must reflect the applicant's own ideas, experience, and voice. Use AI for brainstorming, clarification, and translation only as permitted by the official guidance; do not submit generated text unchanged.
+**Preparation guide, not a completed application.** The final answers must be developed and written in the applicant's own ideas and voice. Mozilla permits AI for brainstorming, clarification, and translation but warns against submitting AI-generated complete responses unchanged.
 
 Official call: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellowship/2027-call-for-applications/  
-Official FAQ: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellowship/2027-call-for-applications/faqs/
+Official FAQ: https://www.mozillafoundation.org/en/what-we-do/grantmaking/fellowship/2027-call-for-applications/faqs/  
+Official RFP: https://assets.mofoprod.net/network/documents/PUBLIC_2027_2028_Fellowship_RFP-3.pdf
 
 ## Track and host
 
-**Preferred track to explore:** Track I — Embedded Fellow. This is a better provisional fit than Independent, which expects a stronger record of senior independent leadership and field-wide recognition.
-
+**Provisional choice:** Track I — Embedded Fellow.  
 **Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. No host relationship or endorsement exists yet.
+
+Rationale: the RFP directly identifies a community-owned mental-health data governance challenge for SRHIN and describes the desired profile as a rising builder with demonstrated technical excellence who has built and shipped meaningful work locally. The applicant's Aidora work supports the engineering side of that fit. Remote/time-zone and current-location eligibility still require accurate confirmation.
 
 ## Applicant and eligibility fields
 
 | Field | Preparation |
 |---|---|
-| Full/preferred name | Enter exactly as on legal ID / preferred usage. |
-| Email | Confirm reliable address. |
-| Current location | State primary city and country where you expect to reside/work during the Fellowship. |
-| Work permissions | List only countries where you legally have permission to work. |
-| Current role | Describe current student status accurately; do not describe academic project work as employment. |
-| LinkedIn / GitHub / website | Verify all URLs and public content. |
-| Relevant experience | Count professional experience honestly; do not count the full degree automatically as professional employment. |
-| Availability | Confirm ability to commit to 12 months from 1 June 2027. |
-| Legal eligibility | Do not certify until grant receipt, banking, sanctions screening, and local requirements are verified for the country of residence/work. |
+| Full and preferred name | Enter exactly as the applicant wishes and as legally required |
+| Current location | Primary city and country where the applicant expects to reside during the Fellowship |
+| Work permissions | List only countries where the applicant has legal permission to work |
+| Current role | Informatics Engineering student and software developer; do not describe academic project work as employment |
+| GitHub | https://github.com/YousefAbaas |
+| Builder profile | Aidora repository plus the technical evidence dossier; add a short demo only after verifying it is accurate and safe |
+| Relevant experience | Likely 0–2 years if that matches actual relevant professional experience; academic projects are experience but not automatically employment |
+| Fellowship availability | Confirm ability to commit from 1 June 2027 for 12 months |
+| Legal eligibility | Do not self-certify until location, funding route, bank account in applicant's name, sanctions screening, and local legal/tax requirements are checked |
+| Track I geography | Form asks whether the applicant is in an eligible location or able to work flexibly remotely across time zones. Answer truthfully; do not use a temporary IP location as residence |
 
 ## Project proposal fields
 
-| Field | Limit | Preparation notes |
-|---|---:|---|
-| Proposed title | 10 words | Working title: Community-Controlled Governance Layer for Mental-Health Data. |
-| Project summary | 200 words | Community-validated problem, proposed governance layer, complementarity with existing tools, outputs, safeguards. |
-| One-liner | 30 words | State the technical innovation clearly. |
-| Target users | 50 words | Potential groups include young people, people with lived experience, community health workers, data stewards, and researchers; host/community must confirm. |
-| Traction to date | 50 words | New proposal is pre-launch, with no SRHIN deployment, users, or partner. Aidora is a separate academic project. |
-| Main outputs | Select | Technology platform/tool; policy framework/recommendations; community organising tools; educational resources; research if justified. |
-| Project stage | Select | Concept/wireframe only unless a separate prototype is genuinely built. |
-| Project impact | 150 words | Describe a plausible shift in data agency and governance; do not promise unverified outcomes. |
-| Disruption | 50 words | Explain which extractive or opaque practices could change, without claiming SRHIN's existing systems are deficient. |
-| Milestones | 150 words | Discovery/co-design, prototype, host-approved staging test, and community-approved pilot/release. |
-| Charitable purpose | Yes/No | Must genuinely benefit the public. |
-| Public benefit | 150 words | Explain how open governance tools and methods could help beyond the pilot. |
-| Work in the open | Select | Open-source software, documentation, educational materials, research, workshops. Never publish sensitive data merely for openness. |
+| Official field / limit | Preparation direction |
+|---|---|
+| Project title — 10 words max | Community-Controlled Data Use Passport for Health AI |
+| Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF and co-design materials; define the narrower hypothesis about whether community-defined conditions travel into downstream use and AI workflows; describe manifest + policy engine; state Q1 validation and no-build condition. |
+| One-liner — 30 words | An open, machine-readable way for communities to attach, review, and check their own rules on how mental-health data is accessed, reused, and used in AI. |
+| Target users — 50 words | Young people and people with lived experience; community health workers/facilitators; community-designated data stewards; researchers and technical teams. Confirm actual groups with SRHIN. |
+| Traction — 50 words | Separate Aidora from the new project. Aidora: initial direct conversations with refugees/people needing assistance and positive early feedback; no verified deployment or user count. New proposal: pre-launch concept, no host, pilot, or users yet. |
+| Main outputs | Technology platform/tool; policy framework/recommendations; educational/implementation resources. Research publication only if methodologically justified. |
+| Project stage | Concept or wireframe only for the proposed Fellowship project. Do not select Working Prototype based on Aidora; it is a separate project. |
+| Project impact — 150 words | Explain how conditions defined by individuals/communities could be visible and checked across data access and AI use; avoid claiming software alone changes power. |
+| Disruption — 50 words | Opaque or extractive secondary-use workflows and intermediaries that benefit from data without transparent, accountable community-defined terms—not SRHIN's existing work. |
+| Milestones — 150 words | Q1 discover/co-design; Q2 manifest/schema and synthetic-data alpha; Q3 host-approved staging integration and testing; Q4 governed pilot only if approvals are complete and open release. |
+| Charitable purpose | Yes, if the public-benefit pathway and non-exclusive access are clearly described |
+| Public benefit — 150 words | Reusable open schema/API/reference implementation and guidance for other community health/research organisations; no sensitive data release. |
+| Work in the open | Open-source code/assets; educational/implementation materials; public workshops/presentations; research only if appropriate. |
 
-## Technical evidence
+## Professional background fields
 
-Use [AIDORA_TECHNICAL_EVIDENCE.md](AIDORA_TECHNICAL_EVIDENCE.md) as the source-of-truth index for the applicant's documented role, architecture, GitHub engineering history, CI/CD implementation, and the limits of what the repository proves.
+| Official field / limit | Evidence direction |
+|---|---|
+| Most Relevant Professional Experience — 150 words | Aidora as creator/owner and lead builder; show implementation across Flutter, Django, PostgreSQL, APIs, tests, CI/CD. Be clear it is an academic project and not a live humanitarian deployment. Mention direct early feedback accurately. |
+| Technical Expertise — 100 words | Flutter/Dart, Python, Django REST Framework, REST APIs, PostgreSQL, authentication, role-aware workflows, testing, GitHub Actions, Docker, Android release automation. Include only skills personally implemented. |
+| Your Role in the Field — 150 words | Describe an intended trajectory as a public-interest software builder translating community-defined rules into usable open infrastructure. Avoid claiming current field leadership. |
+| What's Next? — 150 words | Maintenance and governance by the host/community; adoption by independent organisations if useful; further partnerships or standards only after validation and evidence. |
 
-## Technical evidence
+## Mission alignment and motivation
 
-Use [AIDORA_TECHNICAL_EVIDENCE.md](AIDORA_TECHNICAL_EVIDENCE.md) as the source-of-truth index for the applicant's documented role, architecture, verifiable GitHub engineering history, CI/CD implementation, and the limits of what the repository proves.
+Select up to three genuine motivations. Potentially strong choices: technical support/expert advice; peer learning with the cohort; coaching/leadership development or Mozilla network access. Select funding only if it truthfully reflects the applicant's priorities.
 
-## Professional background
+External support: disclose only programs that have funded or received an application for this specific project. Aidora's academic context is not Fellowship funding.
 
-| Field | Limit | Evidence |
-|---|---:|---|
-| Relevant experience | 150 words | Aidora was created and is owned by the applicant, who led its end-to-end technical design and principal implementation. State its academic context honestly and support the technical role with repository and commit evidence. |
-| Technical expertise | 100 words | Flutter/Dart, Python, Django REST Framework, REST APIs, PostgreSQL, authentication, role-aware workflows, integration, automated Flutter/Django tests, GitHub Actions, Android signing and Firebase App Distribution automation actually implemented. |
-| Your role in the field | 150 words | Your own credible professional direction in public-interest technology. |
-| What's next? | 150 words | Potential maintenance, wider adoption, and open standards as possibilities, not commitments. |
+AI disclosure: answer Yes and describe AI use as brainstorming, checking alignment with published criteria, organising evidence, editing/translation support, and reviewing technical documentation. The applicant must originate, verify, and rewrite all submitted answers.
 
-## Motivation and additional information
+## Mandatory checks before submitting
 
-Select only genuine motivations, such as technical mentorship, peer learning, Mozilla's network, leadership development, or funding to focus on the work.
+- [ ] SRHIN confirms the challenge is real and identifies a non-duplicative project scope.
+- [ ] The host is willing to consider this applicant and remote/time-zone arrangement.
+- [ ] The people most affected have real decision-making power, not just a feedback session.
+- [ ] Existing LEEF, co-design, GENSCORE, GENCurate, consent, and governance workflows have been mapped.
+- [ ] A 12-month technical plan has a clear definition of done.
+- [ ] The applicant's primary residence and legal ability to receive U.S. funds are confirmed.
+- [ ] The applicant can meet the host's WAT (UTC+1) schedule flexibly.
+- [ ] Aidora's clean build, demo, and current CI status are verified.
+- [ ] All claims about community feedback, use, users, deployments, and impact are substantiated.
+- [ ] Final responses are genuinely the applicant's own voice.
 
-Disclose external support only if this particular project has applied for or received it. Aidora's academic status is not project funding.
-
-If AI tools helped prepare the application, disclose their use accurately. The final answers must be rewritten and validated by the applicant.
-
-## Mandatory checks before submission
-
-- [ ] SRHIN has been contacted and willingness to consider a remote Embedded applicant is known.
-- [ ] SRHIN and community partners validate the unmet need and proposed scope.
-- [ ] Existing GENSCORE/GENCurate workflows are understood sufficiently to avoid duplication.
-- [ ] Grant and banking eligibility are confirmed for the primary residence/work country.
-- [ ] The 12-month commitment and cohort/time-zone requirements are feasible.
-- [ ] Aidora is consistently attributed to Yousef Abbas as creator and owner; the repository's Apache 2.0 notice is consistent and third-party components retain their own licence notices.
-- [ ] Community discussions, project outcomes, deployments, users, and technical features are evidenced accurately.
-- [ ] Final answers are in the applicant's own voice.
-
-## Dates in the official call
+## Official timeline
 
 - Letter of Intent deadline: 17 December 2026, 11:59 PM Pacific (UTC−8).
 - Full application invitations: 16 February 2027.
