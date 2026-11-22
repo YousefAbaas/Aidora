@@ -26,22 +26,23 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 | Relevant experience | Likely 0–2 years if that matches actual relevant professional experience; academic projects are experience but not automatically employment |
 | Fellowship availability | Confirm ability to commit from 1 June 2027 for 12 months |
 | Legal eligibility | Mozilla's FAQ says funds are paid to individuals (not organisations), generally as grants; the Fellow needs a bank account in their own name able to accept U.S. funds and must be legally eligible to receive the funds in the country where they reside and work. As the applicant resides in Syria, obtain written confirmation from Mozilla on country eligibility, compliance screening, and acceptable payment route before answering Yes. |
-| Track I geography | Form asks whether the applicant is in an eligible location or able to work flexibly remotely across time zones. Answer truthfully; do not use a temporary IP location as residence |
+| Track I geography | The RFP says applicants must be based in Chile, Germany, Indonesia, Nigeria, or the US, **or be able to work flexibly as a remote Fellow across time zones**; it also requires timezone compatibility with the host. The LOI form repeats this as a Yes/No gate. For Syria, this remains unconfirmed: Mozilla must clarify whether the remote exception applies and whether the location-based funding screen blocks the application. Answer only for the real primary location; never use a temporary IP or false address |
 
 ## Project proposal fields
 
 | Official field / limit | Preparation direction |
 |---|---|
+| Why this host — 100 words max | Explain fit with SRHIN's stated challenge and your software-building experience. Do not claim that SRHIN has agreed to host you or validated a gap. A host response is pending. |
 | Project title — 10 words max | Technical Bridge for Community-Governed Health-AI Data Use |
 | Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF, co-design, compensation/governance, Epistemic Authority Decision Matrix, and co-production readiness resources; acknowledge relevant GA4GH/W3C standards; define the narrower question of whether a technical hand-off gap remains between those existing community decisions and downstream data/AI workflows; state Q1 validation and build/adapt/no-build condition. Explain the independent public-interest project will be co-defined with the host, not merely deliver a service to existing SRHIN programmes. |
 | One-liner — 30 words | A community-led technical bridge connecting existing community-governance decisions to downstream health-AI data workflows—only if SRHIN and affected communities validate a real gap. |
 | Target users — 50 words | Young people and people with lived experience; community health workers/facilitators; community-designated data stewards; researchers and technical teams. Confirm actual groups with SRHIN. |
 | Traction — 50 words | Separate Aidora from the new project. Aidora: initial direct conversations with refugees/people needing assistance and positive early feedback; no verified deployment or user count. New proposal: pre-launch concept, no host, pilot, or users yet. |
 | Main outputs | Technology platform/tool; policy framework/recommendations; educational/implementation resources. Research publication only if methodologically justified. |
-| Project stage | Concept or wireframe only for the proposed Fellowship project. Do not select Working Prototype based on Aidora; it is a separate project. |
+| Project stage | The proposed SRHIN Fellowship project remains at concept stage. The new policy-check code in this repository is a **synthetic reference demonstrator**, not an SRHIN-specific prototype, host-approved product, or deployed project. Aidora is a separate academic project. Do not overstate the Fellowship project's stage. |
 | Project impact — 150 words | Explain how conditions defined by individuals/communities could be visible and checked across data access and AI use; avoid claiming software alone changes power. |
 | Disruption — 50 words | Opaque or extractive secondary-use workflows and intermediaries that benefit from data without transparent, accountable community-defined terms—not SRHIN's existing work. |
-| Milestones — 150 words | Q1 map SRHIN's existing tools and actual data/AI workflow; compensated, host-approved discovery; define the community-validated technical gap and build/adapt/no-build decision. Q2 prototype the smallest integration using synthetic data. Q3 test one host-approved staging hand-off. Q4 run a governed pilot only if approvals are complete; publish open code and documentation. |
+| Milestones — 150 words | Q1 map SRHIN's existing tools and actual data/AI workflow; compensated, host-approved discovery; define the community-validated technical gap and build/adapt/no-build decision. Q2 specify and prototype the smallest integration using synthetic data. Q3 test one host-approved staging hand-off. Q4 run a governed pilot only if approvals are complete; publish open code and documentation. The existing synthetic reference demonstrator is preparatory evidence, not a completed Fellowship milestone. |
 | Charitable purpose | Yes, if the public-benefit pathway and non-exclusive access are clearly described |
 | Public benefit — 150 words | A reusable, open technical integration pattern, tests, and implementation guidance for other organisations facing a validated similar gap; no sensitive data release and no replacement governance framework. |
 | Work in the open | Open-source code/assets; educational/implementation materials; public workshops/presentations; research only if appropriate. |
@@ -72,9 +73,10 @@ AI disclosure: answer Yes and describe AI use as brainstorming, checking alignme
 - [ ] The people most affected have real decision-making power, not just a feedback session.
 - [ ] Existing LEEF, co-design, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent, and data-use workflows have been mapped.
 - [ ] A 12-month technical plan has a clear definition of done.
-- [ ] Mozilla confirms in writing whether a person residing in Syria can legally receive the grant/stipend and what own-name bank/payment route is acceptable; local legal/tax requirements are checked.
-- [ ] The applicant can meet SRHIN's WAT (UTC+1) schedule flexibly and can attend required virtual programme commitments. Clarify expectations for any in-person events.
+- [ ] Mozilla confirms in writing whether a person whose actual primary location is Syria can pass the location-based funding screen, meet Track I's remote-across-time-zones geographic condition, legally receive the grant/stipend, and use a lawful own-name bank/payment route; local legal/tax requirements are checked.
+- [ ] The applicant can meet SRHIN's WAT (UTC+1) schedule flexibly and can attend required virtual programme commitments. The RFP states that the July 2027 Fellowship Kick-off and October 2027 MozFest attendance are mandatory; the FAQ's different wording must be clarified in writing before confirming full availability.
 - [ ] Aidora's clean build, demo, and current CI status are verified.
+- [ ] The synthetic policy-check reference prototype is tested and labelled accurately as synthetic-only, non-production, and not host-approved.
 - [ ] All claims about community feedback, use, users, deployments, and impact are substantiated.
 - [ ] Final responses are genuinely the applicant's own voice.
 
@@ -85,3 +87,31 @@ AI disclosure: answer Yes and describe AI use as brainstorming, checking alignme
 - Full application deadline: 12 March 2027, 11:59 PM Pacific (UTC−8).
 - Final applicants notified: 30 April 2027.
 - Fellowship begins: 1 June 2027, for 12 months.
+
+
+## LOI field limits — cross-check against the live form
+
+The official form's additional required limits are:
+
+| Field | Maximum |
+|---|---:|
+| Why this host organization | 100 words |
+| Proposed project title | 10 words |
+| Project summary | 200 words |
+| One-liner | 30 words |
+| Target users | 50 words |
+| Traction to date | 50 words |
+| Project impact | 150 words |
+| Disruption | 50 words |
+| Project milestones | 150 words |
+| Public benefit | 150 words |
+| Most relevant professional experience | 150 words |
+| Technical expertise | 100 words |
+| Your role in the field | 150 words |
+| What's next? | 150 words |
+| External support | 100 words |
+| Referral person/organisation/network | 50 characters |
+
+The form also requires a project stage selection, primary output selections, up to three Fellowship motivations, open-work selections, and an AI-use disclosure. It asks whether the applicant wants Mozilla to share the application with aligned funders (optional). The applicant must personally review and complete all declarations.
+
+**Important distinction:** the form's stage choices describe the proposed Fellowship project, not every other project the applicant has built. Aidora's existing implementation does not make the separate SRHIN proposal a working prototype. The synthetic reference code in this branch demonstrates a narrow engineering approach but is not host-specific or deployed.
