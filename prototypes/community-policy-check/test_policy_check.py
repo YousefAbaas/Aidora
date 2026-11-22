@@ -108,6 +108,21 @@ class PolicyCheckTests(unittest.TestCase):
         del policy["required_context"]
         self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
 
+    def test_invalid_policy_timestamp_requires_review(self):
+        policy = valid_policy()
+        policy["effective_from"] = "not-a-timestamp"
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
+
+    def test_invalid_review_flag_requires_review(self):
+        policy = valid_policy()
+        policy["review_required"] = "false"
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
+
+    def test_unrecognised_approval_status_requires_review(self):
+        request = valid_request()
+        request["approvals"][0]["status"] = "maybe"
+        self.assertEqual(self.evaluate(request=request)["decision"], "REVIEW")
+
     def test_conflicting_approval_evidence_requires_review(self):
         request = valid_request()
         request["approvals"].append(
