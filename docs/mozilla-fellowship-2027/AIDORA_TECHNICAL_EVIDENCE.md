@@ -95,7 +95,7 @@ It supports that the applicant:
 - has experience with automated checks, tests, signed builds, and release distribution;
 - maintains technical documentation and repository hygiene.
 
-It does **not** establish that Aidora has been deployed by an NGO, used by a beneficiary community, or generated measured field outcomes. The applicant has described its use as academic only, with some limited community discussions. Any such discussions should be described specifically and without implying formal co-design unless documented.
+It does **not** establish that Aidora has been deployed by an NGO, has an active verified user base, or generated measured field outcomes. The applicant confirms that, during the initial launch, he spoke directly with refugees and people seeking assistance and received positive initial feedback. No participant count, structured study protocol, written quotations, or measured outcome has been supplied. This should be described as early qualitative feedback, not a formal user study or formal co-design unless additional evidence supports that description.
 
 ## 7. Relevance to the Mozilla proposal
 
