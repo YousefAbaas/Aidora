@@ -1,0 +1,31 @@
+name: Synthetic Community Policy Check CI
+
+on:
+  push:
+    paths:
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-bridge.yml"
+  pull_request:
+    paths:
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-bridge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        working-directory: prototypes/community-policy-check
+        run: python -m unittest -v
