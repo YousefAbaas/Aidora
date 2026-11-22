@@ -11,7 +11,7 @@ Official RFP: https://assets.mofoprod.net/network/documents/PUBLIC_2027_2028_Fel
 **Provisional choice:** Track I — Embedded Fellow.  
 **Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. No host relationship or endorsement exists yet.
 
-Rationale: the RFP directly identifies a community-owned mental-health data governance challenge for SRHIN and describes the desired profile as a rising builder with demonstrated technical excellence who has built and shipped meaningful work locally. The applicant's Aidora work supports the engineering side of that fit. Remote/time-zone and current-location eligibility still require accurate confirmation.
+Rationale: the RFP directly identifies a community-owned mental-health data governance challenge for SRHIN and describes a rising builder with demonstrated technical excellence. Aidora supports the engineering side of that fit. Important caveats: the applicant is an early-career student rather than an established mid-career specialist; SRHIN already publishes substantial community-governance tools; and remote/time-zone and current-location eligibility require confirmation. Track I is the only credible track to pursue; Track II expects senior, recognised innovators.
 
 ## Applicant and eligibility fields
 
@@ -25,7 +25,7 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 | Builder profile | Aidora repository plus the technical evidence dossier; add a short demo only after verifying it is accurate and safe |
 | Relevant experience | Likely 0–2 years if that matches actual relevant professional experience; academic projects are experience but not automatically employment |
 | Fellowship availability | Confirm ability to commit from 1 June 2027 for 12 months |
-| Legal eligibility | Do not self-certify until location, funding route, bank account in applicant's name, sanctions screening, and local legal/tax requirements are checked |
+| Legal eligibility | Mozilla's FAQ says funds are paid to individuals (not organisations), generally as grants; the Fellow needs a bank account in their own name able to accept U.S. funds and must be legally eligible to receive the funds in the country where they reside and work. As the applicant resides in Syria, obtain written confirmation from Mozilla on country eligibility, compliance screening, and acceptable payment route before answering Yes. |
 | Track I geography | Form asks whether the applicant is in an eligible location or able to work flexibly remotely across time zones. Answer truthfully; do not use a temporary IP location as residence |
 
 ## Project proposal fields
@@ -33,17 +33,17 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 | Official field / limit | Preparation direction |
 |---|---|
 | Project title — 10 words max | Community Governance for Health-AI Data Use |
-| Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF and co-design materials; acknowledge GA4GH DUO, Passports/Data Passports, consent guidance, and W3C ODRL; define the narrower question about applying these standards to community decision rights and benefit commitments; state Q1 validation and build/adapt/no-build condition. |
-| One-liner — 30 words | A community-led effort to apply existing open data-use standards to health-AI governance, decision rights, and benefit-sharing, building only what a validated gap requires. |
+| Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF, co-design, compensation/governance, Epistemic Authority Decision Matrix, and co-production readiness resources; acknowledge relevant GA4GH/W3C standards; define the narrower question of whether a technical hand-off gap remains between those existing community decisions and downstream data/AI workflows; state Q1 validation and build/adapt/no-build condition. Explain the independent public-interest project will be co-defined with the host, not merely deliver a service to existing SRHIN programmes. |
+| One-liner — 30 words | A community-led technical bridge connecting existing community-governance decisions to downstream health-AI data workflows—only if SRHIN and affected communities validate a real gap. |
 | Target users — 50 words | Young people and people with lived experience; community health workers/facilitators; community-designated data stewards; researchers and technical teams. Confirm actual groups with SRHIN. |
 | Traction — 50 words | Separate Aidora from the new project. Aidora: initial direct conversations with refugees/people needing assistance and positive early feedback; no verified deployment or user count. New proposal: pre-launch concept, no host, pilot, or users yet. |
 | Main outputs | Technology platform/tool; policy framework/recommendations; educational/implementation resources. Research publication only if methodologically justified. |
 | Project stage | Concept or wireframe only for the proposed Fellowship project. Do not select Working Prototype based on Aidora; it is a separate project. |
 | Project impact — 150 words | Explain how conditions defined by individuals/communities could be visible and checked across data access and AI use; avoid claiming software alone changes power. |
 | Disruption — 50 words | Opaque or extractive secondary-use workflows and intermediaries that benefit from data without transparent, accountable community-defined terms—not SRHIN's existing work. |
-| Milestones — 150 words | Q1 discovery and standards gap analysis; Q2 community governance workflow and standards mapping prototype with synthetic data; Q3 one host-approved staging integration and testing; Q4 governed pilot only if approvals are complete and open release. |
+| Milestones — 150 words | Q1 map SRHIN's existing tools and actual data/AI workflow; compensated, host-approved discovery; define the community-validated technical gap and build/adapt/no-build decision. Q2 prototype the smallest integration using synthetic data. Q3 test one host-approved staging hand-off. Q4 run a governed pilot only if approvals are complete; publish open code and documentation. |
 | Charitable purpose | Yes, if the public-benefit pathway and non-exclusive access are clearly described |
-| Public benefit — 150 words | Reusable open schema/API/reference implementation and guidance for other community health/research organisations; no sensitive data release. |
+| Public benefit — 150 words | A reusable, open technical integration pattern, tests, and implementation guidance for other organisations facing a validated similar gap; no sensitive data release and no replacement governance framework. |
 | Work in the open | Open-source code/assets; educational/implementation materials; public workshops/presentations; research only if appropriate. |
 
 ## Professional background fields
@@ -68,10 +68,10 @@ AI disclosure: answer Yes and describe AI use as brainstorming, checking alignme
 - [ ] SRHIN confirms the challenge is real and identifies a non-duplicative project scope.
 - [ ] The host is willing to consider this applicant and remote/time-zone arrangement.
 - [ ] The people most affected have real decision-making power, not just a feedback session.
-- [ ] Existing LEEF, co-design, GENSCORE, GENCurate, consent, and governance workflows have been mapped.
+- [ ] Existing LEEF, co-design, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent, and data-use workflows have been mapped.
 - [ ] A 12-month technical plan has a clear definition of done.
-- [ ] The applicant's primary residence and legal ability to receive U.S. funds are confirmed.
-- [ ] The applicant can meet the host's WAT (UTC+1) schedule flexibly.
+- [ ] Mozilla confirms in writing whether a person residing in Syria can legally receive the grant/stipend and what own-name bank/payment route is acceptable; local legal/tax requirements are checked.
+- [ ] The applicant can meet SRHIN's WAT (UTC+1) schedule flexibly and can attend required virtual programme commitments. Clarify expectations for any in-person events.
 - [ ] Aidora's clean build, demo, and current CI status are verified.
 - [ ] All claims about community feedback, use, users, deployments, and impact are substantiated.
 - [ ] Final responses are genuinely the applicant's own voice.
