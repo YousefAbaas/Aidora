@@ -9,9 +9,6 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 
-DECISIONS = {"ALLOW", "DENY", "REVIEW"}
-
-
 def _parse_aware_datetime(value: Any) -> datetime:
     if not isinstance(value, str):
         raise ValueError("timestamp must be a string")
@@ -48,6 +45,8 @@ def evaluate_policy(
     if not isinstance(policy, dict) or not isinstance(request, dict):
         return _result("REVIEW", {}, ["invalid_policy_or_request"])
 
+    if not isinstance(now, datetime):
+        return _result("REVIEW", policy, ["evaluation_time_invalid"])
     if now.tzinfo is None or now.utcoffset() is None:
         return _result("REVIEW", policy, ["evaluation_time_missing_timezone"])
 
@@ -65,6 +64,10 @@ def evaluate_policy(
     )
     if any(field not in policy for field in required_policy_fields):
         return _result("REVIEW", policy, ["policy_fields_incomplete"])
+    if any(not isinstance(policy[field], str) or not policy[field] for field in ("policy_id", "version", "status")):
+        return _result("REVIEW", policy, ["policy_identity_invalid"])
+    if "review_required" in policy and not isinstance(policy["review_required"], bool):
+        return _result("REVIEW", policy, ["review_flag_invalid"])
 
     try:
         effective_from = _parse_aware_datetime(policy["effective_from"])
@@ -131,6 +134,8 @@ def evaluate_policy(
         reference = approval.get("reference")
         if not all(isinstance(value, str) and value for value in (approval_type, status, reference)):
             return _result("REVIEW", policy, ["approval_evidence_incomplete"])
+        if status not in {"approved", "rejected", "pending"}:
+            return _result("REVIEW", policy, ["approval_status_unrecognised"])
         if approval_type in approval_status and approval_status[approval_type] != status:
             return _result("REVIEW", policy, ["conflicting_approval_evidence"])
         approval_status[approval_type] = status
