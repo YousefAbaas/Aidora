@@ -15,7 +15,13 @@ The main risks are not coding ability. They are:
 
 **Do not call the application “10/10” until these gates are resolved.** The target is a complete, evidence-backed application with no avoidable weaknesses—not a fabricated guarantee of selection.
 
-## A. Novelty and standards landscape\n\nThe initial novelty check identified existing work that must be reused and credited: GA4GH DUO describes permitted data uses; GA4GH Passports and Data Passports address researcher permissions and data-level policy attributes; GA4GH Machine-Readable Consent Guidance maps consent language to DUO; W3C ODRL 2.2 expresses permissions, prohibitions, constraints, and duties. The proposal must not claim to invent a new data-use ontology, passport, or policy language.\n\nThe only defensible potential contribution is a host- and community-validated governance workflow or standards mapping that addresses a demonstrated gap around collective decision rights, contestation/appeal, and benefit-commitment accountability. If existing standards and SRHIN's current processes already address that gap, do not build a new tool.\n\n## B. The three questions Mozilla asks of every investment
+## A. Novelty and standards landscape
+
+The initial novelty check identified existing work that must be reused and credited: GA4GH DUO describes permitted data uses; GA4GH Passports and Data Passports address researcher permissions and data-level policy attributes; GA4GH Machine-Readable Consent Guidance maps consent language to DUO; W3C ODRL 2.2 expresses permissions, prohibitions, constraints, and duties. The proposal must not claim to invent a new data-use ontology, passport, or policy language.
+
+The only defensible potential contribution is a host- and community-validated governance workflow or standards mapping that addresses a demonstrated gap around collective decision rights, contestation/appeal, and benefit-commitment accountability. If existing standards and SRHIN's current processes already address that gap, do not build a new tool.
+
+## B. The three questions Mozilla asks of every investment
 
 ### 1. Agency — does it put people in control?
 
@@ -24,7 +30,7 @@ The main risks are not coding ability. They are:
 - Purpose-specific conditions rather than blanket permission.
 - Plain-language access to current choices and a route to request changes.
 - Community-designated authority to review, approve, reject, or condition secondary-use requests.
-- A record of what was decided, by whom, under which manifest version, and why.
+- A record of what was decided, by whom, under which applicable policy version, and why.
 
 **What reviewers may challenge**
 - A consent screen is not meaningful control by itself.
@@ -51,13 +57,13 @@ The main risks are not coding ability. They are:
 
 **What reviewers may challenge**
 - A one-host dashboard may not be a commons.
-- A manifest cannot enforce terms in systems that do not check it.
+- A policy representation cannot enforce terms in systems that do not check it.
 - Open-sourcing sensitive information would create harm.
 
 **What makes the case credible**
 - Reuse and contribute to DUO, GA4GH Passports/Data Passports, and ODRL where appropriate; publish only validated mappings, adapters, tests, and governance workflow documentation.
 - Demonstrate a clean, documented integration pattern where approved.
-- Keep health records and personal data private; openness applies to code, schema, methods, and non-confidential learning.
+- Keep health records and personal data private; openness applies to code, validated mappings, methods, and non-confidential learning.
 - Include self-hosting and maintenance documentation.
 
 **Status:** promising and technically feasible; portability and independent reuse must be demonstrated.
@@ -122,7 +128,7 @@ The proposal must be more precise than “build a consent app”. Its potential 
 
 **Definition of done**
 1. A community-validated problem statement and workflow map.
-2. A versioned Data Use Manifest schema with plain-language explanation.
+2. A validated community-governance workflow and standards mapping or adapter, with plain-language explanations.
 3. A tested policy-check API returning allow / deny / review with traceable reasons.
 4. A minimal governance-review and benefit-commitment workflow.
 5. One host-approved staging integration or documented import/export pattern.
@@ -147,10 +153,10 @@ A no-build or pivot decision in Q1 is evidence of rigour, not failure.
 | Duplicate of existing SRHIN systems/resources | High | Discovery and technical mapping before design commitments |
 | Token community participation | High | Community-defined decision rights, compensation, review, and appeal |
 | Consent mistaken for legal/ethical permission | High | Separate individual choice, community governance, ethics review, and legal basis |
-| Manifest ignored by external systems | High | Integrations, agreements, monitoring, explicit technical limits |
+| Policy representation ignored by external systems | High | Integrations, agreements, monitoring, explicit technical limits |
 | Harm from storing sensitive mental-health data | Critical | No raw records in governance service; synthetic data by default |
 | Benefit-sharing remains symbolic | High | Community-defined commitments with owners, dates, evidence, and dispute process |
-| Scope too broad for 12 months | Medium | One manifest schema, one policy engine, one approved integration path |
+| Scope too broad for 12 months | Medium | One validated governance workflow, one standards mapping/adapter, one approved integration path |
 | Host/time-zone/location/funding eligibility | Critical | Host response and funding/banking confirmation before legal self-certification |
 | Applicant claims exceed evidence | High | Evidence ledger; no invented numbers, deployment, impact, or partnership |
 
