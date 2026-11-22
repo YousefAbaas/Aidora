@@ -102,7 +102,17 @@ The project should select one low-risk workflow only after mapping the host's ac
 
 Do not assume GENSCORE or GENCurate exposes an extension point. No production connection without written host authorisation and security review.
 
-## 7. Twelve-month engineering plan
+## 7. Experimental engineering probe (not a proposed host integration)
+
+An isolated Python reference prototype has been added under `prototypes/community-policy-bridge/`. It evaluates a deliberately minimal, synthetic policy envelope and returns `ALLOW`, `DENY`, or `REVIEW`. The demonstration checks declared policy status, expiry, dataset reference, policy version, purpose, actor role, and the presence of an authority-decision reference.
+
+The prototype exists to test a narrow engineering question: can an invoked downstream workflow fail closed when declared conditions are missing, expired, or contradictory? It is not connected to Aidora's production backend, SRHIN systems, or any data source. Its field names and reason codes are provisional demo choices—not a new ontology, consent model, or GA4GH/ODRL implementation.
+
+**Important limitations:** the prototype does not authenticate actors, verify the authority reference, establish that a community decision is legitimate, interpret legal consent, enforce restrictions outside the calling system, prevent copying, or prove benefit-sharing. An `ALLOW` result means only that the demo's declared checks passed. The caller remains responsible for authentication, authoritative policy retrieval, and enforcement. The prototype must be discarded or adapted if host-led discovery shows it is unnecessary or misaligned.
+
+A dedicated GitHub Actions workflow runs its standard-library unit tests. Do not claim successful CI until the actual workflow run is green.
+
+## 8. Twelve-month engineering plan
 
 ### Q1 — Discovery and standards fit (June–August 2027)
 - Map SRHIN systems, policies, LEEF guidance, co-design processes, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, data flows, and decision hand-offs.
@@ -126,7 +136,7 @@ Do not assume GENSCORE or GENCurate exposes an extension point. No production co
 - Evaluate participant understanding, decision traceability, challenge/appeal handling, operational burden, and benefit-commitment status.
 - Release reusable mappings, code, tests, implementation guidance, and a community-reviewed report without sensitive data.
 
-## 8. Evaluation framework
+## 9. Evaluation framework
 
 Baselines and targets must be set with SRHIN and community participants in Q1. Candidate indicators:
 - participant understanding of data-use choices and routes to challenge decisions;
@@ -139,7 +149,7 @@ Baselines and targets must be set with SRHIN and community participants in Q1. C
 
 Do not invent numeric targets before discovery. Report limitations and adverse findings.
 
-## 9. Technical choices and non-goals
+## 10. Technical choices and non-goals
 
 Candidate implementation stack: Python, Django REST Framework, PostgreSQL, and an accessible web/mobile interface. This draws on the applicant's experience with Aidora, but the host's architecture and needs determine the final stack.
 
@@ -153,7 +163,7 @@ Non-goals:
 - no blockchain, token, or monetisation scheme by default;
 - no claim that software alone solves structural power imbalances.
 
-## 10. Open-source and sustainability
+## 11. Open-source and sustainability
 
 Prefer contributions to existing standards and upstream communities where appropriate. Publish any host-approved adapter, mappings, tests, documentation, and non-confidential learning under licences agreed with Mozilla and SRHIN. Provide self-hosting and maintenance guidance. Keep sensitive data, confidential host information, and security-sensitive details private.
 
