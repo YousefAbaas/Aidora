@@ -1,0 +1,33 @@
+name: Synthetic Community Policy API CI
+
+on:
+  push:
+    paths:
+      - "prototypes/community-policy-api/**"
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-api.yml"
+  pull_request:
+    paths:
+      - "prototypes/community-policy-api/**"
+      - "prototypes/community-policy-check/**"
+      - ".github/workflows/community-policy-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install isolated prototype dependencies
+        run: pip install -r prototypes/community-policy-api/requirements.txt
+      - name: Run API integration tests
+        working-directory: prototypes/community-policy-api
+        run: python -m unittest -v
