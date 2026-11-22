@@ -380,6 +380,10 @@ Checkout → Set up Python → Install dependencies → Django system check → 
 
 ---
 
-## License
+## Project authorship and licence
 
-This project is currently distributed under a **proprietary license**, part of the Aidora platform (see [root README](../README.md)).
+Aidora was created by and is owned by **Yousef Abbas**, who is its principal developer and ongoing maintainer. He led the end-to-end technical design and implementation across the Flutter application, Django REST Framework backend, PostgreSQL data layer, API integration, testing, and engineering automation.
+
+The repository is distributed under the **Apache License 2.0**, as stated in the root [LICENSE](../LICENSE) file. The copyright in Aidora's original project code and documentation remains with its creator. Apache 2.0 grants recipients the rights described in that licence to use, modify, and redistribute covered material subject to its conditions; it does not transfer copyright ownership.
+
+Third-party packages, libraries, fonts, and externally sourced assets remain governed by their respective licences and notices.
