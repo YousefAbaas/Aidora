@@ -59,6 +59,15 @@ class PolicyEvaluationView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        allowed_fields = set(PolicyEvaluationInputSerializer().fields)
+        supplied_fields = set(request.data.keys())
+        unexpected_fields = supplied_fields - allowed_fields
+        if unexpected_fields:
+            return Response({
+                "detail": "Unexpected request fields are not accepted.",
+                "unexpected_fields": sorted(unexpected_fields),
+            }, status=400)
+
         serializer = PolicyEvaluationInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         values = serializer.validated_data
