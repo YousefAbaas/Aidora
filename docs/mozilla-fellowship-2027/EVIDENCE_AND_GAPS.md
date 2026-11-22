@@ -80,11 +80,14 @@ SRHIN also publicly describes:
 - the LEEF pre-launch checklist for digital mental-health tools;
 - a guide for people with lived experience to participate in AI mental-health tool design.
 
-The project must build on these existing assets. Its initial hypothesis is not that SRHIN lacks co-design or consent principles. It is that a specific operational gap may remain in carrying community-defined data-use conditions through downstream access, reuse, AI training/evaluation, audit, withdrawal and benefit-sharing. Only SRHIN and the affected communities can validate this.
+The project must build on these existing assets, including SRHIN's compensation/governance template, Epistemic Authority Decision Matrix, and co-production readiness tool. Its hypothesis is not that SRHIN lacks governance principles or policy templates. It is that a specific technical hand-off may remain between community decisions and downstream data access, reuse, AI development, audit, change/withdrawal, and benefit delivery. Only SRHIN and affected communities can validate this.
 
 Relevant public resources:
 - LEEF checklist: https://resources.srhin.org/item/leef-checklist
 - Lived-experience AI co-design guide: https://resources.srhin.org/item/ai-co-design-guide
+- Compensation and governance template: https://resources.srhin.org/item/lived-experience-compensation-governance-template
+- Epistemic Authority Decision Matrix: https://resources.srhin.org/item/epistemic-authority-decision-matrix
+- Co-production Readiness Self-Assessment: https://resources.srhin.org/item/coproduction-readiness-self-assessment
 - SRHIN work: https://srhin.org/our-work/
 - GENCurate: https://srhin.org/alpha-center/
 
@@ -92,7 +95,7 @@ Relevant public resources:
 
 | Mozilla question | Current evidence | Remaining gap / required action |
 |---|---|---|
-| Is it early? | The RFP defines a community-owned governance challenge; the proposed portable policy manifest and policy-checking layer are a possible technical response. | Prove the gap is not already addressed by SRHIN's existing tools, agreements, or governance processes. |
+| Is it early? | The RFP defines a community-owned governance challenge; a possible technical response would connect SRHIN's existing community-governance instruments to downstream data-use and AI workflows. | Prove the gap is not already addressed by SRHIN's existing tools, agreements, or governance processes. |
 | Who is it for? | RFP identifies young people, people with lived experience, and community health workers. | SRHIN and those communities must identify actual users, workflows, languages, and decision-makers. |
 | Can you build it? | Aidora provides evidence of full-stack implementation, API/data architecture, tests, CI/CD, and release automation. | Prepare a demonstrable clean build, current CI run links, and a focused 12-month definition of done. |
 | Who holds the power? | Applicant has experience asking intended users for feedback on Aidora. | That feedback is not Nigerian co-design. The Fellowship project must give affected communities real authority over rules, approvals, review, and evaluation. |
@@ -102,12 +105,12 @@ Relevant public resources:
 ## 8. Mozilla's three investment questions
 
 ### Agency
-Potential strength: individual permissions and community-level rules can be specific, reviewable, revisable, and linked to governance decisions.
+Potential strength: individual permissions and community-level rules can be carried into operational workflows. SRHIN already has published tools for defining lived-experience authority and compensation; the gap, if any, is how these decisions are implemented and audited downstream.
 
 Proof needed: evidence that participants understand their choices and that a community-designated body can approve/reject/condition proposed uses. The tool must not imply that an individual click alone resolves every ethical or legal issue.
 
 ### Commons
-Potential strength: a portable manifest schema, open API, reference implementation, tests, and implementation guide could be reusable by other organisations and platforms.
+Potential strength: a reusable technical integration pattern could connect existing community-defined authority and compensation decisions to data-use workflows, if discovery proves that hand-off is currently missing.
 
 Proof needed: a clean open-source release, interoperable documentation, maintenance plan, and evidence that the approach is not locked to one vendor. Sensitive data must remain private.
 
