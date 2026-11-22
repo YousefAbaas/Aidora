@@ -8,8 +8,8 @@ Investigate whether decisions already made through SRHIN's community-governance 
 
 Candidate standards include:
 - **GA4GH DUO** for standardised, machine-readable data-use terms;
-- **GA4GH Passports / Data Passports** for researcher authorisation and data-level policy attributes, subject to their scope and maturity;
-- **GA4GH Machine-Readable Consent Guidance** for mapping consent language to DUO;
+- **GA4GH Passports** for researcher access authorisations; **GA4GH Data Passports** is a separate, evolving effort for dataset-level policy attributes and must not be treated as a settled implementation profile;
+- **GA4GH Machine-Readable Consent Guidance** for mapping consent language to DUO; this does not establish consent validity or replace community governance;
 - **W3C ODRL 2.2** for expressing permissions, prohibitions, constraints, and duties.
 
 These standards have different purposes and are not automatically interchangeable. Q1 must assess their suitability for SRHIN's mental-health data workflows and document gaps. The project must not claim to replace them.
@@ -58,6 +58,8 @@ Do not build a new community decision-making workflow unless SRHIN and affected 
 The affected community and SRHIN—not the developer—define who holds decision authority.
 
 ### C. Policy check
+
+A synthetic, dependency-free reference implementation and test suite are available in [the prototype directory](../../prototypes/community-policy-check/README.md), with its conservative decision semantics documented in [the reference specification](REFERENCE_POLICY_CHECK_SPEC.md). This is an engineering demonstrator only: it does not authenticate approval evidence, implement a GA4GH/ODRL standard, or connect to SRHIN systems.
 
 A narrow policy-check API may return:
 - **ALLOW** — the request matches active conditions and required approvals are present;
