@@ -90,9 +90,30 @@ These links provide direct evidence that the configured pipelines have run succe
 
 ## 6. Security and engineering judgement
 
-The repository documents environment-based secret configuration, JWT authentication, API-level role checks, database SSL/TLS settings for production, and protections against committing local secrets and database exports. The commit history also records removal of a production database dump and rules to ignore database backups.
+The repository documents environment-based secret configuration, JWT authentication, role checks on most API endpoints (one unauthenticated endpoint was found in the 23 November 2026 review, see 6.1), database SSL/TLS settings for production, and rules against committing local secrets and database exports. The commit history also records removal of a production database dump and rules to ignore database backups.
 
 These are evidence of security-conscious engineering practices. They should not be described as an independent penetration test, formal security certification, or comprehensive privacy audit.
+
+### 6.1 Internal security review — 23 November 2026 (AI-assisted; not an independent audit)
+
+**Findings on `main` at the time of review:**
+
+- The QR completion endpoint (`ScanQRAPIView`) had its permission classes commented out, so it was reachable without authentication; no default DRF permission class was set.
+- OTP codes were generated with a non-cryptographic random generator; new volunteer QR codes used only 8 hex characters of randomness.
+- The forgot-password endpoint returned different responses for registered and unregistered emails (account enumeration).
+- The mobile client logged the token-refresh response body, and the Android network configuration allowed cleartext HTTP for all hosts in release builds.
+- A production database export (`backend/organizations_prod.sql`, containing INSERT statements for organisation, service and target-group tables; user tables were not seen in a statement-type count, and the content was not exhaustively audited) was removed from the working tree but remains in Git history. Signing-related password lines in older commits (e.g. `24a4938`, `2d7333d`) have not been verified as placeholders or real values.
+
+**Remediation status (do not describe as fixed until merged and CI is green):**
+
+| Item | Status |
+|---|---|
+| Backend fixes: pull request #1 (`security/backend-hardening`) | Open, not merged. Django CI passed on commit `dea9096`; Flutter CI result not yet verified. |
+| Mobile/Android fixes: branch `fix/flutter-hardening` | Pushed, no pull request yet, not tested with the Flutter toolchain. |
+| Git history rewrite for the database export | Not performed (requires owner decision). |
+| Signing credentials in history | Owner to verify; rotate if real. |
+
+This review was assisted by an AI tool. It is an internal engineering review, not a penetration test or formal security certification.
 
 ## 7. What this evidence does — and does not — establish
 
