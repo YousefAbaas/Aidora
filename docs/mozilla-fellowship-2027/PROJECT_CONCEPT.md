@@ -9,7 +9,7 @@
 
 Mozilla's 2027–2028 RFP identifies a challenge for SRHIN around community-owned governance, consent, privacy, and benefit-sharing for mental-health data used in AI. It calls for exploring community-owned tools and piloting with young people, people with lived experience, and community health workers.
 
-This is not evidence that SRHIN lacks responsible practices. SRHIN publicly describes co-creation with people with lived experience and resources including the LEEF pre-launch checklist and a guide for involving lived experience in AI mental-health design. It also describes GENSCORE and GENCurate.
+This is not evidence that SRHIN lacks responsible practices. SRHIN publicly describes co-creation with people with lived experience and has already published the LEEF checklist, an AI mental-health co-design guide, a lived-experience compensation/governance template, an Epistemic Authority Decision Matrix, and a co-production readiness self-assessment. It also describes GENSCORE and GENCurate.
 
 **The narrower hypothesis:** even where good engagement and consent practices exist, can community-defined decisions and obligations be reliably represented in existing data-use standards and carried through the operational lifecycle of health-AI data—from a proposed secondary use, through approval and access, to audit, challenge, and benefit-commitment review?
 
