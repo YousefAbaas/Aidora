@@ -93,7 +93,7 @@ The only defensible potential contribution is a host- and community-validated go
 
 | RFP question | Current case | Evidence / action needed |
 |---|---|---|
-| **1. Is it early?** | The RFP defines a community-owned governance challenge; a standards-aligned community governance workflow may be a focused response, if discovery proves a gap. | Map SRHIN's LEEF, co-design, consent, agreements, platform controls, and relevant standards. If the gap is solved, do not build. |
+| **1. Is it early?** | The RFP defines a community-owned governance challenge; a standards-aligned community governance workflow may be a focused response, if discovery proves a gap. | Map SRHIN's LEEF, co-design, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, consent, agreements, platform controls, and relevant standards. If the gap is solved, do not build. |
 | **2. Who is it for?** | Potential users: young people and people with lived experience, community health workers/facilitators, community data stewards, and research/technical teams. | SRHIN and affected communities must identify actual users, languages, contexts, and decision-makers. |
 | **3. Can you build it?** | Aidora demonstrates full-stack implementation across Flutter, Django REST Framework, PostgreSQL, APIs, authentication, role-aware workflows, tests, CI/CD, and Android release automation. | Prepare a clean build/demo and verify current workflow runs. Keep the plan focused on one validated governance workflow, one standards mapping/adapter, and one approved integration path. |
 | **4. Who holds the power?** | The applicant has experience listening directly to refugees and people seeking assistance during Aidora's initial launch; early feedback was positive. | That is not Nigerian co-design. Give affected communities real authority to define terms, governance, review, and evaluation before implementation. |
@@ -122,7 +122,7 @@ The RFP describes SRHIN's challenge as community-owned governance, consent, priv
 
 SRHIN's public materials show existing work on GENSCORE, GENCurate, the LEEF pre-launch checklist, and a guide for people with lived experience to participate in AI mental-health tool design.
 
-The proposal must be more precise than “build a consent app”. Its potential differentiator is an operational layer that carries community-set use conditions into downstream data and AI requests and makes enforcement and audit reviewable. This remains a hypothesis until SRHIN confirms the actual workflow gap.
+The proposal must be more precise than “build a consent app” or another governance template. SRHIN already publishes tools that address co-production readiness, lived-experience decision authority, and compensation/governance. The only plausible differentiator is a technical bridge from those existing decisions into downstream data/AI workflows, with reviewable traceability. This remains a hypothesis until SRHIN confirms a real workflow gap.
 
 ## F. Scope test — can it be delivered in 12 months?
 
