@@ -151,7 +151,65 @@ class PolicyCheckTests(unittest.TestCase):
         request["approvals"].append(
             {"type": "data_steward", "status": "rejected", "reference": "fake-c"}
         )
+        result = self.evaluate(request=request)
+        self.assertEqual(result["decision"], "REVIEW")
+        self.assertEqual(
+            result["reason_codes"],
+            ["duplicate_or_conflicting_approval_evidence"],
+        )
+
+    def test_duplicate_approval_with_same_status_requires_review(self):
+        request = valid_request()
+        request["approvals"].append(
+            {"type": "data_steward", "status": "approved", "reference": "substituted-ref"}
+        )
         self.assertEqual(self.evaluate(request=request)["decision"], "REVIEW")
+
+    def test_expiry_boundary_is_denied(self):
+        policy = valid_policy()
+        policy["expires_at"] = NOW.isoformat()
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "DENY")
+
+    def test_malformed_expiry_requires_review(self):
+        policy = valid_policy()
+        policy["expires_at"] = "tomorrow"
+        self.assertEqual(self.evaluate(policy=policy)["decision"], "REVIEW")
+
+    def test_explicit_deny_cannot_be_overridden_by_approvals(self):
+        request = valid_request()
+        request["purpose"] = "commercial_model_training"
+        self.assertEqual(self.evaluate(request=request)["decision"], "DENY")
+
+    def test_explicit_deny_cannot_be_overridden_by_review_flag(self):
+        policy = valid_policy()
+        policy["review_required"] = True
+        request = valid_request()
+        request["action"] = "export_row_level_data"
+        self.assertEqual(self.evaluate(policy=policy, request=request)["decision"], "DENY")
+
+    def test_review_requirement_cannot_be_overridden_by_approvals(self):
+        policy = valid_policy()
+        policy["review_required"] = True
+        result = self.evaluate(policy=policy)
+        self.assertEqual(result["decision"], "REVIEW")
+        self.assertEqual(result["reason_codes"], ["policy_requires_human_review"])
+
+    def test_fake_approval_reference_is_not_authenticated_by_prototype(self):
+        # This is a documented security limitation, not an expected safe use:
+        # a non-empty string reference is accepted as evidence by this toy model.
+        request = valid_request()
+        request["approvals"][0]["reference"] = "attacker-invented-reference"
+        self.assertEqual(self.evaluate(request=request)["decision"], "ALLOW")
+
+    def test_caller_modified_policy_can_change_decision(self):
+        # The evaluator trusts its policy argument. It has no signature,
+        # registry, version pinning, or trusted policy-store integration.
+        policy = valid_policy()
+        policy["denied_purposes"] = []
+        policy["allowed_purposes"].append("commercial_model_training")
+        request = valid_request()
+        request["purpose"] = "commercial_model_training"
+        self.assertEqual(self.evaluate(policy=policy, request=request)["decision"], "ALLOW")
 
 
 if __name__ == "__main__":
