@@ -30,7 +30,15 @@ Useful evidence:
 
 Illustrative commits document architecture, API integration, PostgreSQL CI configuration, Firebase distribution automation, and removal/ignoring of production database dumps. Workflow definitions prove that automation is configured in the repository; the latest successful run must be checked separately before making a CI success claim.
 
-## 2. Direct community feedback on Aidora — applicant-confirmed
+## 2. Recent automated engineering verification
+
+On 15 November 2026, the latest visible GitHub Actions runs on `main` both completed successfully:
+- Django CI: https://github.com/YousefAbaas/Aidora/actions/runs/43721781747
+- Flutter CI: https://github.com/YousefAbaas/Aidora/actions/runs/43721781742
+
+The Django run completed its PostgreSQL-backed system checks and tests. The Flutter run completed analysis, unit/widget/integration test steps, signed Android build, Firebase App Distribution, artifact verification/upload, and signing-file cleanup. This supports the claim that the project has automated validation and a working QA release pipeline. It does not establish deployment to humanitarian organisations or use by beneficiaries.
+
+## 3. Direct community feedback on Aidora — applicant-confirmed
 
 The applicant has confirmed that, during Aidora's initial launch, he spoke directly with refugees and people who needed assistance and asked for their views on the application. The initial feedback was positive.
 
@@ -49,19 +57,19 @@ Do not describe this as:
 
 If the applicant can later provide approximate dates, setting, number of conversations (only if known), the topics raised, and specific design changes made, this section can be strengthened without naming participants.
 
-## 3. Ownership and licence
+## 4. Ownership and licence
 
 Aidora is identified as created and owned by Yousef Abbas, who led its end-to-end technical design and principal implementation. The repository's Apache License 2.0 notice identifies **Copyright 2026 Yousef Abbas**. Copyright ownership is compatible with Apache 2.0: the owner retains copyright while granting recipients the licence permissions, subject to the licence conditions.
 
 Third-party packages, libraries, fonts, and externally sourced assets remain governed by their respective licences. Do not claim ownership of those materials.
 
-## 4. What Aidora does and does not establish
+## 5. What Aidora does and does not establish
 
 It establishes a credible record of building a multi-layer software system and maintaining an engineering repository. It supports the applicant's ability to build an API, role-aware workflows, a database-backed application, tests, and a delivery pipeline.
 
 It does not establish specialist expertise in clinical mental-health research, Nigerian health data governance, privacy law, or SRHIN's internal systems. The application should present the applicant as a capable software builder ready to learn from the host's clinical, ethics, technical, and community expertise.
 
-## 5. SRHIN context discovered in public materials
+## 6. SRHIN context discovered in public materials
 
 The 2027–2028 Mozilla RFP asks SRHIN to explore community-owned tools for governance, consent, privacy, and benefit-sharing around mental-health data used in AI, and to pilot with young people, people with lived experience, and community health workers.
 
@@ -80,7 +88,7 @@ Relevant public resources:
 - SRHIN work: https://srhin.org/our-work/
 - GENCurate: https://srhin.org/alpha-center/
 
-## 6. Mozilla's six decision questions — candid assessment
+## 7. Mozilla's six decision questions — candid assessment
 
 | Mozilla question | Current evidence | Remaining gap / required action |
 |---|---|---|
@@ -91,7 +99,7 @@ Relevant public resources:
 | What do you bring to / take from the cohort? | Applicant brings practical mobile/backend engineering and experience engaging intended users. | Articulate a specific contribution and learning agenda covering data governance, privacy engineering, community research, and public-interest technology. |
 | Could you become a defining voice? | Aidora and the proposed open governance tool provide a credible foundation for an emerging public-interest software builder. | This requires a distinctive, shipped result, public documentation, peer exchange, and sustained community accountability—not a title claim. |
 
-## 7. Mozilla's three investment questions
+## 8. Mozilla's three investment questions
 
 ### Agency
 Potential strength: individual permissions and community-level rules can be specific, reviewable, revisable, and linked to governance decisions.
@@ -108,7 +116,7 @@ Potential strength: traceable community-defined benefit commitments may improve 
 
 Proof needed: the community itself must define benefits and the mechanism through which commitments are negotiated, monitored, and contested. A register alone does not change market power; the project must test whether it changes practice.
 
-## 8. Critical submission gates
+## 9. Critical submission gates
 
 1. SRHIN confirms that a real, non-duplicative gap exists and is willing to support the applicant's Embedded project.
 2. Community groups and decision-making authority are defined by the host and affected people, not assumed by the applicant.
@@ -117,7 +125,7 @@ Proof needed: the community itself must define benefits and the mechanism throug
 5. Aidora demo and current CI run status are verified.
 6. The final application is written in the applicant's own ideas and voice. Mozilla allows AI for brainstorming, clarification, and translation, but warns against AI-generated complete responses.
 
-## 9. Recommended order of work
+## 10. Recommended order of work
 
 1. Send the SRHIN exploratory enquiry after the applicant reviews and personally approves it.
 2. Map SRHIN's LEEF, co-design guide, GENSCORE, GENCurate, consent processes, data-use agreements, and governance.
