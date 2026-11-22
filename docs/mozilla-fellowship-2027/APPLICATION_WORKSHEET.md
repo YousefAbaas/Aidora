@@ -32,16 +32,16 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 
 | Official field / limit | Preparation direction |
 |---|---|
-| Project title — 10 words max | Community-Controlled Data Use Passport for Health AI |
-| Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF and co-design materials; define the narrower hypothesis about whether community-defined conditions travel into downstream use and AI workflows; describe manifest + policy engine; state Q1 validation and no-build condition. |
-| One-liner — 30 words | An open, machine-readable way for communities to attach, review, and check their own rules on how mental-health data is accessed, reused, and used in AI. |
+| Project title — 10 words max | Community Governance for Health-AI Data Use |
+| Project summary — 200 words | State the RFP challenge; acknowledge SRHIN's existing LEEF and co-design materials; acknowledge GA4GH DUO, Passports/Data Passports, consent guidance, and W3C ODRL; define the narrower question about applying these standards to community decision rights and benefit commitments; state Q1 validation and build/adapt/no-build condition. |
+| One-liner — 30 words | A community-led effort to apply existing open data-use standards to health-AI governance, decision rights, and benefit-sharing, building only what a validated gap requires. |
 | Target users — 50 words | Young people and people with lived experience; community health workers/facilitators; community-designated data stewards; researchers and technical teams. Confirm actual groups with SRHIN. |
 | Traction — 50 words | Separate Aidora from the new project. Aidora: initial direct conversations with refugees/people needing assistance and positive early feedback; no verified deployment or user count. New proposal: pre-launch concept, no host, pilot, or users yet. |
 | Main outputs | Technology platform/tool; policy framework/recommendations; educational/implementation resources. Research publication only if methodologically justified. |
 | Project stage | Concept or wireframe only for the proposed Fellowship project. Do not select Working Prototype based on Aidora; it is a separate project. |
 | Project impact — 150 words | Explain how conditions defined by individuals/communities could be visible and checked across data access and AI use; avoid claiming software alone changes power. |
 | Disruption — 50 words | Opaque or extractive secondary-use workflows and intermediaries that benefit from data without transparent, accountable community-defined terms—not SRHIN's existing work. |
-| Milestones — 150 words | Q1 discover/co-design; Q2 manifest/schema and synthetic-data alpha; Q3 host-approved staging integration and testing; Q4 governed pilot only if approvals are complete and open release. |
+| Milestones — 150 words | Q1 discovery and standards gap analysis; Q2 community governance workflow and standards mapping prototype with synthetic data; Q3 one host-approved staging integration and testing; Q4 governed pilot only if approvals are complete and open release. |
 | Charitable purpose | Yes, if the public-benefit pathway and non-exclusive access are clearly described |
 | Public benefit — 150 words | Reusable open schema/API/reference implementation and guidance for other community health/research organisations; no sensitive data release. |
 | Work in the open | Open-source code/assets; educational/implementation materials; public workshops/presentations; research only if appropriate. |
