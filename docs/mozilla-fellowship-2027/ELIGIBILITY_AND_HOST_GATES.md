@@ -1,6 +1,6 @@
 # Mozilla Fellowship — eligibility and host validation gates
 
-**Status: unresolved; do not self-certify legal eligibility yet.**
+**Status: Mozilla clarification enquiry sent on 23 November 2026; awaiting written response. Legal eligibility remains unresolved.**
 
 ## 1. Applicant location and payment eligibility
 
@@ -15,14 +15,21 @@ Mozilla's 2027 FAQ adds that:
 
 The applicant's stated residence is Syria. The public FAQ does not provide a Syria-specific determination. Do not infer that Syria is eligible or ineligible from nationality alone, and do not answer the LOI legal-eligibility question Yes until Mozilla provides a clear written response and a viable payment route is confirmed.
 
-### Written clarification required from Mozilla
-Ask:
-1. Can an individual whose primary residence and work location during the Fellowship will be Syria receive the 2027–2028 Fellowship grant/stipend?
-2. Are there any country-specific legal, sanctions-compliance, or payment restrictions relevant to a Syria-resident applicant?
-3. Must the own-name bank account be located in the country of residence, or can an account in another country be used if the applicant is legally entitled to receive the funds while residing/working in Syria?
-4. What documentation or screening is required before Mozilla can confirm eligibility?
+### Mozilla clarification enquiry — sent
 
-Do not attempt to bypass restrictions through another person's account, a false residence, or an undisclosed intermediary.
+**Sent:** 23 November 2026  
+**To:** fellowships@mozillafoundation.org  
+**Subject:** 2027–2028 Fellowship — eligibility and participation clarification  
+**Gmail message ID:** 1a20515370d6b31d
+
+The message asks:
+1. Whether an applicant whose primary residence and work location during the Fellowship will be Syria can receive Mozilla grant/stipend funding.
+2. Whether Syria-specific legal, sanctions, banking, or compliance restrictions apply.
+3. Whether the own-name receiving account must be in the country of residence or may be a personal account in another country, provided receipt is lawful.
+4. Whether all Fellowship gatherings/events can be attended remotely and whether any in-person attendance is essential.
+5. Whether Mozilla recommends additional eligibility guidance for Syria-resident applicants.
+
+**Current state:** sent successfully; no response recorded yet. The message does not establish eligibility. Do not self-certify legal eligibility or attempt to bypass restrictions through another person's account, a false residence, or an undisclosed intermediary.
 
 ## 2. Track and host
 
@@ -74,27 +81,13 @@ Risks:
 - SRHIN Co-Production Readiness Self-Assessment: https://resources.srhin.org/item/coproduction-readiness-self-assessment
 
 
-## 6. Draft clarification email to Mozilla (not sent)
+## 6. Sent clarification email to Mozilla
 
+**Sent:** 23 November 2026  
 **To:** fellowships@mozillafoundation.org  
-**Subject:** 2027–2028 Fellowship — eligibility and remote participation clarification
+**Subject:** 2027–2028 Fellowship — eligibility and participation clarification  
+**Gmail message ID:** 1a20515370d6b31d
 
-Hello Mozilla Fellowships team,
+The message explains that the applicant is a Syrian national whose primary residence and work location are expected to be Syria. It asks whether such an applicant can receive the grant/stipend, whether Syria-specific sanctions/compliance/payment restrictions apply, whether an own-name account in another country is acceptable if lawful, whether all events can be attended remotely, and whether any additional Syria-specific guidance should be reviewed.
 
-I am considering applying to the 2027–2028 Fellowship, Track I (Embedded Fellow), with Slum & Rural Health Initiative as the potential host. Before submitting the Letter of Intent, I would appreciate clarification on a few eligibility and participation points.
-
-I am a Syrian national and expect my primary residence and work location during the Fellowship to be in Syria.
-
-1. Can an individual residing and working in Syria legally receive the Fellowship grant/stipend from Mozilla Foundation?
-2. Are there any Syria-specific compliance, sanctions-screening, or payment restrictions that would affect eligibility?
-3. The FAQ says Fellows need a bank account in their own name that can accept U.S. funds. Does that account need to be located in the country of residence, or could an account in another country be used if the Fellow remains resident and working in Syria and is legally entitled to receive the funds?
-4. The RFP describes attendance at the July 2027 Fellowship Kick-off and October 2027 MozFest as mandatory, while the FAQ says in-person activities are not mandatory. Could you clarify whether remote participation is possible, and which activities require physical attendance?
-
-I want to ensure that I can truthfully confirm legal eligibility and full participation before submitting the application.
-
-Thank you for your guidance.
-
-Best regards,  
-Yousef Abbas
-
-**Important:** This is a preparation draft only. It has not been sent. Do not self-certify legal eligibility until Mozilla's response and a lawful payment route are clear.
+**Current state:** sent successfully; no response recorded yet. This enquiry does not establish eligibility. Do not self-certify until Mozilla provides a clear answer and a lawful payment route is confirmed.
