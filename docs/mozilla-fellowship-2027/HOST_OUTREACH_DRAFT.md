@@ -17,7 +17,7 @@ I am exploring an application to the Mozilla Foundation 2027–2028 Fellowship, 
 
 I have also reviewed SRHIN's public work, including GENSCORE, GENCurate, the LEEF pre-launch checklist, and your guide for people with lived experience to participate in AI mental-health tool design. I do not want to duplicate these initiatives or assume that your current systems lack appropriate safeguards.
 
-My initial hypothesis is narrower: would there be value in exploring an open, machine-readable way to carry community-defined data-use conditions into downstream access, secondary research, AI training/evaluation, audit, withdrawal, and benefit-sharing workflows? A small policy manifest and reference policy-checking service might be useful, but only if it addresses a real gap identified by your team and the communities involved.
+My initial hypothesis is narrower: would there be value in examining whether existing open standards—such as GA4GH DUO, GA4GH Passports/Data Passports, and W3C ODRL—can adequately represent and operationalise community-defined decision rights, review/appeal processes, and benefit-sharing commitments in your health-AI data workflows? I do not propose inventing another data-use ontology or passport. Any adapter or workflow would be developed only if your team and the communities identify a specific gap that existing tools do not address.
 
 Would you be open to clarifying:
 1. Whether this is a genuine unmet need alongside your existing technical, ethical, and community-governance work;
