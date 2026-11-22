@@ -9,7 +9,7 @@ import jwt
 from django.conf import settings
 from .serializers import RefugeeProfileCompleteSerializer
 from .serializers import RegisterSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import RefugeeProfile
 from rest_framework import generics, permissions
 from .models import VolunteerProfile
@@ -73,6 +73,7 @@ class LoginSerializer(serializers.Serializer):
   },
 )
 @api_view(["POST"])
+@permission_classes([AllowAny])
 
 def login_api(request):
     email = request.data.get("email")
@@ -147,6 +148,7 @@ from .models import User
 
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def register_refugee(request):
 
     serializer = RegisterSerializer(
@@ -174,6 +176,7 @@ def register_refugee(request):
 
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def register_volunteer(request):
 
     serializer = RegisterSerializer(
@@ -206,6 +209,7 @@ from .utils import generate_otp
 
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def resend_otp(request):
 
     serializer = ResendOTPSerializer(data=request.data)
@@ -275,6 +279,7 @@ def resend_otp(request):
     )
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def verify_otp(request):
 
     serializer = VerifyOTPSerializer(
@@ -627,7 +632,7 @@ def volunteer_qr(request, volunteer_id):
     if not profile.qr_code:
         # استخدم full_name أو username كاحتياط
         name = profile.full_name 
-        profile.qr_code = f"@{name.replace(' ', '')}|{uuid.uuid4().hex[:8]}"
+        profile.qr_code = f"@{name.replace(' ', '')[:50]}|{uuid.uuid4().hex}"
         profile.save()
 
     serializer = VolunteerQRSerializer(profile)
@@ -727,6 +732,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from .serializers import ForgotPasswordSerializer
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def forgot_password(request):
 
     serializer = ForgotPasswordSerializer(
@@ -741,10 +747,10 @@ def forgot_password(request):
             user = User.objects.get(email=email)
 
         except User.DoesNotExist:
-
+            # Same response as success: do not reveal which emails exist.
             return Response(
-                {"error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"message": "Reset password link sent successfully"},
+                status=status.HTTP_200_OK
             )
 
         # ✅ توليد uid
@@ -804,6 +810,7 @@ from .serializers import ResetPasswordSerializer
 
 
 @api_view(['Patch'])
+@permission_classes([AllowAny])
 def reset_password(request):
 
     serializer = ResetPasswordSerializer(
