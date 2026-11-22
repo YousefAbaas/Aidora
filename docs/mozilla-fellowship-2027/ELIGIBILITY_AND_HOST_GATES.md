@@ -72,3 +72,29 @@ Risks:
 - SRHIN compensation/governance template: https://resources.srhin.org/item/lived-experience-compensation-governance-template
 - SRHIN Epistemic Authority Decision Matrix: https://resources.srhin.org/item/epistemic-authority-decision-matrix
 - SRHIN Co-Production Readiness Self-Assessment: https://resources.srhin.org/item/coproduction-readiness-self-assessment
+
+
+## 6. Draft clarification email to Mozilla (not sent)
+
+**To:** fellowships@mozillafoundation.org  
+**Subject:** 2027–2028 Fellowship — eligibility and remote participation clarification
+
+Hello Mozilla Fellowships team,
+
+I am considering applying to the 2027–2028 Fellowship, Track I (Embedded Fellow), with Slum & Rural Health Initiative as the potential host. Before submitting the Letter of Intent, I would appreciate clarification on a few eligibility and participation points.
+
+I am a Syrian national and expect my primary residence and work location during the Fellowship to be in Syria.
+
+1. Can an individual residing and working in Syria legally receive the Fellowship grant/stipend from Mozilla Foundation?
+2. Are there any Syria-specific compliance, sanctions-screening, or payment restrictions that would affect eligibility?
+3. The FAQ says Fellows need a bank account in their own name that can accept U.S. funds. Does that account need to be located in the country of residence, or could an account in another country be used if the Fellow remains resident and working in Syria and is legally entitled to receive the funds?
+4. The RFP describes attendance at the July 2027 Fellowship Kick-off and October 2027 MozFest as mandatory, while the FAQ says in-person activities are not mandatory. Could you clarify whether remote participation is possible, and which activities require physical attendance?
+
+I want to ensure that I can truthfully confirm legal eligibility and full participation before submitting the application.
+
+Thank you for your guidance.
+
+Best regards,  
+Yousef Abbas
+
+**Important:** This is a preparation draft only. It has not been sent. Do not self-certify legal eligibility until Mozilla's response and a lawful payment route are clear.
