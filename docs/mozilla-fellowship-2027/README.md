@@ -23,6 +23,7 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 5. [Evidence and gaps](EVIDENCE_AND_GAPS.md) — Aidora proof, early direct community feedback, candid fit assessment, and submission gates.
 6. [Letter of Intent worksheet](APPLICATION_WORKSHEET.md) — official form fields, word limits, and answer-planning notes.
 7. [SRHIN host enquiry draft](HOST_OUTREACH_DRAFT.md) — unsent message for the applicant to review and send personally.
+8. [Eligibility and host gates](ELIGIBILITY_AND_HOST_GATES.md) — Syria-resident funding/payment eligibility, host fit, duplication, and stop/go checks.
 
 ## Current evidence
 
@@ -54,6 +55,9 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 - SRHIN lived-experience AI co-design guide: https://resources.srhin.org/item/ai-co-design-guide
 - SRHIN work: https://srhin.org/our-work/
 - SRHIN GENCurate: https://srhin.org/alpha-center/
+- SRHIN compensation/governance template: https://resources.srhin.org/item/lived-experience-compensation-governance-template
+- SRHIN Epistemic Authority Decision Matrix: https://resources.srhin.org/item/epistemic-authority-decision-matrix
+- SRHIN Co-Production Readiness Self-Assessment: https://resources.srhin.org/item/coproduction-readiness-self-assessment
 - GA4GH DUO: https://www.ga4gh.org/product/data-use-ontology-duo/
 - GA4GH Data Passports: https://www.ga4gh.org/product/data-passports/
 - GA4GH Passports: https://www.ga4gh.org/product/passports/
