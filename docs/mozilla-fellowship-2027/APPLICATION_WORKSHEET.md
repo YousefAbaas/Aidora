@@ -9,7 +9,7 @@ Official RFP: https://assets.mofoprod.net/network/documents/PUBLIC_2027_2028_Fel
 ## Track and host
 
 **Provisional choice:** Track I — Embedded Fellow.  
-**Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. No host relationship or endorsement exists yet.
+**Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. An exploratory enquiry was sent on 23 November 2026; no host relationship, response, or endorsement is recorded yet.
 
 Rationale: the RFP directly identifies a community-owned mental-health data governance challenge for SRHIN and describes a rising builder with demonstrated technical excellence. Aidora supports the engineering side of that fit. Important caveats: the applicant is an early-career student rather than an established mid-career specialist; SRHIN already publishes substantial community-governance tools; and remote/time-zone and current-location eligibility require confirmation. Track I is the only credible track to pursue; Track II expects senior, recognised innovators.
 
@@ -65,8 +65,10 @@ AI disclosure: answer Yes and describe AI use as brainstorming, checking alignme
 
 ## Mandatory checks before submitting
 
+- [ ] SRHIN responds to the exploratory enquiry and confirms whether it is open to further discussion.
 - [ ] SRHIN confirms the challenge is real and identifies a non-duplicative project scope.
 - [ ] The host is willing to consider this applicant and remote/time-zone arrangement.
+- [ ] Use the [discovery and validation protocol](DISCOVERY_AND_VALIDATION_PROTOCOL.md) to document existing workflows and reach a build/adapt/no-build decision.
 - [ ] The people most affected have real decision-making power, not just a feedback session.
 - [ ] Existing LEEF, co-design, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent, and data-use workflows have been mapped.
 - [ ] A 12-month technical plan has a clear definition of done.
