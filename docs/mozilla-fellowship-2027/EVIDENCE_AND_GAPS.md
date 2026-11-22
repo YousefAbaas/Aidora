@@ -71,6 +71,8 @@ It does not establish specialist expertise in clinical mental-health research, N
 
 ## 6. SRHIN context discovered in public materials
 
+An exploratory email asking SRHIN about fit, a possible remote Embedded Fellow arrangement, and a short introductory meeting was sent on 23 November 2026. No reply or endorsement is recorded yet. The message is documented in [HOST_OUTREACH_DRAFT.md](HOST_OUTREACH_DRAFT.md). The proposed technical gap remains unvalidated.
+
 The 2027–2028 Mozilla RFP asks SRHIN to explore community-owned tools for governance, consent, privacy, and benefit-sharing around mental-health data used in AI, and to pilot with young people, people with lived experience, and community health workers.
 
 SRHIN also publicly describes:
