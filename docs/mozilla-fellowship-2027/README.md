@@ -33,7 +33,7 @@ This is a hypothesis, not a confirmed unmet need. SRHIN's published compensation
 - An exploratory eligibility and remote-participation enquiry was sent to Mozilla Fellowships; written clarification is pending.
 - An exploratory Embedded Fellow enquiry was sent to SRHIN; no host response, endorsement, or partnership is recorded.
 - No Letter of Intent has been submitted. The technical project remains a hypothesis pending host and community validation.
-- A synthetic ALLOW/DENY/REVIEW reference engine and 17 unit tests are in the repository; GitHub Actions run #7 passed (Python 3.12). This is not an SRHIN-specific or production implementation.
+- A synthetic ALLOW/DENY/REVIEW reference engine and 22 unit tests are in the repository; GitHub Actions run #9 passed. This is not an SRHIN-specific or production implementation.
 
 ## Current evidence
 
