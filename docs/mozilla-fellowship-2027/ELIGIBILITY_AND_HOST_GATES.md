@@ -91,3 +91,18 @@ Risks:
 The message explains that the applicant is a Syrian national whose primary residence and work location are expected to be Syria. It asks whether such an applicant can receive the grant/stipend, whether Syria-specific sanctions/compliance/payment restrictions apply, whether an own-name account in another country is acceptable if lawful, whether all events can be attended remotely, and whether any additional Syria-specific guidance should be reviewed.
 
 **Current state:** sent successfully; no response recorded yet. This enquiry does not establish eligibility. Do not self-certify until Mozilla provides a clear answer and a lawful payment route is confirmed.
+
+
+## 1A. Track I location wording and application-form stop condition
+
+The RFP states that Embedded Fellows must be based in Chile, Germany, Indonesia, Nigeria, or the United States, **or be able to work flexibly as a remote Fellow across time zones**. It separately says Track I Fellows must be in time zones compatible with their host. For SRHIN, the stated time-zone preference is Ibadan or Abuja (WAT, UTC+1). The applicant must obtain Mozilla's interpretation of the remote exception for a Syria-based applicant and SRHIN's expectations for working hours; do not infer acceptance from the general remote-opportunity wording.
+
+The publicly indexed Letter of Intent form includes a location-related stop message: "Mozilla Foundation is unable to provide funding connected to your location." This indicates that location-based funding screening may stop some applicants before they can continue. The available form text does not establish whether Syria triggers that message or whether the remote Track I exception changes the result. Do not test or submit a false location to get past the form.
+
+**Additional point for Mozilla's written response:** explicitly ask whether a person whose actual primary location during the Fellowship is Syria can pass both (a) the location-based funding screen and (b) Track I geographic eligibility through the remote-across-time-zones provision, when proposing SRHIN as host. Ask whether any additional legal review or payment screening is required before the LOI can proceed.
+
+Sources reviewed 23 November 2026:
+- Official RFP: https://assets.mofoprod.net/network/documents/PUBLIC_2027_2028_Fellowship_RFP-3.pdf
+- Official LOI form: https://mozillafoundation.tfaforms.net/wf/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6InYyIn0.eyJ3b3JrZmxvd1Nlc3Npb25JZCI6ImRkNzc4NmE2LTQxMjEtNGIyYS1hYWE4LTNhOTNlYjRmMjc0ZiIsIm5vbmNlIjoiZWJjUlc2MXNMN050bnNjd3ZIOGJzMVU4YjRWZkNrQWYlM0FkMDczYmRhZDBmYmVmZjc4Mzc1NGEyYzkzNWVlZGQ1NyIsImV2ZW50IjoiZm9ybS52aWV3LmRpc3BsYXkiLCJleHBpcmVzIjoxNzk1NDAyNjE1fQ.BDXOjzjpzOTWcHcavgXOW4TjBMkJZGcz7icfUAsC4Y0
+
+This is a gating uncertainty, not proof of eligibility or ineligibility.
