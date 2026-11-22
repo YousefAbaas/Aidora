@@ -1,0 +1,14 @@
+{
+  "policy_id": "synthetic-policy-001",
+  "policy_version": "1.0",
+  "dataset_ref": "synthetic-dataset-alpha",
+  "status": "active",
+  "allowed_purposes": [
+    "approved_research"
+  ],
+  "allowed_roles": [
+    "approved_researcher"
+  ],
+  "authority_decision_ref": "synthetic-decision-001",
+  "expires_at": "2027-01-01T00:00:00Z"
+}
