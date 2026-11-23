@@ -1,8 +1,7 @@
-"""DRF adapter for a synthetic, server-resolved policy demonstration.
+"""DRF adapter for a signed-evidence synthetic policy demonstration.
 
 Never deploy or use this module to authorize real or sensitive data access.
 """
-from datetime import datetime
 from pathlib import Path
 import sys
 
@@ -18,9 +17,14 @@ if str(_CORE_DIR) not in sys.path:
 
 from policy_check import evaluate_policy
 from approval_store import ApprovalStoreNotConfigured, SQLiteApprovalStore
+from approval_evidence import (
+    ApprovalEvidenceError,
+    load_keyring_from_environment,
+    verify_approval_evidence,
+)
 
 
-# Deliberately fixed synthetic fixture. This is not a persistent or secure
+# Deliberately fixed synthetic policy. This is not a persistent or trusted
 # policy registry and must never be treated as one.
 TRUSTED_SYNTHETIC_POLICY = {
     "policy_id": "synthetic-api-policy",
@@ -37,22 +41,6 @@ TRUSTED_SYNTHETIC_POLICY = {
     "review_required": False,
 }
 
-# Fake, in-memory approval evidence for tests/demonstration only. The evidence
-# is deliberately bound to one exact subject, policy version, purpose, action,
-# context and expiry. It is not a real community approval.
-SYNTHETIC_APPROVALS = {
-    "synthetic-approval-001": {
-        "type": "community_governance",
-        "status": "approved",
-        "subject_id": "synthetic-test-user",
-        "policy_id": "synthetic-api-policy",
-        "policy_version": "1",
-        "purpose": "synthetic_method_validation",
-        "action": "run_aggregate_test",
-        "context": {"environment": "approved_sandbox"},
-        "expires_at": "2027-12-31T23:59:59Z",
-    },
-}
 
 class PolicyEvaluationInputSerializer(serializers.Serializer):
     purpose = serializers.CharField()
@@ -63,37 +51,17 @@ class PolicyEvaluationInputSerializer(serializers.Serializer):
     context = serializers.DictField()
 
 
-def _approval_matches_request(evidence, *, subject_id, values, policy, now):
-    """Require exact scope and an unexpired, timezone-aware evidence record."""
-    if not isinstance(evidence, dict):
-        return False
-    if evidence.get("status") != "approved":
-        return False
-    if evidence.get("subject_id") != subject_id:
-        return False
-    if evidence.get("policy_id") != policy["policy_id"]:
-        return False
-    if evidence.get("policy_version") != policy["version"]:
-        return False
-    if evidence.get("purpose") != values["purpose"]:
-        return False
-    if evidence.get("action") != values["action"]:
-        return False
-    if evidence.get("context") != values["context"]:
-        return False
-    try:
-        expires_at = datetime.fromisoformat(
-            evidence["expires_at"].replace("Z", "+00:00")
-        )
-    except (KeyError, TypeError, ValueError):
-        return False
-    if expires_at.tzinfo is None or expires_at.utcoffset() is None:
-        return False
-    return now < expires_at
+def _review(reason_code):
+    return Response({
+        "decision": "REVIEW",
+        "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+        "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+        "reason_codes": [reason_code],
+    })
 
 
 class PolicyEvaluationView(APIView):
-    """Resolve policy/evidence server-side; caller cannot submit their values."""
+    """Resolve policy server-side and verify issuer-authenticated evidence."""
 
     permission_classes = [IsAuthenticated]
 
@@ -112,8 +80,8 @@ class PolicyEvaluationView(APIView):
         values = serializer.validated_data
         now = timezone.now()
 
-        # Evaluate policy-level denials before considering approval evidence:
-        # an approval can never override an explicit policy denial.
+        # Policy denials are evaluated first and cannot be overridden by
+        # otherwise valid approval evidence.
         preliminary = evaluate_policy(
             TRUSTED_SYNTHETIC_POLICY,
             {
@@ -129,52 +97,46 @@ class PolicyEvaluationView(APIView):
 
         references = values["approval_references"]
         if len(references) != len(set(references)):
-            return Response({
-                "decision": "REVIEW",
-                "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                "reason_codes": ["duplicate_approval_reference"],
-            })
+            return _review("duplicate_approval_reference")
+
+        try:
+            keyring, _active_key_id = load_keyring_from_environment()
+            store = SQLiteApprovalStore()
+        except ApprovalEvidenceError:
+            return _review("approval_trust_configuration_unavailable")
+        except ApprovalStoreNotConfigured:
+            return _review("durable_approval_store_not_configured")
 
         approvals = []
-        approval_types = set()
-        subject_id = str(getattr(request.user, "pk", ""))
+        approval_ids = []
+        for token in references:
+            try:
+                claims = verify_approval_evidence(
+                    token,
+                    keyring=keyring,
+                    expected_subject_id=str(getattr(request.user, "pk", "")),
+                    expected_policy_id=TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    expected_policy_version=TRUSTED_SYNTHETIC_POLICY["version"],
+                    expected_purpose=values["purpose"],
+                    expected_action=values["action"],
+                    expected_context=values["context"],
+                    now=now,
+                )
+            except ApprovalEvidenceError:
+                return _review("approval_evidence_not_verified")
 
-        for reference in references:
-            evidence = SYNTHETIC_APPROVALS.get(reference)
-            if evidence is None:
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["approval_reference_not_verified"],
-                })
-            if not _approval_matches_request(
-                evidence,
-                subject_id=subject_id,
-                values=values,
-                policy=TRUSTED_SYNTHETIC_POLICY,
-                now=now,
-            ):
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["approval_scope_or_expiry_mismatch"],
-                })
-            approval_type = evidence["type"]
-            if approval_type in approval_types:
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["duplicate_or_conflicting_approval_evidence"],
-                })
-            approval_types.add(approval_type)
+            approval_id = claims["approval_id"]
+            try:
+                if store.is_revoked(approval_id):
+                    return _review("approval_revoked")
+            except Exception:
+                return _review("approval_revocation_check_failed")
+
+            approval_ids.append(approval_id)
             approvals.append({
-                "type": approval_type,
-                "status": evidence["status"],
-                "reference": reference,
+                "type": "community_governance",
+                "status": "approved",
+                "reference": approval_id,
             })
 
         result = evaluate_policy(
@@ -190,25 +152,19 @@ class PolicyEvaluationView(APIView):
 
         if result["decision"] == "ALLOW":
             try:
-                consumed = SQLiteApprovalStore().consume_many(
-                    references,
+                consumed = store.consume_many(
+                    approval_ids,
                     consumed_at=now.isoformat(),
-                    subject_id=subject_id,
+                    subject_id=str(getattr(request.user, "pk", "")),
                     policy_id=TRUSTED_SYNTHETIC_POLICY["policy_id"],
                     policy_version=TRUSTED_SYNTHETIC_POLICY["version"],
                 )
-            except ApprovalStoreNotConfigured:
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["durable_approval_store_not_configured"],
-                })
+            except Exception:
+                return _review("durable_approval_store_unavailable")
             if not consumed:
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["approval_reference_already_used"],
-                })
+                # The transaction also checks revocation, closing the race
+                # between the earlier explanatory check and consumption.
+                if any(store.is_revoked(item) for item in approval_ids):
+                    return _review("approval_revoked")
+                return _review("approval_reference_already_used")
         return Response(result)
