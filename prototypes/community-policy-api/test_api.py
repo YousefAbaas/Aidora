@@ -1,6 +1,8 @@
 """Adversarial tests for the isolated DRF synthetic adapter."""
+from datetime import datetime, timezone
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from django.conf import settings
 
@@ -9,7 +11,9 @@ if not settings.configured:
         SECRET_KEY="synthetic-test-only",
         USE_TZ=True,
         REST_FRAMEWORK={
-            "DEFAULT_AUTHENTICATION_CLASSES": [],
+            "DEFAULT_AUTHENTICATION_CLASSES": [
+                "rest_framework.authentication.BasicAuthentication",
+            ],
             "DEFAULT_PERMISSION_CLASSES": [],
         },
     )
@@ -19,7 +23,11 @@ django.setup()
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+import api
 from api import PolicyEvaluationView
+
+
+FIXED_SERVER_TIME = datetime(2027, 6, 1, 12, 0, tzinfo=timezone.utc)
 
 
 class PolicyEvaluationApiTests(unittest.TestCase):
@@ -34,21 +42,26 @@ class PolicyEvaluationApiTests(unittest.TestCase):
             "action": "run_aggregate_test",
             "approval_references": ["synthetic-approval-001"],
             "context": {"environment": "approved_sandbox"},
-            "now": "2027-06-01T12:00:00Z",
         }
         body.update(overrides)
         return body
 
-    def post(self, payload):
+    def post(self, payload, *, server_time=FIXED_SERVER_TIME, authenticated=True):
         request = self.factory.post("/synthetic-policy/evaluate/", payload, format="json")
-        force_authenticate(request, user=self.user)
-        return self.view(request)
+        if authenticated:
+            force_authenticate(request, user=self.user)
+        with patch.object(api.timezone, "now", return_value=server_time):
+            return self.view(request)
 
     def test_server_resolved_synthetic_evidence_allows(self):
         response = self.post(self.payload())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["decision"], "ALLOW")
         self.assertEqual(response.data["policy_id"], "synthetic-api-policy")
+
+    def test_anonymous_request_is_rejected(self):
+        response = self.post(self.payload(), authenticated=False)
+        self.assertEqual(response.status_code, 401)
 
     def test_denied_purpose_cannot_be_overridden_by_valid_approval(self):
         response = self.post(self.payload(purpose="commercial_model_training"))
@@ -74,17 +87,25 @@ class PolicyEvaluationApiTests(unittest.TestCase):
         response = self.post(payload)
         self.assertEqual(response.status_code, 400)
 
-    def test_missing_timestamp_is_rejected(self):
-        payload = self.payload()
-        del payload["now"]
-        self.assertEqual(self.post(payload).status_code, 400)
+    def test_caller_supplied_evaluation_time_is_rejected(self):
+        payload = self.payload(now="2027-01-01T00:00:00Z")
+        response = self.post(payload)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("now", response.data["unexpected_fields"])
+
+    def test_server_time_after_policy_expiry_denies(self):
+        after_expiry = datetime(2028, 1, 1, tzinfo=timezone.utc)
+        response = self.post(self.payload(), server_time=after_expiry)
+        self.assertEqual(response.data["decision"], "DENY")
+        self.assertEqual(response.data["reason_codes"], ["policy_expired"])
 
     def test_non_object_context_is_rejected(self):
-        self.assertEqual(self.post(self.payload(context=["not", "an", "object"])).status_code, 400)
+        response = self.post(self.payload(context=["not", "an", "object"]))
+        self.assertEqual(response.status_code, 400)
 
-    def test_expired_policy_denies(self):
-        response = self.post(self.payload(now="2028-01-01T00:00:00Z"))
-        self.assertEqual(response.data["decision"], "DENY")
+    def test_empty_approval_reference_list_is_rejected(self):
+        response = self.post(self.payload(approval_references=[]))
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == "__main__":
