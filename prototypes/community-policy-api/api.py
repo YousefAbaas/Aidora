@@ -164,7 +164,5 @@ class PolicyEvaluationView(APIView):
             if not consumed:
                 # The transaction also checks revocation, closing the race
                 # between the earlier explanatory check and consumption.
-                if any(store.is_revoked(item) for item in approval_ids):
-                    return _review("approval_revoked")
-                return _review("approval_reference_already_used")
+                return _review("approval_reference_revoked_or_already_used")
         return Response(result)
