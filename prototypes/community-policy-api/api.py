@@ -2,6 +2,7 @@
 
 Never deploy or use this module to authorize real or sensitive data access.
 """
+from datetime import datetime
 from pathlib import Path
 import sys
 
@@ -35,13 +36,26 @@ TRUSTED_SYNTHETIC_POLICY = {
     "review_required": False,
 }
 
-# Fake, in-memory approval evidence for tests/demonstration only.
+# Fake, in-memory approval evidence for tests/demonstration only. The evidence
+# is deliberately bound to one exact subject, policy version, purpose, action,
+# context and expiry. It is not a real community approval.
 SYNTHETIC_APPROVALS = {
     "synthetic-approval-001": {
         "type": "community_governance",
         "status": "approved",
+        "subject_id": "synthetic-test-user",
+        "policy_id": "synthetic-api-policy",
+        "policy_version": "1",
+        "purpose": "synthetic_method_validation",
+        "action": "run_aggregate_test",
+        "context": {"environment": "approved_sandbox"},
+        "expires_at": "2027-12-31T23:59:59Z",
     },
 }
+
+# Process-local demonstration guard only. This does not provide durable,
+# atomic, multi-worker or restart-safe replay protection.
+_CONSUMED_APPROVAL_REFERENCES: set[str] = set()
 
 
 class PolicyEvaluationInputSerializer(serializers.Serializer):
@@ -51,6 +65,35 @@ class PolicyEvaluationInputSerializer(serializers.Serializer):
         child=serializers.CharField(), allow_empty=False
     )
     context = serializers.DictField()
+
+
+def _approval_matches_request(evidence, *, subject_id, values, policy, now):
+    """Require exact scope and an unexpired, timezone-aware evidence record."""
+    if not isinstance(evidence, dict):
+        return False
+    if evidence.get("status") != "approved":
+        return False
+    if evidence.get("subject_id") != subject_id:
+        return False
+    if evidence.get("policy_id") != policy["policy_id"]:
+        return False
+    if evidence.get("policy_version") != policy["version"]:
+        return False
+    if evidence.get("purpose") != values["purpose"]:
+        return False
+    if evidence.get("action") != values["action"]:
+        return False
+    if evidence.get("context") != values["context"]:
+        return False
+    try:
+        expires_at = datetime.fromisoformat(
+            evidence["expires_at"].replace("Z", "+00:00")
+        )
+    except (KeyError, TypeError, ValueError):
+        return False
+    if expires_at.tzinfo is None or expires_at.utcoffset() is None:
+        return False
+    return now < expires_at
 
 
 class PolicyEvaluationView(APIView):
@@ -71,9 +114,37 @@ class PolicyEvaluationView(APIView):
         serializer = PolicyEvaluationInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         values = serializer.validated_data
+        now = timezone.now()
+
+        # Evaluate policy-level denials before considering approval evidence:
+        # an approval can never override an explicit policy denial.
+        preliminary = evaluate_policy(
+            TRUSTED_SYNTHETIC_POLICY,
+            {
+                "purpose": values["purpose"],
+                "action": values["action"],
+                "approvals": [],
+                "context": values["context"],
+            },
+            now=now,
+        )
+        if preliminary["decision"] == "DENY":
+            return Response(preliminary)
+
+        references = values["approval_references"]
+        if len(references) != len(set(references)):
+            return Response({
+                "decision": "REVIEW",
+                "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                "reason_codes": ["duplicate_approval_reference"],
+            })
 
         approvals = []
-        for reference in values["approval_references"]:
+        approval_types = set()
+        subject_id = str(getattr(request.user, "pk", ""))
+
+        for reference in references:
             evidence = SYNTHETIC_APPROVALS.get(reference)
             if evidence is None:
                 return Response({
@@ -82,15 +153,45 @@ class PolicyEvaluationView(APIView):
                     "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
                     "reason_codes": ["approval_reference_not_verified"],
                 })
+            if reference in _CONSUMED_APPROVAL_REFERENCES:
+                return Response({
+                    "decision": "REVIEW",
+                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                    "reason_codes": ["approval_reference_already_used"],
+                })
+            if not _approval_matches_request(
+                evidence,
+                subject_id=subject_id,
+                values=values,
+                policy=TRUSTED_SYNTHETIC_POLICY,
+                now=now,
+            ):
+                return Response({
+                    "decision": "REVIEW",
+                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                    "reason_codes": ["approval_scope_or_expiry_mismatch"],
+                })
+            approval_type = evidence["type"]
+            if approval_type in approval_types:
+                return Response({
+                    "decision": "REVIEW",
+                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                    "reason_codes": ["duplicate_or_conflicting_approval_evidence"],
+                })
+            approval_types.add(approval_type)
             approvals.append({
-                "type": evidence["type"],
+                "type": approval_type,
                 "status": evidence["status"],
                 "reference": reference,
             })
 
-        # Evaluation time is server-controlled. Accepting a client timestamp
-        # would let callers backdate a request to bypass policy expiry or
-        # evaluate a policy before its effective date.
+        # Consume only after every supplied reference has passed validation.
+        # This is intentionally only a process-local prototype guard.
+        _CONSUMED_APPROVAL_REFERENCES.update(references)
+
         result = evaluate_policy(
             TRUSTED_SYNTHETIC_POLICY,
             {
@@ -99,6 +200,6 @@ class PolicyEvaluationView(APIView):
                 "approvals": approvals,
                 "context": values["context"],
             },
-            now=timezone.now(),
+            now=now,
         )
         return Response(result)
