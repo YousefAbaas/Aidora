@@ -111,7 +111,7 @@ class PolicyEvaluationApiTests(unittest.TestCase):
         self.assertEqual(self.post(self.payload()).data["decision"], "ALLOW")
         response = self.post(self.payload())
         self.assertEqual(response.data["decision"], "REVIEW")
-        self.assertEqual(response.data["reason_codes"], ["approval_reference_already_used"])
+        self.assertEqual(response.data["reason_codes"], ["approval_reference_revoked_or_already_used"])
 
     def test_evidence_for_another_subject_requires_review(self):
         token = self.token(self.claims(subject_id="different-user"))
