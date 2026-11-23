@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Debug builds only: allow HTTP to a LAN dev server on a real device. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>
