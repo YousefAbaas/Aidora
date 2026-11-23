@@ -17,6 +17,7 @@ if str(_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(_CORE_DIR))
 
 from policy_check import evaluate_policy
+from approval_store import ApprovalStoreNotConfigured, SQLiteApprovalStore
 
 
 # Deliberately fixed synthetic fixture. This is not a persistent or secure
@@ -52,11 +53,6 @@ SYNTHETIC_APPROVALS = {
         "expires_at": "2027-12-31T23:59:59Z",
     },
 }
-
-# Process-local demonstration guard only. This does not provide durable,
-# atomic, multi-worker or restart-safe replay protection.
-_CONSUMED_APPROVAL_REFERENCES: set[str] = set()
-
 
 class PolicyEvaluationInputSerializer(serializers.Serializer):
     purpose = serializers.CharField()
@@ -153,13 +149,6 @@ class PolicyEvaluationView(APIView):
                     "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
                     "reason_codes": ["approval_reference_not_verified"],
                 })
-            if reference in _CONSUMED_APPROVAL_REFERENCES:
-                return Response({
-                    "decision": "REVIEW",
-                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
-                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
-                    "reason_codes": ["approval_reference_already_used"],
-                })
             if not _approval_matches_request(
                 evidence,
                 subject_id=subject_id,
@@ -188,10 +177,6 @@ class PolicyEvaluationView(APIView):
                 "reference": reference,
             })
 
-        # Consume only after every supplied reference has passed validation.
-        # This is intentionally only a process-local prototype guard.
-        _CONSUMED_APPROVAL_REFERENCES.update(references)
-
         result = evaluate_policy(
             TRUSTED_SYNTHETIC_POLICY,
             {
@@ -202,4 +187,28 @@ class PolicyEvaluationView(APIView):
             },
             now=now,
         )
+
+        if result["decision"] == "ALLOW":
+            try:
+                consumed = SQLiteApprovalStore().consume_many(
+                    references,
+                    consumed_at=now.isoformat(),
+                    subject_id=subject_id,
+                    policy_id=TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    policy_version=TRUSTED_SYNTHETIC_POLICY["version"],
+                )
+            except ApprovalStoreNotConfigured:
+                return Response({
+                    "decision": "REVIEW",
+                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                    "reason_codes": ["durable_approval_store_not_configured"],
+                })
+            if not consumed:
+                return Response({
+                    "decision": "REVIEW",
+                    "policy_id": TRUSTED_SYNTHETIC_POLICY["policy_id"],
+                    "policy_version": TRUSTED_SYNTHETIC_POLICY["version"],
+                    "reason_codes": ["approval_reference_already_used"],
+                })
         return Response(result)

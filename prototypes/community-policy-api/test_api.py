@@ -1,6 +1,8 @@
 """Adversarial tests for the isolated DRF synthetic adapter."""
 from copy import deepcopy
 from datetime import datetime, timezone
+import os
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -39,7 +41,9 @@ BASE_APPROVALS = deepcopy(api.SYNTHETIC_APPROVALS)
 class PolicyEvaluationApiTests(unittest.TestCase):
     def setUp(self):
         api.SYNTHETIC_APPROVALS = deepcopy(BASE_APPROVALS)
-        api._CONSUMED_APPROVAL_REFERENCES.clear()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.database_path = os.path.join(self.temp_dir.name, "approvals.sqlite3")
         self.factory = APIRequestFactory()
         self.view = PolicyEvaluationView.as_view()
         self.user = SimpleNamespace(is_authenticated=True, pk="synthetic-test-user")
@@ -58,8 +62,9 @@ class PolicyEvaluationApiTests(unittest.TestCase):
         request = self.factory.post("/synthetic-policy/evaluate/", payload, format="json")
         if authenticated:
             force_authenticate(request, user=user or self.user)
-        with patch.object(api.timezone, "now", return_value=server_time):
-            return self.view(request)
+        with patch.dict(os.environ, {"AIDORA_APPROVAL_STORE_DB": self.database_path}):
+            with patch.object(api.timezone, "now", return_value=server_time):
+                return self.view(request)
 
     def test_server_resolved_scoped_synthetic_evidence_allows_once(self):
         response = self.post(self.payload())
@@ -73,6 +78,14 @@ class PolicyEvaluationApiTests(unittest.TestCase):
         self.assertEqual(first.data["decision"], "ALLOW")
         self.assertEqual(second.data["decision"], "REVIEW")
         self.assertEqual(second.data["reason_codes"], ["approval_reference_already_used"])
+
+    def test_replay_is_rejected_after_store_reopens(self):
+        first = self.post(self.payload())
+        self.assertEqual(first.data["decision"], "ALLOW")
+        # The second request creates a new SQLite connection, proving the
+        # consumed marker is not held only in process-local Python state.
+        second = self.post(self.payload())
+        self.assertEqual(second.data["decision"], "REVIEW")
 
     def test_approval_bound_to_another_subject_requires_review(self):
         other_user = SimpleNamespace(is_authenticated=True, pk="different-user")
@@ -134,6 +147,20 @@ class PolicyEvaluationApiTests(unittest.TestCase):
     def test_empty_approval_reference_list_is_rejected(self):
         response = self.post(self.payload(approval_references=[]))
         self.assertEqual(response.status_code, 400)
+
+    def test_missing_durable_store_fails_closed(self):
+        request = self.factory.post(
+            "/synthetic-policy/evaluate/", self.payload(), format="json"
+        )
+        force_authenticate(request, user=self.user)
+        with patch.dict(os.environ, {}, clear=True):
+            with patch.object(api.timezone, "now", return_value=FIXED_SERVER_TIME):
+                response = self.view(request)
+        self.assertEqual(response.data["decision"], "REVIEW")
+        self.assertEqual(
+            response.data["reason_codes"],
+            ["durable_approval_store_not_configured"],
+        )
 
 
 if __name__ == "__main__":
