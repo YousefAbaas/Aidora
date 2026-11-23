@@ -124,7 +124,11 @@ def verify_approval_evidence(
         raise ApprovalEvidenceError("approval_evidence_malformed") from exc
     if len(supplied_signature) != 64 or not isinstance(claims, dict) or set(claims) != REQUIRED_CLAIMS:
         raise ApprovalEvidenceError("approval_evidence_malformed")
-    if _canonical_json(claims) != payload_bytes:
+    try:
+        canonical_payload = _canonical_json(claims)
+    except (TypeError, ValueError, UnicodeError) as exc:
+        raise ApprovalEvidenceError("approval_evidence_noncanonical") from exc
+    if canonical_payload != payload_bytes:
         raise ApprovalEvidenceError("approval_evidence_noncanonical")
     try:
         public_key.verify(supplied_signature, key_id.encode("utf-8") + b"." + payload_bytes)
