@@ -64,7 +64,7 @@ class ApprovalEvidenceTests(unittest.TestCase):
     def test_modified_payload_is_rejected(self):
         token = signed()
         parts = token.split(".")
-        parts[1] = parts[1][:-1] + ("A" if parts[1][-1] != "A" else "B")
+        parts[2] = ("A" if parts[2][0] != "A" else "B") + parts[2][1:]
         with self.assertRaises(ApprovalEvidenceError):
             verify(".".join(parts))
 
