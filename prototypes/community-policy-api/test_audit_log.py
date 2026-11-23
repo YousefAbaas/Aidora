@@ -59,9 +59,34 @@ class SyntheticAuditLogTests(unittest.TestCase):
             append_event([], {**self.evaluation, "reason_codes": []}, evaluated_at="2027-06-01T12:00:00Z")
 
     def test_final_event_truncation_requires_external_checkpoint(self):
-        # A shorter valid prefix cannot reveal that a later tail event was removed.
         prefix = copy.deepcopy(self.log[:1])
         self.assertTrue(verify_log(prefix)["valid"])
+
+    def test_append_refuses_tampered_existing_chain(self):
+        changed = copy.deepcopy(self.log)
+        changed[0]["decision"] = "DENY"
+        with self.assertRaisesRegex(ValueError, "invalid audit log"):
+            append_event(changed, self.evaluation, evaluated_at="2027-06-01T12:10:00Z")
+
+    def test_append_refuses_deleted_middle_event(self):
+        changed = copy.deepcopy(self.log)
+        del changed[0]
+        with self.assertRaisesRegex(ValueError, "invalid audit log"):
+            append_event(changed, self.evaluation, evaluated_at="2027-06-01T12:10:00Z")
+
+    def test_verifier_rejects_empty_reason_codes(self):
+        changed = copy.deepcopy(self.log)
+        changed[0]["reason_codes"] = []
+        # Re-hash to isolate schema validation from hash validation.
+        import audit_log
+        unsigned = {key: value for key, value in changed[0].items() if key != "event_hash"}
+        changed[0]["event_hash"] = audit_log._event_hash(unsigned)
+        self.assertEqual(verify_log(changed)["reason"], "reason_codes_invalid")
+
+    def test_verifier_rejects_boolean_sequence(self):
+        changed = copy.deepcopy(self.log)
+        changed[0]["sequence"] = True
+        self.assertEqual(verify_log(changed)["reason"], "sequence_mismatch")
 
 
 if __name__ == "__main__":
