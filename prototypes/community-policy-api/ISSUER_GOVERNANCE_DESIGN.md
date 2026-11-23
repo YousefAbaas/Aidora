@@ -82,6 +82,12 @@ A real approval process (if one is later designed and approved) should be explic
 
 The current prototype binds evidence to a subject, policy/version, purpose, action, context, status, issue time, expiry, issuer ID, and approval ID. This is a technical envelope, not a complete consent record. The current fixed policy and one-time-use store are synthetic design choices and may not fit a future real process.
 
+### Audience / relying-party binding
+
+A future approval-evidence format should define whether evidence is valid for one named relying party (for example, a specific host, service, tenant, or deployment) or may intentionally be reused across a documented set of relying parties. Where approval is intended for a specific recipient, include a stable `audience` identifier in the signed claims and require the verifier to compare it with its own configured audience. Do not rely on an unsigned request field for this check. Define the identifier's namespace, ownership, lifecycle, and migration rules before deployment. If cross-service reuse is permitted, document the exact permitted audience set and the governance basis for that reuse.
+
+The current prototype does **not** bind approval evidence to an audience. This is a known limitation, not an implicit permission for cross-service use. Add audience binding only as a separately reviewed schema and verifier change, with negative tests for missing, mismatched, and unauthorized audiences; do not silently reinterpret existing tokens.
+
 ## 6. Key lifecycle
 
 ### Generation and custody
