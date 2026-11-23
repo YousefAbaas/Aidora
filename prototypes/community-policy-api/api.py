@@ -5,6 +5,7 @@ Never deploy or use this module to authorize real or sensitive data access.
 from pathlib import Path
 import sys
 
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -50,7 +51,6 @@ class PolicyEvaluationInputSerializer(serializers.Serializer):
         child=serializers.CharField(), allow_empty=False
     )
     context = serializers.DictField()
-    now = serializers.DateTimeField()
 
 
 class PolicyEvaluationView(APIView):
@@ -88,6 +88,9 @@ class PolicyEvaluationView(APIView):
                 "reference": reference,
             })
 
+        # Evaluation time is server-controlled. Accepting a client timestamp
+        # would let callers backdate a request to bypass policy expiry or
+        # evaluate a policy before its effective date.
         result = evaluate_policy(
             TRUSTED_SYNTHETIC_POLICY,
             {
@@ -96,6 +99,6 @@ class PolicyEvaluationView(APIView):
                 "approvals": approvals,
                 "context": values["context"],
             },
-            now=values["now"],
+            now=timezone.now(),
         )
         return Response(result)
