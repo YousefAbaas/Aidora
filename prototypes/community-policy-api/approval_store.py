@@ -1,4 +1,4 @@
-"""SQLite-backed one-time-use store for the isolated synthetic API prototype.
+"""SQLite-backed one-time-use and revocation store for the isolated prototype.
 
 This is a local prototype primitive, not a production consent or authorization
 service. Use a local durable filesystem path; do not put the database on an
@@ -17,7 +17,7 @@ class ApprovalStoreNotConfigured(RuntimeError):
 
 
 class SQLiteApprovalStore:
-    """Atomically consume approval references using a UNIQUE primary key."""
+    """Atomically consume approval IDs and persist revocation markers."""
 
     def __init__(self, database_path: str | None = None):
         self.database_path = database_path or os.environ.get("AIDORA_APPROVAL_STORE_DB")
@@ -47,7 +47,58 @@ class SQLiteApprovalStore:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS revoked_approval_references (
+                approval_id TEXT PRIMARY KEY,
+                revoked_at TEXT NOT NULL,
+                revoked_by TEXT NOT NULL,
+                reason TEXT NOT NULL
+            )
+            """
+        )
         return connection
+
+    def is_revoked(self, approval_id: str) -> bool:
+        connection = self._connect()
+        try:
+            row = connection.execute(
+                "SELECT 1 FROM revoked_approval_references WHERE approval_id = ?",
+                (approval_id,),
+            ).fetchone()
+            return row is not None
+        finally:
+            connection.close()
+
+    def revoke(self, approval_id: str, *, revoked_at: str, revoked_by: str, reason: str) -> bool:
+        """Persist a revocation marker; return False if already revoked."""
+        if not all(isinstance(value, str) and value for value in (
+            approval_id, revoked_at, revoked_by, reason
+        )):
+            return False
+        connection = self._connect()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                """
+                INSERT INTO revoked_approval_references
+                    (approval_id, revoked_at, revoked_by, reason)
+                VALUES (?, ?, ?, ?)
+                """,
+                (approval_id, revoked_at, revoked_by, reason),
+            )
+            connection.execute("COMMIT")
+            return True
+        except sqlite3.IntegrityError:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
+            return False
+        except Exception:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
+            raise
+        finally:
+            connection.close()
 
     def consume_many(
         self,
@@ -58,7 +109,7 @@ class SQLiteApprovalStore:
         policy_id: str,
         policy_version: str,
     ) -> bool:
-        """Consume all refs atomically; return False if any were already used."""
+        """Consume all refs atomically; reject prior use or any revoked ID."""
         refs = tuple(references)
         if not refs or len(refs) != len(set(refs)):
             return False
@@ -67,15 +118,19 @@ class SQLiteApprovalStore:
 
         connection = self._connect()
         try:
-            # BEGIN IMMEDIATE serializes writers before checking/inserting.
-            # The primary key is the final duplicate/replay enforcement.
+            # The immediate transaction serializes consumption against
+            # revocation writes on this same SQLite database.
             connection.execute("BEGIN IMMEDIATE")
             placeholders = ",".join("?" for _ in refs)
             existing = connection.execute(
                 f"SELECT reference FROM consumed_approval_references WHERE reference IN ({placeholders})",
                 refs,
             ).fetchone()
-            if existing:
+            revoked = connection.execute(
+                f"SELECT approval_id FROM revoked_approval_references WHERE approval_id IN ({placeholders})",
+                refs,
+            ).fetchone()
+            if existing or revoked:
                 connection.execute("ROLLBACK")
                 return False
             connection.executemany(
@@ -92,7 +147,8 @@ class SQLiteApprovalStore:
             connection.execute("COMMIT")
             return True
         except sqlite3.IntegrityError:
-            connection.execute("ROLLBACK")
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
             return False
         except Exception:
             if connection.in_transaction:

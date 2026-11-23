@@ -47,6 +47,25 @@ class SQLiteApprovalStoreTests(unittest.TestCase):
         with self.assertRaises(ApprovalStoreNotConfigured):
             SQLiteApprovalStore(None)
 
+    def test_revocation_persists_and_prevents_consumption(self):
+        self.assertTrue(self.store.revoke(
+            "revoked-approval",
+            revoked_at="2027-06-01T12:00:00+00:00",
+            revoked_by="synthetic-authority",
+            reason="withdrawn",
+        ))
+        self.assertTrue(self.store.is_revoked("revoked-approval"))
+        self.assertFalse(self.consume("revoked-approval"))
+
+    def test_duplicate_revocation_is_rejected(self):
+        kwargs = {
+            "revoked_at": "2027-06-01T12:00:00+00:00",
+            "revoked_by": "synthetic-authority",
+            "reason": "withdrawn",
+        }
+        self.assertTrue(self.store.revoke("approval-x", **kwargs))
+        self.assertFalse(self.store.revoke("approval-x", **kwargs))
+
     def test_in_memory_database_is_not_accepted(self):
         with self.assertRaises(ApprovalStoreNotConfigured):
             SQLiteApprovalStore(":memory:")
