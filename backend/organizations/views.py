@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from .models import Organization
 from accounts.permissions import IsRole
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_spectacular.utils import extend_schema
 
 @extend_schema(tags=["Organizations"])
@@ -446,6 +446,7 @@ from .serializers import OrganizationDetailSerializer
 from .serializers import OrganizationSimpleSerializer
 @extend_schema(tags=["Organizations"])
 class ServiceTypeListAPIView(ListAPIView):
+    permission_classes = [AllowAny]
     serializer_class = ServiceTypeSerializer
 
     def get_queryset(self):
@@ -453,6 +454,7 @@ class ServiceTypeListAPIView(ListAPIView):
         return Service.objects.order_by('service_type').distinct('service_type')
 @extend_schema(tags=["Organizations"])
 class OrganizationsByServiceTypeAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, service_type):
         organizations = Organization.objects.filter(
             organization_services__service__service_type__iexact=service_type
@@ -471,6 +473,7 @@ class OrganizationsByServiceTypeAPIView(APIView):
         return Response(data)
 @extend_schema(tags=["Organizations"])
 class OrganizationCardListAPIView(ListAPIView):
+    permission_classes = [AllowAny]
     serializer_class = OrganizationCardSerializer
 
     def get_queryset(self):
@@ -478,6 +481,7 @@ class OrganizationCardListAPIView(ListAPIView):
 
 @extend_schema(tags=["Organizations"])
 class OrganizationDetailAPIView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
 
     queryset = Organization.objects.all()
     serializer_class = OrganizationDetailSerializer   

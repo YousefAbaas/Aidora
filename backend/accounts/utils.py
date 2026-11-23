@@ -1,5 +1,6 @@
 import logging
 import random
+import secrets
 from random import randint
 
 import requests
@@ -79,7 +80,7 @@ def send_aidora_email(*, subject, message, recipient, sender_name="Aidora"):
     )
 
 def generate_otp():
-    return str(random.randint(100000, 999999))
+    return str(100000 + secrets.randbelow(900000))
 
 
 def get_or_create_pin(volunteer_profile):

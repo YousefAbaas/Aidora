@@ -339,15 +339,19 @@ class ServiceRequestDetailAPIView(APIView):
 from django.utils.timezone import now
 @extend_schema(tags=["Service Requests"])
 class ScanQRAPIView(APIView):
-    # permission_classes = [IsAuthenticated, IsRole]
-    # allowed_roles = ["refugee"]
+    permission_classes = [IsRole]
+    allowed_roles = ["refugee"]
 
     def post(self, request, pk):
 
         qr_code = request.data.get("qr_code")
 
         # 🔍 تحقق من وجود الطلب
-        service_request = ServiceRequest.objects.filter(id=pk).first()
+        # Only the refugee who owns the request may complete it. Requests of
+        # other users return the same 404 to avoid leaking which ids exist.
+        service_request = ServiceRequest.objects.filter(
+            id=pk, refugee__user=request.user
+        ).first()
 
         if not service_request:
             return Response(
