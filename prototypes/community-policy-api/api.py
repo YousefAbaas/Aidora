@@ -100,7 +100,7 @@ class PolicyEvaluationView(APIView):
             return _review("duplicate_approval_reference")
 
         try:
-            keyring, _active_key_id = load_keyring_from_environment()
+            keyring = load_keyring_from_environment()
             store = SQLiteApprovalStore()
         except ApprovalEvidenceError:
             return _review("approval_trust_configuration_unavailable")
