@@ -1,21 +1,24 @@
-"""HMAC-authenticated synthetic approval evidence for the isolated prototype.
+"""Ed25519-signed synthetic approval evidence for the isolated prototype.
 
-The configured keyring is the trust anchor. This module does not create a real
-community authority, identity proofing process, or production key-management
-system. Keep secrets outside source control and use a secret manager in any
-real deployment.
+The verifier receives public keys only. Private signing keys belong in a
+separately controlled issuer process and must never be configured in the API.
+This module does not establish real community authority or production key
+management.
 """
 from __future__ import annotations
 
 import base64
-import hashlib
-import hmac
 import json
 import os
 import re
 from datetime import datetime
 from typing import Any
 
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 
 REQUIRED_CLAIMS = {
     "approval_id", "issuer_id", "subject_id", "policy_id", "policy_version",
@@ -49,70 +52,59 @@ def _canonical_json(value: dict[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
-def load_keyring_from_environment() -> tuple[dict[str, dict[str, str]], str]:
-    """Load trusted issuer/key mappings; secrets are base64-encoded 32+ bytes."""
-    raw = os.environ.get("AIDORA_APPROVAL_HMAC_KEYS")
-    active_key_id = os.environ.get("AIDORA_APPROVAL_ACTIVE_KEY_ID")
-    if not raw or not active_key_id:
+def _decode_key(value: Any, expected_length: int) -> bytes:
+    if not isinstance(value, str):
+        raise ApprovalEvidenceError("approval_trust_configuration_invalid")
+    try:
+        decoded = base64.b64decode(value, validate=True)
+    except (ValueError, TypeError) as exc:
+        raise ApprovalEvidenceError("approval_trust_configuration_invalid") from exc
+    if len(decoded) != expected_length:
+        raise ApprovalEvidenceError("approval_trust_configuration_invalid")
+    return decoded
+
+
+def load_keyring_from_environment() -> dict[str, dict[str, str]]:
+    """Load issuer-bound Ed25519 public keys; no private key is accepted here."""
+    raw = os.environ.get("AIDORA_APPROVAL_ED25519_PUBLIC_KEYS")
+    if not raw:
         raise ApprovalEvidenceError("approval_trust_configuration_missing")
     try:
         keyring = json.loads(raw)
     except (TypeError, json.JSONDecodeError) as exc:
         raise ApprovalEvidenceError("approval_trust_configuration_invalid") from exc
-    if not isinstance(keyring, dict) or active_key_id not in keyring:
+    if not isinstance(keyring, dict) or not keyring:
         raise ApprovalEvidenceError("approval_trust_configuration_invalid")
     for key_id, entry in keyring.items():
         if not isinstance(key_id, str) or not key_id or not isinstance(entry, dict):
             raise ApprovalEvidenceError("approval_trust_configuration_invalid")
         issuer_id = entry.get("issuer_id")
-        secret_text = entry.get("secret")
         if not isinstance(issuer_id, str) or not issuer_id:
             raise ApprovalEvidenceError("approval_trust_configuration_invalid")
-        try:
-            secret = base64.b64decode(secret_text, validate=True)
-        except (TypeError, ValueError) as exc:
-            raise ApprovalEvidenceError("approval_trust_configuration_invalid") from exc
-        if len(secret) < 32:
-            raise ApprovalEvidenceError("approval_trust_configuration_invalid")
-    return keyring, active_key_id
+        _decode_key(entry.get("public_key"), 32)
+    return keyring
 
 
 def sign_approval_evidence(
-    claims: dict[str, Any], *, key_id: str, keyring: dict[str, dict[str, str]]
+    claims: dict[str, Any], *, key_id: str, private_key: Ed25519PrivateKey
 ) -> str:
-    """Issuer-side helper. The API endpoint never exposes an issuance route."""
+    """Issuer-side helper. Never load or expose the private key in the API."""
     if set(claims) != REQUIRED_CLAIMS:
         raise ApprovalEvidenceError("approval_claims_invalid")
-    entry = keyring.get(key_id)
-    if not isinstance(entry, dict):
-        raise ApprovalEvidenceError("approval_signing_key_unknown")
-    issuer_id = entry.get("issuer_id")
-    if claims.get("issuer_id") != issuer_id:
-        raise ApprovalEvidenceError("approval_issuer_key_mismatch")
-    try:
-        secret = base64.b64decode(entry["secret"], validate=True)
-        payload = _canonical_json(claims)
-    except (KeyError, TypeError, ValueError) as exc:
-        raise ApprovalEvidenceError("approval_signing_key_invalid") from exc
-    if len(secret) < 32:
+    if not isinstance(private_key, Ed25519PrivateKey):
         raise ApprovalEvidenceError("approval_signing_key_invalid")
-    signature = hmac.new(secret, key_id.encode("utf-8") + b"." + payload, hashlib.sha256).digest()
+    payload = _canonical_json(claims)
+    signature = private_key.sign(key_id.encode("utf-8") + b"." + payload)
     return key_id + "." + _b64url_encode(payload) + "." + _b64url_encode(signature)
 
 
 def verify_approval_evidence(
-    token: str,
-    *,
-    keyring: dict[str, dict[str, str]],
-    expected_subject_id: str,
-    expected_policy_id: str,
-    expected_policy_version: str,
-    expected_purpose: str,
-    expected_action: str,
-    expected_context: dict[str, Any],
-    now: datetime,
+    token: str, *, keyring: dict[str, dict[str, str]],
+    expected_subject_id: str, expected_policy_id: str,
+    expected_policy_version: str, expected_purpose: str,
+    expected_action: str, expected_context: dict[str, Any], now: datetime,
 ) -> dict[str, Any]:
-    """Authenticate signature and issuer, then enforce scope and time claims."""
+    """Verify issuer signature using public key, then enforce scope and time."""
     if not isinstance(token, str) or len(token) > MAX_TOKEN_LENGTH:
         raise ApprovalEvidenceError("approval_evidence_malformed")
     parts = token.split(".")
@@ -123,28 +115,27 @@ def verify_approval_evidence(
     if not isinstance(entry, dict):
         raise ApprovalEvidenceError("approval_signing_key_untrusted")
     try:
-        secret = base64.b64decode(entry["secret"], validate=True)
+        public_bytes = _decode_key(entry.get("public_key"), 32)
         payload_bytes = _b64url_decode(encoded_payload)
         supplied_signature = _b64url_decode(encoded_signature)
         claims = json.loads(payload_bytes.decode("utf-8"))
-    except (KeyError, TypeError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        public_key = Ed25519PublicKey.from_public_bytes(public_bytes)
+    except (ApprovalEvidenceError, ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ApprovalEvidenceError("approval_evidence_malformed") from exc
-    if len(secret) < 32 or not isinstance(claims, dict) or set(claims) != REQUIRED_CLAIMS:
+    if len(supplied_signature) != 64 or not isinstance(claims, dict) or set(claims) != REQUIRED_CLAIMS:
         raise ApprovalEvidenceError("approval_evidence_malformed")
-    expected_signature = hmac.new(
-        secret, key_id.encode("utf-8") + b"." + payload_bytes, hashlib.sha256
-    ).digest()
-    if not hmac.compare_digest(supplied_signature, expected_signature):
-        raise ApprovalEvidenceError("approval_signature_invalid")
+    if _canonical_json(claims) != payload_bytes:
+        raise ApprovalEvidenceError("approval_evidence_noncanonical")
+    try:
+        public_key.verify(supplied_signature, key_id.encode("utf-8") + b"." + payload_bytes)
+    except InvalidSignature as exc:
+        raise ApprovalEvidenceError("approval_signature_invalid") from exc
     if claims.get("issuer_id") != entry.get("issuer_id"):
         raise ApprovalEvidenceError("approval_issuer_untrusted")
     for field, expected in (
-        ("subject_id", expected_subject_id),
-        ("policy_id", expected_policy_id),
-        ("policy_version", expected_policy_version),
-        ("purpose", expected_purpose),
-        ("action", expected_action),
-        ("context", expected_context),
+        ("subject_id", expected_subject_id), ("policy_id", expected_policy_id),
+        ("policy_version", expected_policy_version), ("purpose", expected_purpose),
+        ("action", expected_action), ("context", expected_context),
     ):
         if claims.get(field) != expected:
             raise ApprovalEvidenceError("approval_scope_mismatch")
@@ -166,8 +157,6 @@ def verify_approval_evidence(
         raise ApprovalEvidenceError("approval_lifetime_exceeds_limit")
     if not all(isinstance(claims.get(field), str) and claims[field] for field in (
         "issuer_id", "subject_id", "policy_id", "policy_version", "purpose", "action"
-    )):
-        raise ApprovalEvidenceError("approval_claims_invalid")
-    if not isinstance(claims.get("context"), dict):
+    )) or not isinstance(claims.get("context"), dict):
         raise ApprovalEvidenceError("approval_claims_invalid")
     return claims
