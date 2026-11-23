@@ -1,4 +1,5 @@
 """Adversarial tests for the isolated DRF synthetic adapter."""
+from copy import deepcopy
 from datetime import datetime, timezone
 from types import SimpleNamespace
 import unittest
@@ -32,13 +33,16 @@ from api import PolicyEvaluationView
 
 
 FIXED_SERVER_TIME = datetime(2027, 6, 1, 12, 0, tzinfo=timezone.utc)
+BASE_APPROVALS = deepcopy(api.SYNTHETIC_APPROVALS)
 
 
 class PolicyEvaluationApiTests(unittest.TestCase):
     def setUp(self):
+        api.SYNTHETIC_APPROVALS = deepcopy(BASE_APPROVALS)
+        api._CONSUMED_APPROVAL_REFERENCES.clear()
         self.factory = APIRequestFactory()
         self.view = PolicyEvaluationView.as_view()
-        self.user = SimpleNamespace(is_authenticated=True)
+        self.user = SimpleNamespace(is_authenticated=True, pk="synthetic-test-user")
 
     def payload(self, **overrides):
         body = {
@@ -50,18 +54,37 @@ class PolicyEvaluationApiTests(unittest.TestCase):
         body.update(overrides)
         return body
 
-    def post(self, payload, *, server_time=FIXED_SERVER_TIME, authenticated=True):
+    def post(self, payload, *, server_time=FIXED_SERVER_TIME, authenticated=True, user=None):
         request = self.factory.post("/synthetic-policy/evaluate/", payload, format="json")
         if authenticated:
-            force_authenticate(request, user=self.user)
+            force_authenticate(request, user=user or self.user)
         with patch.object(api.timezone, "now", return_value=server_time):
             return self.view(request)
 
-    def test_server_resolved_synthetic_evidence_allows(self):
+    def test_server_resolved_scoped_synthetic_evidence_allows_once(self):
         response = self.post(self.payload())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["decision"], "ALLOW")
         self.assertEqual(response.data["policy_id"], "synthetic-api-policy")
+
+    def test_reusing_approval_reference_requires_review(self):
+        first = self.post(self.payload())
+        second = self.post(self.payload())
+        self.assertEqual(first.data["decision"], "ALLOW")
+        self.assertEqual(second.data["decision"], "REVIEW")
+        self.assertEqual(second.data["reason_codes"], ["approval_reference_already_used"])
+
+    def test_approval_bound_to_another_subject_requires_review(self):
+        other_user = SimpleNamespace(is_authenticated=True, pk="different-user")
+        response = self.post(self.payload(), user=other_user)
+        self.assertEqual(response.data["decision"], "REVIEW")
+        self.assertEqual(response.data["reason_codes"], ["approval_scope_or_expiry_mismatch"])
+
+    def test_approval_for_another_purpose_requires_review(self):
+        api.SYNTHETIC_APPROVALS["synthetic-approval-001"]["purpose"] = "different-purpose"
+        response = self.post(self.payload())
+        self.assertEqual(response.data["decision"], "REVIEW")
+        self.assertEqual(response.data["reason_codes"], ["approval_scope_or_expiry_mismatch"])
 
     def test_anonymous_request_is_rejected(self):
         response = self.post(self.payload(), authenticated=False)
@@ -81,6 +104,7 @@ class PolicyEvaluationApiTests(unittest.TestCase):
             approval_references=["synthetic-approval-001", "synthetic-approval-001"]
         ))
         self.assertEqual(response.data["decision"], "REVIEW")
+        self.assertEqual(response.data["reason_codes"], ["duplicate_approval_reference"])
 
     def test_caller_supplied_policy_is_rejected(self):
         payload = self.payload()
