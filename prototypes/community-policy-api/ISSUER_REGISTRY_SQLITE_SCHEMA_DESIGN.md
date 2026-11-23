@@ -487,3 +487,96 @@ Do not create migrations or runtime registry code until:
 - the prototype remains isolated and synthetic-only.
 
 This document adds no runtime behavior. It must not be interpreted as approval for a real issuer registry or deployment.
+
+
+## 11. Critical review refinements before migration work
+
+A review of the illustrative schema identified several cross-record and lifecycle details that must be explicit. These refinements do not resolve the governance decisions in Section 8.
+
+### 11.1 Enforce issuer ownership inside each snapshot
+
+The three snapshot membership tables currently prove that a referenced record version exists, but they do not prove that the mandate and key belong to an issuer version included in the **same** snapshot. A malformed snapshot could therefore combine a mandate/key with an unrelated issuer entry unless the service performs additional checks.
+
+Before implementation, strengthen the membership model:
+
+- Add `issuer_id` to `snapshot_mandate_versions` and `snapshot_key_versions`.
+- Add a composite foreign key from `(mandate_id, issuer_id)` to `mandates(mandate_id, issuer_id)`.
+- Add a composite foreign key from `(key_id, issuer_id)` to `issuer_keys(key_id, issuer_id)`.
+- Add a composite foreign key from `(registry_id, snapshot_version, issuer_id)` to `snapshot_issuer_versions(registry_id, snapshot_version, issuer_id)`.
+- Retain the existing foreign keys to the exact mandate/key version rows.
+
+This makes the snapshot's ownership relationship enforceable by SQLite, rather than relying solely on application validation. The schema must still validate that the selected issuer version is the correct effective version for the snapshot's policy time.
+
+### 11.2 Timestamp comparison is conditional on canonical storage
+
+The illustrative checks `effective_until > effective_from` and `expires_at > issued_at` perform SQLite value comparisons. They are safe chronological comparisons only if timestamps are stored in one fixed-width, lexicographically sortable UTC representation (for example, a strictly validated RFC 3339 form with uniform precision and `Z` suffix).
+
+Until that representation and precision are selected, these CHECK expressions must not be treated as reliable time-order validation. The implementation must either:
+- adopt and validate one canonical sortable UTC representation before enabling these checks; or
+- remove the SQL ordering checks and enforce temporal ordering with a rigorously tested timestamp parser in the domain layer.
+
+Mixed offsets, mixed fractional-second precision, locale strings, or unvalidated text can make lexical ordering differ from chronological ordering.
+
+### 11.3 Make approval consumption concrete
+
+Section 6.1 refers to consuming an approval, but the illustrative schema has no explicit one-time consumption record. If a given approval is intended to authorize exactly one protected operation, add an append-only table such as:
+
+```sql
+CREATE TABLE approval_consumptions (
+    approval_id TEXT PRIMARY KEY
+      REFERENCES administrative_approvals(approval_id) ON DELETE RESTRICT,
+    consumed_request_digest TEXT NOT NULL,
+    consumed_target_record_type TEXT NOT NULL,
+    consumed_target_record_id TEXT NOT NULL,
+    consumed_target_record_version INTEGER NOT NULL CHECK (consumed_target_record_version > 0),
+    consumed_at TEXT NOT NULL,
+    operation_event_id TEXT NOT NULL UNIQUE
+      REFERENCES transition_events(event_id) ON DELETE RESTRICT
+) STRICT;
+```
+
+The protected operation, transition event, and consumption row must commit in the same transaction. The primary key makes a second consumption of the same approval fail. If approvals are intentionally reusable for a defined set of operations, that is a different policy and requires a separately specified cardinality model; do not silently omit consumption controls.
+
+### 11.4 State immutability must be enforced, not just described
+
+The version tables, snapshot envelope, snapshot membership rows, transition events, and checkpoint receipts are described as immutable/append-only, but the illustrative DDL does not itself prevent UPDATE or DELETE.
+
+A migration design must include:
+- UPDATE/DELETE rejection triggers for immutable version, snapshot, membership, transition, and receipt rows;
+- narrowly scoped rules for mutable coordination rows such as `verifier_registry_state`;
+- an explicit terminal-decision rule for administrative approvals (a terminal decision cannot be changed or deleted);
+- tests proving ordinary application connections cannot bypass the repository's intended write path.
+
+Triggers are defense in depth, not protection against a privileged operator who can replace the database file, drop triggers, or restore an older backup. Recovery and independent checkpoint controls remain necessary.
+
+### 11.5 Specify atomic monotonic verifier updates
+
+The prose requirement for compare-and-swap should be translated into an exact conditional update in implementation. Conceptually, an update is accepted only when:
+- the incoming version is greater than the stored version and the expected `state_version` matches; or
+- the incoming version equals the stored version and the snapshot hash is identical, under the approved idempotency rule.
+
+A same-version/different-hash value and any lower version must fail closed. The implementation must check the affected-row count and handle an uninitialized verifier row without a race. The external checkpoint protocol must define ordering and crash recovery around this local transaction; a local SQL statement cannot make the external system atomic.
+
+### 11.6 Snapshot signing needs an explicit publication lifecycle
+
+The current transaction outline leaves a gap between preparing snapshot content in SQLite and obtaining a signature from the separately controlled registry signer. Do not hold a long SQLite write transaction open while waiting for an external signer, and do not publish a snapshot whose signed bytes differ from its stored membership/content.
+
+Before implementing publication, define a prepare/sign/finalize protocol that binds:
+- a unique publication-attempt ID;
+- the registry ID and reserved version;
+- the exact canonical payload bytes or immutable content digest;
+- the complete membership/version set;
+- the signer request and returned signature;
+- final publication outcome and retry behavior.
+
+Concurrent publication attempts for one registry must not reserve conflicting versions. A crash after signing but before finalization must be recoverable without signing or publishing a different payload under the same version. This may require a dedicated publication-attempt/outbox record and explicit attempt states; the exact table/state model remains a design decision.
+
+### 11.7 Clarify snapshot sequence continuity
+
+The current CHECK only requires `previous_version < version`; it does not require the previous snapshot to be the immediately preceding version. Before implementation, decide whether gaps are prohibited. If continuity is required, the domain service must enforce `version = previous_version + 1` and verify that the referenced previous snapshot exists and its hash matches. A SQL CHECK cannot query the prior row. If gaps are permitted, document the authorized reason and verifier behavior.
+
+### 11.8 Updated review disposition
+
+The schema is suitable as a **design draft for further review**, but is not yet migration-ready. The cross-record snapshot ownership constraints, timestamp representation, approval consumption semantics, immutability enforcement, verifier compare-and-swap behavior, and snapshot publication lifecycle must be incorporated into the eventual implementation design and tests.
+
+No runtime code or database migration is authorized by this review. All future tests and examples remain synthetic-only.
