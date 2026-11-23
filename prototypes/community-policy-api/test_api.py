@@ -10,6 +10,10 @@ if not settings.configured:
     settings.configure(
         SECRET_KEY="synthetic-test-only",
         USE_TZ=True,
+        INSTALLED_APPS=[
+            "django.contrib.auth",
+            "django.contrib.contenttypes",
+        ],
         REST_FRAMEWORK={
             "DEFAULT_AUTHENTICATION_CLASSES": [
                 "rest_framework.authentication.BasicAuthentication",
