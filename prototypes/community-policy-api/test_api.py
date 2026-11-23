@@ -125,8 +125,9 @@ class PolicyEvaluationApiTests(unittest.TestCase):
 
     def test_tampered_signature_requires_review(self):
         token = self.token()
-        replacement = "A" if token[-1] != "A" else "B"
-        parts = token.split(".")\n        parts[2] = ("A" if parts[2][0] != "A" else "B") + parts[2][1:]\n        response = self.post(self.payload(approval_references=[".".join(parts)]))
+        parts = token.split(".")
+        parts[2] = ("A" if parts[2][0] != "A" else "B") + parts[2][1:]
+        response = self.post(self.payload(approval_references=[".".join(parts)]))
         self.assertEqual(response.data["decision"], "REVIEW")
 
     def test_unknown_key_requires_review(self):
