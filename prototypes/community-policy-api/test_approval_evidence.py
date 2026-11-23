@@ -112,6 +112,18 @@ class ApprovalEvidenceTests(unittest.TestCase):
         with self.assertRaises(ApprovalEvidenceError):
             verify(token)
 
+    def test_non_finite_json_value_fails_closed(self):
+        malformed = claims(context={"environment": float("nan")})
+        payload = __import__("json").dumps(
+            malformed, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        ).encode("utf-8")
+        signing_input = b"issuer-key-1." + payload
+        signature = PRIVATE_KEY.sign(signing_input)
+        encode = lambda value: base64.urlsafe_b64encode(value).rstrip(b"=").decode("ascii")
+        token = "issuer-key-1." + encode(payload) + "." + encode(signature)
+        with self.assertRaises(ApprovalEvidenceError):
+            verify(token)
+
     def test_private_key_is_not_required_by_verifier_keyring(self):
         self.assertEqual(set(KEYRING["issuer-key-1"]), {"issuer_id", "public_key"})
 
