@@ -70,11 +70,12 @@ class SQLiteApprovalStore:
             # BEGIN IMMEDIATE serializes writers before checking/inserting.
             # The primary key is the final duplicate/replay enforcement.
             connection.execute("BEGIN IMMEDIATE")
-            existing = connection.executemany(
-                "SELECT reference FROM consumed_approval_references WHERE reference = ?",
-                ((ref,) for ref in refs),
-            )
-            if any(existing):
+            placeholders = ",".join("?" for _ in refs)
+            existing = connection.execute(
+                f"SELECT reference FROM consumed_approval_references WHERE reference IN ({placeholders})",
+                refs,
+            ).fetchone()
+            if existing:
                 connection.execute("ROLLBACK")
                 return False
             connection.executemany(
