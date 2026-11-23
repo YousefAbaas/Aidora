@@ -220,7 +220,7 @@ class ApiService implements ApiClient {
   ApiResponse _parse(http.Response r) {
     final bodyPreview =
         r.body.length > 200 ? r.body.substring(0, 200) + '…' : r.body;
-    debugPrint('   ← ${r.statusCode}  $bodyPreview');
+    if (kDebugMode) debugPrint('   ← ${r.statusCode}  $bodyPreview');
 
     final trimmed = r.body.trimLeft();
     final isHtml = trimmed.startsWith('<!DOCTYPE') ||

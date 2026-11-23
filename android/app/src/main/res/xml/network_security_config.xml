@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    network_security_config.xml
-    ─────────────────────────────────────────────────────────────────────────
-    Android 9+ (API 28+) blocks all cleartext HTTP by default.
-
-    This config allows HTTP everywhere during development so debugging on
-    a REAL DEVICE works no matter what LAN IP your dev machine gets
-    (192.168.x.x, 10.x.x.x, etc.) without having to hardcode/update an IP
-    every time you reconnect to WiFi.
-
-      • 127.0.0.1  → iOS Simulator / desktop Flutter
-      • 10.0.2.2   → Android Emulator (maps to host machine)
-      • localhost  → web debug builds
-      • base-config cleartextTrafficPermitted="true" → any other host
-        (covers real phone ↔ dev machine over WiFi on any subnet)
-
-    NOTE: before shipping to production with a real HTTPS API, change
-    base-config below back to cleartextTrafficPermitted="false".
-    ─────────────────────────────────────────────────────────────────────────
+    Production network policy: HTTPS only.
+    Cleartext HTTP is allowed only for local development hosts.
+    Debug builds override this file with a permissive version
+    (see android/app/src/debug/res/xml/network_security_config.xml).
 -->
 <network-security-config>
 
@@ -27,10 +13,7 @@
         <domain includeSubdomains="false">localhost</domain>
     </domain-config>
 
-    <!-- Development-wide: allow cleartext to any other host (e.g. your
-         PC's LAN IP when debugging on a real phone). System CA certs are
-         still trusted for any HTTPS traffic. -->
-    <base-config cleartextTrafficPermitted="true">
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system"/>
         </trust-anchors>
