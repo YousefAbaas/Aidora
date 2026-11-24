@@ -1,6 +1,6 @@
 # SRHIN host enquiry — sent record
 
-**Status: sent on 23 November 2026; awaiting response.**  
+**Status: sent on 22 November 2026 at 21:06:48 UTC; awaiting response.**  
 **Recipient:** partnership@srhin.org  
 **Subject:** Potential Mozilla Foundation Embedded Fellowship collaboration (2027–2028)  
 **Channel:** Gmail  
