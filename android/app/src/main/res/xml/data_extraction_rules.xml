@@ -3,6 +3,8 @@
     <cloud-backup>
         <!-- Preserve other app preferences; never restore device-bound secure-store ciphertext. -->
         <exclude domain="sharedpref" path="FlutterSecureStorage" />
+        <!-- This legacy Flutter preferences file previously contained plaintext auth tokens. -->
+        <exclude domain="sharedpref" path="FlutterSharedPreferences" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="FlutterSecureStorage" />
