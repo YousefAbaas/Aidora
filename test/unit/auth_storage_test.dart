@@ -129,6 +129,25 @@ void main() {
     expect(AuthStorage.getAccessToken(), 'rotated-access');
   });
 
+  test('requires both access and refresh tokens for a logged-in session', () async {
+    await AuthStorage.saveTokens(
+      accessToken: 'access',
+      refreshToken: 'refresh',
+      role: 'refugee',
+    );
+    expect(AuthStorage.isLoggedIn, isTrue);
+
+    await tokenStore.delete('auth_refresh_token');
+    // Reinitialization simulates a cold app start with an incomplete session.
+    AuthStorage.resetForTesting();
+    AuthStorage.setTokenStoreForTesting(tokenStore);
+    await AuthStorage.init();
+
+    expect(AuthStorage.getAccessToken(), 'access');
+    expect(AuthStorage.getRefreshToken(), isNull);
+    expect(AuthStorage.isLoggedIn, isFalse);
+  });
+
   test('clear removes secure tokens and local session metadata', () async {
     await AuthStorage.saveTokens(
       accessToken: 'access',
