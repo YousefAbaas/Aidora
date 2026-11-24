@@ -124,7 +124,8 @@ void main() {
     final first = manager.forceRefresh();
     final second = manager.forceRefresh();
 
-    expect(requestCount, 0);
+    await Future<void>.delayed(Duration.zero);
+    expect(requestCount, 1);
     completer.complete(
       http.Response(
         jsonEncode({
