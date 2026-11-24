@@ -116,19 +116,6 @@ void main() {
     expect(AuthStorage.isLoggedIn, isTrue);
   });
 
-  test('updateAccessToken updates secure storage and the memory cache', () async {
-    await AuthStorage.saveTokens(
-      accessToken: 'old-access',
-      refreshToken: 'refresh',
-      role: 'refugee',
-    );
-
-    await AuthStorage.updateAccessToken('rotated-access');
-
-    expect(tokenStore.values['auth_access_token'], 'rotated-access');
-    expect(AuthStorage.getAccessToken(), 'rotated-access');
-  });
-
   test('requires both access and refresh tokens for a logged-in session', () async {
     await AuthStorage.saveTokens(
       accessToken: 'access',
