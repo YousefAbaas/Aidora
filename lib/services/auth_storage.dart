@@ -18,7 +18,11 @@ abstract interface class AuthTokenStore {
 class _FlutterSecureTokenStore implements AuthTokenStore {
   const _FlutterSecureTokenStore();
 
-  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   @override
   Future<String?> read(String key) => _storage.read(key: key);
@@ -213,8 +217,12 @@ class AuthStorage {
   static String? getName() => _prefs?.getString(_kName);
 
   static bool get isLoggedIn {
-    final token = _accessToken;
-    return token != null && token.isNotEmpty;
+    final access = _accessToken;
+    final refresh = _refreshToken;
+    return access != null &&
+        access.isNotEmpty &&
+        refresh != null &&
+        refresh.isNotEmpty;
   }
 
   /// Clears the in-memory session first, then attempts to delete all stored
