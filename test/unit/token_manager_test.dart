@@ -52,8 +52,9 @@ void main() {
     await AuthStorage.init();
 
     final client = MockClient((request) async {
-      fail('An access-only session must not trigger an HTTP refresh.');
-      return http.Response('', 500);
+      throw StateError(
+        'An access-only session must not trigger an HTTP refresh.',
+      );
     });
     addTearDown(client.close);
 
