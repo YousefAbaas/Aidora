@@ -4,11 +4,13 @@
     import 'package:flutter_test/flutter_test.dart';
     import 'package:shared_preferences/shared_preferences.dart';
     import 'package:aidora/services/auth_service.dart';
+    import 'package:aidora/services/auth_storage.dart';
     import 'package:aidora/services/api_constants.dart';
     import 'package:aidora/services/api_service.dart';
 
     import '../helpers/fixtures.dart';
     import '../helpers/fake_api_service.dart';
+    import '../helpers/fake_auth_token_store.dart';
 
     AuthService _svc({
     ApiResponse? login,
@@ -32,7 +34,18 @@
     void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
 
-    SharedPreferences.setMockInitialValues({});
+    late FakeAuthTokenStore tokenStore;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      tokenStore = FakeAuthTokenStore();
+      AuthStorage.setTokenStoreForTesting(tokenStore);
+      await AuthStorage.init();
+    });
+
+    tearDown(() {
+      AuthStorage.resetForTesting();
+    });
 
     group('AuthService.login()', () {
     test('refugee login returns role refugee', () async {
