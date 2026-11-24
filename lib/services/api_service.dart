@@ -213,9 +213,11 @@ class ApiService implements ApiClient {
   bool _needsRefresh(int code) => code == 401 || code == 403;
 
   void _expiredSession() {
-    AuthStorage.clear().catchError((Object _) {
-      debugPrint('Unable to fully remove the expired local secure session.');
-    });
+    unawaited(
+      AuthStorage.clear().catchError((Object _) {
+        debugPrint('Unable to fully remove the expired local secure session.');
+      }),
+    );
     Future.microtask(() => Get.offAllNamed('/selection'));
   }
 
