@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'api_constants.dart';
 import 'auth_storage.dart';
