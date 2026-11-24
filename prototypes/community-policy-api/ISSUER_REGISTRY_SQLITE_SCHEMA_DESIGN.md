@@ -1,0 +1,638 @@
+# Issuer Registry SQLite Schema Design
+
+**Status:** proposed logical/physical schema design; documentation only.  
+**Scope:** isolated synthetic community-policy API prototype.  
+**Depends on:** `ISSUER_GOVERNANCE_DESIGN.md`, `ISSUER_REGISTRY_THREAT_MODEL.md`, `ISSUER_REGISTRY_DATA_MODEL.md`, and `ISSUER_REGISTRY_SECURITY_INVARIANTS.md`.  
+**Last updated:** 2026-11-24.
+
+## 1. Purpose and non-goals
+
+This document translates the existing logical issuer-registry model into a proposed SQLite schema structure, relationship strategy, integrity controls, and transaction boundaries. It is a design artifact only.
+
+It does **not**:
+- create or migrate any database;
+- add runtime code, endpoints, administrative permissions, or real trust anchors;
+- register real issuers, mandates, keys, administrators, or communities;
+- connect the registry to production Aidora, SRHIN, or real participant data;
+- resolve governance decisions that belong to an accountable host and affected people.
+
+All future fixtures must be synthetic. A database constraint, passing test, signature, or `ALLOW` result is not proof of community legitimacy, informed consent, or legal authority.
+
+## 2. SQLite assumptions and limits
+
+### 2.1 Baseline
+
+The eventual implementation should use a SQLite version supporting:
+- foreign-key constraints (enabled on **every** connection);
+- partial indexes;
+- UPSERT;
+- WAL mode if justified by the deployment's concurrency profile;
+- `STRICT` tables if the supported SQLite runtime is at least 3.37.0.
+
+If the supported runtime is older, use explicit `typeof(...)` checks and test the exact deployed version. The schema must declare and test its minimum SQLite version rather than silently relying on local developer versions.
+
+Recommended connection initialization, subject to runtime verification:
+
+```sql
+PRAGMA foreign_keys = ON;
+PRAGMA busy_timeout = 5000;
+```
+
+WAL mode is an operational choice, not a security control. It does not provide distributed consensus, independent audit anchoring, or anti-rollback protection.
+
+### 2.2 What SQLite cannot guarantee by itself
+
+SQLite alone cannot:
+- provide multi-host consensus or linearizable state across independent database copies;
+- stop an operator from replacing the database file with an older backup;
+- protect a high-water mark stored only in the same rollback-prone database;
+- prove that a named actor is authenticated or authorized;
+- protect audit history against a privileged operator who can replace the file and its contents;
+- safely resolve governance, quorum, representation, or consent questions.
+
+The verifier's anti-rollback checkpoint therefore requires an independently protected mechanism or a documented, authorized re-bootstrap procedure. A second table in the same SQLite file is **not** an independent checkpoint.
+
+## 3. Proposed table inventory
+
+The design separates stable record identity from immutable versions.
+
+| Table | Purpose | Mutability model |
+|---|---|---|
+| `issuers` | Stable issuer identity | Insert once; no identity reassignment |
+| `issuer_versions` | Versioned issuer attributes and state | Insert new versions; no in-place edits |
+| `mandates` | Stable mandate identity and issuer binding | Insert once |
+| `mandate_versions` | Versioned scope, audiences, validity, and state | Insert new versions |
+| `issuer_keys` | Stable key ID and issuer binding | Insert once; key ID never reused |
+| `issuer_key_versions` | Versioned public-key metadata and lifecycle state | Insert new versions; activated key material immutable |
+| `administrative_approvals` | Approval of an exact proposed change | Insert/update only while pending under a controlled workflow; terminal decision immutable |
+| `transition_events` | Append-only state-transition history | Insert only |
+| `registry_snapshots` | Signed, versioned registry snapshot envelope | Insert only |
+| `snapshot_issuer_versions` | Issuer versions included in a snapshot | Insert only |
+| `snapshot_mandate_versions` | Mandate versions included in a snapshot | Insert only |
+| `snapshot_key_versions` | Key versions included in a snapshot | Insert only |
+| `verifier_registry_state` | Per-verifier, per-registry accepted high-water mark | Monotonic conditional update |
+| `verifier_checkpoint_receipts` | References/receipts for independent checkpoint operations | Append-only references; checkpoint itself is external |
+
+The existing approval-evidence/replay/revocation tables in the current prototype remain separate. This design does not silently replace or reinterpret them.
+
+## 4. Core schema shape
+
+The SQL fragments below are illustrative design fragments, not migration-ready DDL. Exact enum values, timestamp policy, canonical serialization, and unresolved governance rules must be settled before implementation.
+
+### 4.1 Stable identity tables
+
+```sql
+CREATE TABLE issuers (
+    issuer_id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE mandates (
+    mandate_id TEXT PRIMARY KEY,
+    issuer_id TEXT NOT NULL REFERENCES issuers(issuer_id) ON DELETE RESTRICT,
+    created_at TEXT NOT NULL,
+    UNIQUE (mandate_id, issuer_id)
+) STRICT;
+
+CREATE TABLE issuer_keys (
+    key_id TEXT PRIMARY KEY,
+    issuer_id TEXT NOT NULL REFERENCES issuers(issuer_id) ON DELETE RESTRICT,
+    created_at TEXT NOT NULL,
+    UNIQUE (key_id, issuer_id)
+) STRICT;
+```
+
+Design notes:
+- IDs should be generated using a vetted UUID strategy or another explicitly specified immutable identifier format.
+- Never recycle an issuer ID, mandate ID, or key ID after expiry, revocation, or retirement.
+- A mandate and key are permanently bound to the issuer recorded at creation. A transfer requires a new record and fresh review.
+- `ON DELETE RESTRICT` is intentional. Authority-bearing records must not disappear through cascading deletion.
+
+### 4.2 Versioned issuer records
+
+```sql
+CREATE TABLE issuer_versions (
+    issuer_id TEXT NOT NULL REFERENCES issuers(issuer_id) ON DELETE RESTRICT,
+    record_version INTEGER NOT NULL CHECK (record_version > 0),
+    display_name TEXT NOT NULL,
+    identity_evidence_ref TEXT NOT NULL,
+    governance_decision_ref TEXT,
+    status TEXT NOT NULL CHECK (status IN
+      ('PENDING','UNDER_REVIEW','ACTIVE','SUSPENDED','REVOKED','EXPIRED')),
+    effective_from TEXT,
+    effective_until TEXT,
+    created_at TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    PRIMARY KEY (issuer_id, record_version),
+    CHECK (effective_until IS NULL OR effective_from IS NULL
+           OR effective_until > effective_from)
+) STRICT;
+```
+
+The exact timestamp format and interval boundary convention remain unresolved. Before an issuer version can be treated as ACTIVE, the domain service must enforce the approved effective-period policy, valid governance decision reference, and required independent approvals. A SQL CHECK cannot validate the referenced evidence or prove its authority.
+
+### 4.3 Versioned mandate records
+
+```sql
+CREATE TABLE mandate_versions (
+    mandate_id TEXT NOT NULL REFERENCES mandates(mandate_id) ON DELETE RESTRICT,
+    record_version INTEGER NOT NULL CHECK (record_version > 0),
+    scope_json TEXT NOT NULL,
+    permitted_purposes_json TEXT NOT NULL,
+    permitted_actions_json TEXT NOT NULL,
+    permitted_contexts_json TEXT NOT NULL,
+    audiences_json TEXT,
+    decision_reference TEXT,
+    status TEXT NOT NULL CHECK (status IN
+      ('DRAFT','SUBMITTED','APPROVED','ACTIVE','SUSPENDED','REVOKED','EXPIRED')),
+    effective_from TEXT,
+    effective_until TEXT,
+    created_at TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    PRIMARY KEY (mandate_id, record_version),
+    CHECK (effective_until IS NULL OR effective_from IS NULL
+           OR effective_until > effective_from)
+) STRICT;
+```
+
+JSON columns are text at the SQLite storage layer. The application must parse them with a strict schema, reject duplicate/unknown fields where the format requires, normalize values according to a specified canonicalization contract, and validate scope semantics. Do not assume SQLite JSON support is present or that `json_valid()` alone provides semantic validation.
+
+The active mandate version must be bounded by the relevant issuer authority interval. That cross-table temporal rule belongs in a transactionally enforced domain service (and may be supplemented by triggers after the rule is fully specified).
+
+### 4.4 Versioned issuer-key records
+
+```sql
+CREATE TABLE issuer_key_versions (
+    key_id TEXT NOT NULL REFERENCES issuer_keys(key_id) ON DELETE RESTRICT,
+    record_version INTEGER NOT NULL CHECK (record_version > 0),
+    algorithm TEXT NOT NULL,
+    public_key_fingerprint TEXT NOT NULL,
+    public_key_material BLOB,
+    public_key_ref TEXT,
+    proof_of_possession_ref TEXT,
+    status TEXT NOT NULL CHECK (status IN
+      ('GENERATED','PENDING_REGISTRATION','ACTIVE','SUSPENDED',
+       'COMPROMISED','REVOKED','EXPIRED','RETIRED')),
+    registered_at TEXT,
+    activated_at TEXT,
+    effective_until TEXT,
+    created_at TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    PRIMARY KEY (key_id, record_version),
+    CHECK ((public_key_material IS NOT NULL) <> (public_key_ref IS NOT NULL))
+) STRICT;
+```
+
+Only public key material or a reference to public material is allowed. Private keys, seeds, recovery secrets, and signing credentials are prohibited. The selected storage mode (inline public bytes versus external public-key reference) must be consistent across a deployment.
+
+Once a key is activated, its algorithm, public-key bytes/reference, fingerprint, and issuer binding are immutable for that key ID. A key rotation creates a new `key_id`. A compromised key can never transition back to ACTIVE.
+
+### 4.5 Administrative approvals
+
+```sql
+CREATE TABLE administrative_approvals (
+    approval_id TEXT PRIMARY KEY,
+    target_record_type TEXT NOT NULL CHECK (target_record_type IN
+      ('ISSUER','MANDATE','KEY','REGISTRY_CONFIG')),
+    target_record_id TEXT NOT NULL,
+    requested_action TEXT NOT NULL,
+    requester_principal_ref TEXT NOT NULL,
+    reviewer_principal_ref TEXT,
+    approver_principal_ref TEXT,
+    decision TEXT NOT NULL CHECK (decision IN
+      ('PENDING','APPROVED','REJECTED','WITHDRAWN')),
+    decision_reference TEXT,
+    target_record_version INTEGER NOT NULL CHECK (target_record_version > 0),
+    request_digest TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    decided_at TEXT,
+    CHECK (reviewer_principal_ref IS NULL
+           OR reviewer_principal_ref <> requester_principal_ref),
+    CHECK (approver_principal_ref IS NULL
+           OR approver_principal_ref <> requester_principal_ref)
+) STRICT;
+```
+
+The polymorphic target reference cannot be protected by a conventional single foreign key. The service must resolve the target table, verify the exact target version, and bind the approval to a canonical request digest. If reviewer/approver cardinality is required, the service must also enforce distinct identities according to the operation policy. The schema's two simple inequality checks do not replace that policy.
+
+Approval terminality, reviewer/approver separation, and whether a reviewer is mandatory are unresolved per-operation policy decisions. The SQL fragment must not be treated as deciding them.
+
+### 4.6 Transition events
+
+```sql
+CREATE TABLE transition_events (
+    event_id TEXT PRIMARY KEY,
+    record_type TEXT NOT NULL CHECK (record_type IN ('ISSUER','MANDATE','KEY')),
+    record_id TEXT NOT NULL,
+    prior_state TEXT,
+    new_state TEXT NOT NULL,
+    prior_record_version INTEGER,
+    resulting_record_version INTEGER NOT NULL CHECK (resulting_record_version > 0),
+    actor_principal_ref TEXT NOT NULL,
+    approval_id TEXT REFERENCES administrative_approvals(approval_id)
+      ON DELETE RESTRICT,
+    decision_reference TEXT,
+    effective_at TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    reason_code TEXT NOT NULL,
+    integrity_checkpoint_ref TEXT,
+    UNIQUE (record_type, record_id, resulting_record_version)
+) STRICT;
+```
+
+Because `record_id` is polymorphic, a normal foreign key cannot guarantee its target. The domain service must verify the target and version in the same transaction. Do not add a misleading FK that only protects one record type.
+
+Application code should expose INSERT only for this table. Add defensive UPDATE/DELETE rejection triggers in a later migration if the chosen migration/testing strategy can demonstrate that they do not obstruct controlled maintenance or recovery. Database triggers do not protect against an operator replacing the database file.
+
+### 4.7 Registry snapshots and included versions
+
+```sql
+CREATE TABLE registry_snapshots (
+    registry_id TEXT NOT NULL,
+    version INTEGER NOT NULL CHECK (version > 0),
+    issued_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    previous_version INTEGER,
+    previous_snapshot_hash TEXT,
+    content_hash TEXT NOT NULL,
+    signature BLOB NOT NULL,
+    registry_signing_key_id TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    canonicalization_id TEXT NOT NULL,
+    PRIMARY KEY (registry_id, version),
+    CHECK (expires_at > issued_at),
+    CHECK (previous_version IS NULL OR previous_version < version),
+    CHECK ((previous_version IS NULL) = (previous_snapshot_hash IS NULL))
+) STRICT;
+
+CREATE TABLE snapshot_issuer_versions (
+    registry_id TEXT NOT NULL,
+    snapshot_version INTEGER NOT NULL,
+    issuer_id TEXT NOT NULL,
+    issuer_record_version INTEGER NOT NULL,
+    PRIMARY KEY (registry_id, snapshot_version, issuer_id),
+    FOREIGN KEY (registry_id, snapshot_version)
+      REFERENCES registry_snapshots(registry_id, version) ON DELETE RESTRICT,
+    FOREIGN KEY (issuer_id, issuer_record_version)
+      REFERENCES issuer_versions(issuer_id, record_version) ON DELETE RESTRICT
+) STRICT;
+
+CREATE TABLE snapshot_mandate_versions (
+    registry_id TEXT NOT NULL,
+    snapshot_version INTEGER NOT NULL,
+    mandate_id TEXT NOT NULL,
+    mandate_record_version INTEGER NOT NULL,
+    PRIMARY KEY (registry_id, snapshot_version, mandate_id),
+    FOREIGN KEY (registry_id, snapshot_version)
+      REFERENCES registry_snapshots(registry_id, version) ON DELETE RESTRICT,
+    FOREIGN KEY (mandate_id, mandate_record_version)
+      REFERENCES mandate_versions(mandate_id, record_version) ON DELETE RESTRICT
+) STRICT;
+
+CREATE TABLE snapshot_key_versions (
+    registry_id TEXT NOT NULL,
+    snapshot_version INTEGER NOT NULL,
+    key_id TEXT NOT NULL,
+    key_record_version INTEGER NOT NULL,
+    PRIMARY KEY (registry_id, snapshot_version, key_id),
+    FOREIGN KEY (registry_id, snapshot_version)
+      REFERENCES registry_snapshots(registry_id, version) ON DELETE RESTRICT,
+    FOREIGN KEY (key_id, key_record_version)
+      REFERENCES issuer_key_versions(key_id, record_version) ON DELETE RESTRICT
+) STRICT;
+```
+
+This normalized membership model makes the exact record versions in a snapshot queryable. It does not, by itself, define the canonical bytes that are hashed and signed. Snapshot canonicalization must specify field ordering, UTF-8 handling, JSON normalization, omitted/null semantics, numeric representation, timestamp normalization, and schema evolution before code is written.
+
+The registry signing-key trust anchor is not modeled as an issuer key. Its bootstrap, rotation, compromise, and recovery need a separate trust procedure. The `registry_signing_key_id` is only an identifier, not proof that a verifier trusts that key.
+
+### 4.8 Verifier high-water mark and external checkpoint references
+
+```sql
+CREATE TABLE verifier_registry_state (
+    verifier_id TEXT NOT NULL,
+    registry_id TEXT NOT NULL,
+    highest_version INTEGER NOT NULL CHECK (highest_version >= 0),
+    snapshot_hash TEXT,
+    accepted_at TEXT,
+    state_version INTEGER NOT NULL CHECK (state_version >= 0),
+    checkpoint_ref TEXT,
+    PRIMARY KEY (verifier_id, registry_id),
+    CHECK ((highest_version = 0 AND snapshot_hash IS NULL)
+        OR (highest_version > 0 AND snapshot_hash IS NOT NULL))
+) STRICT;
+
+CREATE TABLE verifier_checkpoint_receipts (
+    receipt_id TEXT PRIMARY KEY,
+    verifier_id TEXT NOT NULL,
+    registry_id TEXT NOT NULL,
+    checkpoint_version INTEGER NOT NULL CHECK (checkpoint_version >= 0),
+    snapshot_hash TEXT,
+    external_checkpoint_ref TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    recovery_event_ref TEXT
+) STRICT;
+```
+
+The high-water mark update must be compare-and-swap/monotonic: accept a new snapshot only if its version is greater than the stored version, or if it is the same version with the identical hash under the explicitly approved idempotency rule. Same version with a different hash is an integrity incident. A lower version is rejected.
+
+The external checkpoint receipt table stores references and audit correlation only. The actual checkpoint must be protected outside this SQLite file and independently of ordinary database backups. Restoring an old SQLite backup must trigger reconciliation against that external checkpoint before trust decisions resume.
+
+## 5. Indexes and uniqueness
+
+Candidate indexes (subject to query-plan tests):
+
+```sql
+CREATE INDEX idx_mandates_by_issuer
+    ON mandates(issuer_id);
+
+CREATE INDEX idx_issuer_versions_status
+    ON issuer_versions(status, issuer_id, record_version);
+
+CREATE INDEX idx_mandate_versions_status
+    ON mandate_versions(status, mandate_id, record_version);
+
+CREATE INDEX idx_key_versions_status
+    ON issuer_key_versions(status, key_id, record_version);
+
+CREATE INDEX idx_transition_events_target
+    ON transition_events(record_type, record_id, resulting_record_version);
+
+CREATE INDEX idx_snapshots_latest
+    ON registry_snapshots(registry_id, version DESC);
+
+CREATE INDEX idx_approvals_pending
+    ON administrative_approvals(decision, created_at)
+    WHERE decision = 'PENDING';
+```
+
+Because version history is append-only, each version table's composite primary key prevents duplicate version numbers. A domain service must additionally enforce that a newly inserted version is exactly the expected successor (or another explicitly approved versioning rule), not merely greater than zero.
+
+## 6. Transaction boundaries
+
+Use explicit transactions. The exact SQLite transaction mode and retry policy should be selected and tested for the supported concurrency pattern.
+
+### 6.1 Protected state transition
+
+One logical transition must atomically:
+1. load the current record version and state;
+2. verify the expected prior version and legal state-machine edge;
+3. authenticate the actor through the external identity layer;
+4. authorize the actor and validate required independent approval;
+5. validate the approval's target, action, digest, and version;
+6. insert the new immutable record version;
+7. insert the transition event;
+8. consume or mark the administrative approval as used, if the approved workflow requires it;
+9. commit all effects together.
+
+If any step fails, no partial transition or approval consumption remains. Concurrent attempts against the same prior version must result in at most one successful commit.
+
+### 6.2 Snapshot publication
+
+Snapshot publication must capture a consistent committed registry state. In one transaction:
+- select the exact issuer, mandate, and key record versions;
+- construct canonical snapshot content according to the approved canonicalization specification;
+- calculate the content hash;
+- persist the snapshot envelope and its membership rows;
+- ensure the version is the next permitted registry version.
+
+Signing should occur through the separately controlled registry signing-key mechanism. If signing is external, define how the signed result is bound back to the exact immutable snapshot payload and how failed/abandoned signing attempts are handled. Do not hold a database write transaction open across an unbounded external signing call without a reviewed design.
+
+### 6.3 Verifier acceptance and high-water update
+
+The verifier must:
+- authenticate and validate the snapshot signature against a trusted registry key;
+- validate freshness and the exact snapshot content/hash;
+- compare version/hash against its local high-water mark;
+- reconcile with the independently protected checkpoint;
+- atomically persist the monotonic local state and an audit/checkpoint reference;
+- return non-ALLOW if any trust input is missing, stale, conflicting, or unverifiable.
+
+A crash between local persistence and external checkpoint acknowledgement must have a defined idempotent recovery protocol. That protocol remains unresolved and must be designed before implementation.
+
+### 6.4 Revocation and approval consumption
+
+The system must define a decision point/linearization contract before implementing concurrent verification and revocation. A request whose decision point occurs after a revocation becomes effective must not return ALLOW based on stale status.
+
+Single-use approval check and consumption must be atomic with the protected operation. A read-then-write sequence outside one transaction is insufficient.
+
+## 7. Enforcement-layer allocation
+
+| Requirement | Primary enforcement layer | SQLite contribution | Additional requirement |
+|---|---|---|---|
+| Unique immutable IDs | Schema + domain service | PRIMARY KEY / UNIQUE | Never reuse after deletion/retirement |
+| Issuer/mandate/key relationships | Schema + domain service | Foreign keys | Cross-record semantic checks |
+| Legal state transitions | Domain service | Versioned rows; optional triggers | Authenticated authorization and approval |
+| No self-approval | Authorization policy | Limited CHECK constraints | Principal identity and operation-specific rules |
+| Exact-change approval | Domain service | Digest/version columns | Canonical request digest and signature/evidence policy |
+| Snapshot authenticity | Cryptographic verifier | Stores signature/hash | Separate registry trust anchor |
+| Anti-rollback | Verifier + external checkpoint | Local monotonic state | Independent durable checkpoint/recovery |
+| Append-only history | Restricted repository layer + operational controls | INSERT-only access pattern/triggers | Independent checkpoint and backup protection |
+| Revocation consistency | Transaction/service | Atomic writes | Defined linearization and freshness policy |
+| Privacy | Data model + access control | Minimized columns/references | Protected evidence store, retention and access policy |
+| Synthetic-only | Test/build controls | No special guarantee | Fixture validation and repository review |
+
+## 8. Decisions still blocking migration implementation
+
+These decisions must be resolved by accountable governance/security owners. This document intentionally does not choose defaults:
+
+1. **Validity:** mandatory start/end fields, whether open-ended periods are allowed, interval boundary convention, UTC representation, and clock tolerance.
+2. **Canonicalization:** exact serialization algorithm/version, hash algorithm, null/omitted semantics, and snapshot schema evolution.
+3. **Snapshot chain:** whether previous-version linkage is sequence-only or requires the previous content hash (the proposed columns support both).
+4. **Registry trust anchor:** initial provisioning, rotation, emergency compromise, revocation, and recovery of the registry signing key.
+5. **External high-water checkpoint:** operator, technology, durability, access policy, acknowledgement protocol, backup/restore behavior, and authorized re-bootstrap.
+6. **Administrative cardinality:** operation-specific requester/reviewer/approver independence and emergency suspension rules.
+7. **Revocation decision point:** consistency guarantee, linearization point, permitted cache freshness, outage behavior, and historical-evidence treatment.
+8. **Public-key storage:** inline public bytes versus external reference, key encoding, and fingerprint algorithm.
+9. **Scope/audience representation:** canonical vocabulary, schema validation, audience namespace and lifecycle.
+10. **Privacy/retention:** classification, access, correction, retention, deletion exceptions, and protected evidence reference lifecycle.
+
+An unresolved decision blocks the affected capability. It is not permission for developers to choose a convenient value.
+
+## 9. Required synthetic schema and transaction tests
+
+Before a migration PR can be considered complete, tests should cover at least:
+
+- foreign keys reject orphan mandates, keys, and snapshot membership rows;
+- duplicate IDs and duplicate record versions are rejected;
+- issuer/mandate/key IDs are never reused after terminal states;
+- illegal state transitions and terminal-state reactivation are rejected;
+- active versions cannot omit required validity/approval fields under the finally approved policy;
+- mandate scope cannot exceed issuer authority;
+- activated public-key material cannot be changed under an existing key ID;
+- private-key material is rejected by fixture/build validation and never appears in stored records;
+- snapshot membership resolves to the exact immutable versions represented by its content;
+- a snapshot with modified content, signature, metadata, or previous-version linkage is rejected;
+- lower snapshot versions and same-version/different-hash snapshots are rejected;
+- restoration of an old database backup is detected by external checkpoint reconciliation;
+- conflicting concurrent transitions cannot both commit;
+- concurrent single-use consumption permits no more than the policy-defined number of successful uses;
+- revocation races respect the approved decision-point contract;
+- transition events cannot be updated/deleted through application data access;
+- crash/retry cases around checkpoint acknowledgement are idempotent and fail closed;
+- positive control fixture with all required synthetic trust inputs succeeds.
+
+All tests must use fabricated identities, keys, organizations, and approval data. Passing tests demonstrates only the behavior of the synthetic engineering prototype.
+
+## 10. Implementation exit criteria
+
+Do not create migrations or runtime registry code until:
+- the blocking decisions in Section 8 are resolved for the intended first implementation slice;
+- each schema constraint has a corresponding test;
+- every invariant has a named enforcement layer;
+- external checkpoint and recovery behavior are specified before anti-rollback is claimed;
+- snapshot canonicalization and registry trust bootstrap are specified before snapshot signing/verification is implemented;
+- revocation and consumption semantics are specified before concurrent use is implemented;
+- the supported SQLite version and connection settings are tested;
+- the prototype remains isolated and synthetic-only.
+
+This document adds no runtime behavior. It must not be interpreted as approval for a real issuer registry or deployment.
+
+
+## 11. Critical review refinements before migration work
+
+A review of the illustrative schema identified several cross-record and lifecycle details that must be explicit. These refinements do not resolve the governance decisions in Section 8.
+
+### 11.1 Enforce issuer ownership inside each snapshot
+
+The three snapshot membership tables currently prove that a referenced record version exists, but they do not prove that the mandate and key belong to an issuer version included in the **same** snapshot. A malformed snapshot could therefore combine a mandate/key with an unrelated issuer entry unless the service performs additional checks.
+
+Before implementation, strengthen the membership model:
+
+- Add `issuer_id` to `snapshot_mandate_versions` and `snapshot_key_versions`.
+- Add a composite foreign key from `(mandate_id, issuer_id)` to `mandates(mandate_id, issuer_id)`.
+- Add a composite foreign key from `(key_id, issuer_id)` to `issuer_keys(key_id, issuer_id)`.
+- Add a composite foreign key from `(registry_id, snapshot_version, issuer_id)` to `snapshot_issuer_versions(registry_id, snapshot_version, issuer_id)`.
+- Retain the existing foreign keys to the exact mandate/key version rows.
+
+This makes the snapshot's ownership relationship enforceable by SQLite, rather than relying solely on application validation. The schema must still validate that the selected issuer version is the correct effective version for the snapshot's policy time.
+
+### 11.2 Timestamp comparison is conditional on canonical storage
+
+The illustrative checks `effective_until > effective_from` and `expires_at > issued_at` perform SQLite value comparisons. They are safe chronological comparisons only if timestamps are stored in one fixed-width, lexicographically sortable UTC representation (for example, a strictly validated RFC 3339 form with uniform precision and `Z` suffix).
+
+Until that representation and precision are selected, these CHECK expressions must not be treated as reliable time-order validation. The implementation must either:
+- adopt and validate one canonical sortable UTC representation before enabling these checks; or
+- remove the SQL ordering checks and enforce temporal ordering with a rigorously tested timestamp parser in the domain layer.
+
+Mixed offsets, mixed fractional-second precision, locale strings, or unvalidated text can make lexical ordering differ from chronological ordering.
+
+### 11.3 Make approval consumption concrete
+
+Section 6.1 refers to consuming an approval, but the illustrative schema has no explicit one-time consumption record. If a given approval is intended to authorize exactly one protected operation, add an append-only table such as:
+
+```sql
+CREATE TABLE approval_consumptions (
+    approval_id TEXT PRIMARY KEY
+      REFERENCES administrative_approvals(approval_id) ON DELETE RESTRICT,
+    consumed_request_digest TEXT NOT NULL,
+    consumed_target_record_type TEXT NOT NULL,
+    consumed_target_record_id TEXT NOT NULL,
+    consumed_target_record_version INTEGER NOT NULL CHECK (consumed_target_record_version > 0),
+    consumed_at TEXT NOT NULL,
+    operation_event_id TEXT NOT NULL UNIQUE
+      REFERENCES transition_events(event_id) ON DELETE RESTRICT
+) STRICT;
+```
+
+The protected operation, transition event, and consumption row must commit in the same transaction. The primary key makes a second consumption of the same approval fail. If approvals are intentionally reusable for a defined set of operations, that is a different policy and requires a separately specified cardinality model; do not silently omit consumption controls.
+
+### 11.4 State immutability must be enforced, not just described
+
+The version tables, snapshot envelope, snapshot membership rows, transition events, and checkpoint receipts are described as immutable/append-only, but the illustrative DDL does not itself prevent UPDATE or DELETE.
+
+A migration design must include:
+- UPDATE/DELETE rejection triggers for immutable version, snapshot, membership, transition, and receipt rows;
+- narrowly scoped rules for mutable coordination rows such as `verifier_registry_state`;
+- an explicit terminal-decision rule for administrative approvals (a terminal decision cannot be changed or deleted);
+- tests proving ordinary application connections cannot bypass the repository's intended write path.
+
+Triggers are defense in depth, not protection against a privileged operator who can replace the database file, drop triggers, or restore an older backup. Recovery and independent checkpoint controls remain necessary.
+
+### 11.5 Specify atomic monotonic verifier updates
+
+The prose requirement for compare-and-swap should be translated into an exact conditional update in implementation. Conceptually, an update is accepted only when:
+- the incoming version is greater than the stored version and the expected `state_version` matches; or
+- the incoming version equals the stored version and the snapshot hash is identical, under the approved idempotency rule.
+
+A same-version/different-hash value and any lower version must fail closed. The implementation must check the affected-row count and handle an uninitialized verifier row without a race. The external checkpoint protocol must define ordering and crash recovery around this local transaction; a local SQL statement cannot make the external system atomic.
+
+### 11.6 Snapshot signing needs an explicit publication lifecycle
+
+The current transaction outline leaves a gap between preparing snapshot content in SQLite and obtaining a signature from the separately controlled registry signer. Do not hold a long SQLite write transaction open while waiting for an external signer, and do not publish a snapshot whose signed bytes differ from its stored membership/content.
+
+Before implementing publication, define a prepare/sign/finalize protocol that binds:
+- a unique publication-attempt ID;
+- the registry ID and reserved version;
+- the exact canonical payload bytes or immutable content digest;
+- the complete membership/version set;
+- the signer request and returned signature;
+- final publication outcome and retry behavior.
+
+Concurrent publication attempts for one registry must not reserve conflicting versions. A crash after signing but before finalization must be recoverable without signing or publishing a different payload under the same version. This may require a dedicated publication-attempt/outbox record and explicit attempt states; the exact table/state model remains a design decision.
+
+### 11.7 Clarify snapshot sequence continuity
+
+The current CHECK only requires `previous_version < version`; it does not require the previous snapshot to be the immediately preceding version. Before implementation, decide whether gaps are prohibited. If continuity is required, the domain service must enforce `version = previous_version + 1` and verify that the referenced previous snapshot exists and its hash matches. A SQL CHECK cannot query the prior row. If gaps are permitted, document the authorized reason and verifier behavior.
+
+### 11.8 Updated review disposition
+
+The schema is suitable as a **design draft for further review**, but is not yet migration-ready. The cross-record snapshot ownership constraints, timestamp representation, approval consumption semantics, immutability enforcement, verifier compare-and-swap behavior, and snapshot publication lifecycle must be incorporated into the eventual implementation design and tests.
+
+No runtime code or database migration is authorized by this review. All future tests and examples remain synthetic-only.
+
+
+## 12. Cross-document invariant and governance consistency review
+
+This section records a second-pass review against `ISSUER_REGISTRY_SECURITY_INVARIANTS.md`, `ISSUER_GOVERNANCE_DESIGN.md`, and `ISSUER_REGISTRY_DATA_MODEL.md`. It is a traceability review, not an assertion that the controls exist in runtime code.
+
+### 12.1 Areas that are directionally aligned
+
+The proposed model is consistent in principle with:
+- **INV-01, INV-03, INV-04:** stable issuer, mandate, and key identities; immutable issuer binding; relational foreign keys.
+- **INV-02, INV-05, INV-06, INV-09:** cryptographic proof is separated from mandate authority; scope and audience semantics remain independently validated.
+- **INV-10, INV-11, INV-12, INV-13, INV-14:** state changes, external actor authorization, independent approval, and exact-change digest/version binding are assigned to the domain/authorization layers.
+- **INV-15, INV-16, INV-17, INV-18:** public-key-only storage and separation of issuer and registry signing trust domains are explicit, with key activation and compromise controls still requiring implementation.
+- **INV-19 through INV-22:** signed snapshots, canonicalization, monotonic verifier state, independent recovery checkpoint, and signer trust bootstrap are recognized as required.
+- **INV-23 through INV-28:** atomic transitions, optimistic concurrency, revocation decision boundaries, single-use consumption, append-only history, and fail-closed outcomes are described.
+- **INV-29 and INV-30:** opaque evidence references, data minimization, and synthetic-only scope are preserved.
+
+The six cross-document findings raised in the PR #10 review are represented as unresolved design requirements in Sections 2, 4, 6, 8, and 11 of this document. In particular, effective-period policy, external high-water recovery, canonical snapshot content, activation prerequisites, approval cardinality, and registry signer bootstrap remain implementation blockers rather than assumed defaults.
+
+### 12.2 Remaining design gaps to resolve before migration DDL
+
+1. **Approval-consumption inventory and target coverage.** Section 11.3 proposes `approval_consumptions`, but it is not yet included in the table inventory in Section 3. Add it to the inventory before a migration proposal. Also decide whether it applies only to state-transition approvals or to all protected administrative operations. The current `transition_events` supports only ISSUER/MANDATE/KEY, while approvals also permit `REGISTRY_CONFIG`; either model registry-configuration events explicitly or constrain which approval classes can be consumed through this table. The service must verify that the consumed approval's target, action, request digest, and target version match the referenced operation event.
+
+2. **Key activation interval.** `issuer_key_versions` has `activated_at` and `effective_until`, but no distinct `effective_from`. Do not assume that registration time, activation time, and policy effective-start time are interchangeable. Before ACTIVE, define whether `activated_at` is the authoritative effective start or add an explicit `effective_from`; require the approved validity policy and enforce that key use is bounded by issuer recognition and any applicable mandate/key policy (INV-07 and INV-08).
+
+3. **Key and terminal-state transition enforcement.** The table CHECK permits each listed state but cannot prevent a later version from moving COMPROMISED back to ACTIVE, or REVOKED/EXPIRED records from being recreated under the same stable identity. The transition validator must enforce the state machines and terminality (INV-10, INV-11, INV-18). The future migration should include database-level defensive constraints/triggers where feasible, plus negative tests; application prose alone is not enforcement.
+
+4. **Approval independence.** The current CHECKs prevent requester=self-reviewer and requester=self-approver, but do not enforce reviewer != approver. Whether those three roles must be distinct is operation-specific and remains policy-controlled, consistent with the synthetic test profile. The implementation must compare stable authenticated principal identifiers—not display names or caller-supplied role strings—and enforce the selected cardinality before transition commit (INV-12 and INV-13).
+
+5. **Registry identity and genesis/chain semantics.** `registry_snapshots` uses `registry_id` as a repeated text value without a separate stable registry identity record. This can be acceptable if registry identity is provisioned and protected outside SQLite, but that trust boundary must be explicit. Also, the current CHECK permits a snapshot with `version > 1` and NULL `previous_version`; decide and enforce genesis semantics. If only version 1 is genesis, require previous-version linkage for every later version. If sequence continuity is required, validate the immediate predecessor and its hash; if gaps are permitted, specify the authorization and verifier behavior. A foreign key/hash relationship or transactionally verified predecessor check should be considered.
+
+6. **Snapshot completeness and membership binding.** The Section 11.1 composite ownership proposal is necessary but not sufficient by itself. The canonical payload hash and signature must be derived from exactly the immutable membership rows and trust-relevant metadata persisted for that snapshot. The publication process must reject any mismatch between the canonical payload, membership rows, issuer-parent relationships, and stored content hash. Tests must cover omitted records, extra membership rows, cross-issuer rows, and metadata altered after signing (INV-19).
+
+7. **Approval and transition event referential semantics.** `transition_events.approval_id` is nullable and the polymorphic target has no FK. This is structurally reasonable for event types that do not require approval, but the domain policy must decide which transition types require an approval and validate the event's record type/ID/version against the approval target. A generic FK to the approval row alone does not prove that the approval authorizes that event (INV-14, INV-23).
+
+8. **Permanent identifier retention.** `ON DELETE RESTRICT` prevents deletion only when a referencing row exists; it does not by itself prohibit deleting an otherwise unreferenced stable identity row. If never-reuse is a hard invariant, stable identity records need deletion prevention/tombstone retention or a separate durable identifier registry. Add tests for deletion followed by attempted ID reuse (INV-01).
+
+9. **Temporal parent-child validation.** The service-level requirement that mandate/key validity be bounded by issuer validity is correct, but needs explicit tests at both interval boundaries, including issuer suspension/revocation and mandate expiry. A snapshot must not make a child usable when its parent is inactive at the verifier's decision point (INV-08, INV-25).
+
+10. **Privacy classification of actor references.** Opaque principal/evidence references are preferable to personal data, but stable actor references and issuer display labels can still be sensitive or linkable. The eventual schema and access policy must classify these fields, minimize public snapshot exposure, and define retention/access/correction behavior (INV-29).
+
+### 12.3 SQL semantics checked at design level
+
+- The boolean XOR expression `CHECK ((public_key_material IS NOT NULL) <> (public_key_ref IS NOT NULL))` is valid SQLite logic for requiring exactly one of the two values to be present: each `IS NOT NULL` expression evaluates to 0 or 1, and `<>` compares those integer results. It does not validate the key bytes, fingerprint, or referenced object.
+- The boolean equality expression used for previous-version/hash null pairing is also valid SQLite CHECK syntax. It does not establish that the predecessor exists or that its hash matches.
+- `STRICT` is available from SQLite 3.37.0; the stated minimum-version gate is appropriate. `TEXT` and `BLOB` are valid STRICT storage types.
+- The timestamp ordering CHECKs remain unsafe as chronological comparisons until a single canonical sortable UTC text representation is selected and validated. SQLite's ordinary TEXT comparison is lexical.
+- Composite foreign keys require the referenced parent column set to be a PRIMARY KEY or UNIQUE key with compatible column definitions/collations. The existing stable `mandates` and `issuer_keys` fragments provide the required pair uniqueness; the proposed snapshot membership parent key also has the required unique key shape.
+
+These observations validate only the listed SQL expression/type semantics. They do not constitute execution of a complete migration: the current document intentionally contains illustrative fragments, and the Section 11 composite-FK changes have not yet been written as a consolidated DDL script.
+
+### 12.4 Review disposition
+
+The design remains **Draft and not migration-ready**. The core architecture is broadly consistent with the governance, threat, data-model, and invariant documents, but the gaps in 12.2 must be resolved in a consolidated schema proposal and mapped to executable synthetic tests before migrations are authored.
+
+No runtime behavior, real trust authority, or production integration is approved by this review.
