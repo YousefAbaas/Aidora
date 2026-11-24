@@ -60,6 +60,26 @@ void main() {
     expect(prefs.getString('auth_refresh_token'), 'legacy-refresh');
   });
 
+  test('retries legacy migration after a temporary secure-store failure', () async {
+    SharedPreferences.setMockInitialValues({
+      'auth_access_token': 'legacy-access',
+      'auth_refresh_token': 'legacy-refresh',
+    });
+    tokenStore.failReads = true;
+
+    await AuthStorage.init();
+    expect(AuthStorage.getAccessToken(), isNull);
+
+    tokenStore.failReads = false;
+    await AuthStorage.init();
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(AuthStorage.getAccessToken(), 'legacy-access');
+    expect(AuthStorage.getRefreshToken(), 'legacy-refresh');
+    expect(prefs.getString('auth_access_token'), isNull);
+    expect(prefs.getString('auth_refresh_token'), isNull);
+  });
+
   test('retains legacy tokens when secure migration writes fail', () async {
     SharedPreferences.setMockInitialValues({
       'auth_access_token': 'legacy-access',
