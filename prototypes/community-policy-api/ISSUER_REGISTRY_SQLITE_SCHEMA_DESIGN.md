@@ -580,3 +580,59 @@ The current CHECK only requires `previous_version < version`; it does not requir
 The schema is suitable as a **design draft for further review**, but is not yet migration-ready. The cross-record snapshot ownership constraints, timestamp representation, approval consumption semantics, immutability enforcement, verifier compare-and-swap behavior, and snapshot publication lifecycle must be incorporated into the eventual implementation design and tests.
 
 No runtime code or database migration is authorized by this review. All future tests and examples remain synthetic-only.
+
+
+## 12. Cross-document invariant and governance consistency review
+
+This section records a second-pass review against `ISSUER_REGISTRY_SECURITY_INVARIANTS.md`, `ISSUER_GOVERNANCE_DESIGN.md`, and `ISSUER_REGISTRY_DATA_MODEL.md`. It is a traceability review, not an assertion that the controls exist in runtime code.
+
+### 12.1 Areas that are directionally aligned
+
+The proposed model is consistent in principle with:
+- **INV-01, INV-03, INV-04:** stable issuer, mandate, and key identities; immutable issuer binding; relational foreign keys.
+- **INV-02, INV-05, INV-06, INV-09:** cryptographic proof is separated from mandate authority; scope and audience semantics remain independently validated.
+- **INV-10, INV-11, INV-12, INV-13, INV-14:** state changes, external actor authorization, independent approval, and exact-change digest/version binding are assigned to the domain/authorization layers.
+- **INV-15, INV-16, INV-17, INV-18:** public-key-only storage and separation of issuer and registry signing trust domains are explicit, with key activation and compromise controls still requiring implementation.
+- **INV-19 through INV-22:** signed snapshots, canonicalization, monotonic verifier state, independent recovery checkpoint, and signer trust bootstrap are recognized as required.
+- **INV-23 through INV-28:** atomic transitions, optimistic concurrency, revocation decision boundaries, single-use consumption, append-only history, and fail-closed outcomes are described.
+- **INV-29 and INV-30:** opaque evidence references, data minimization, and synthetic-only scope are preserved.
+
+The six cross-document findings raised in the PR #10 review are represented as unresolved design requirements in Sections 2, 4, 6, 8, and 11 of this document. In particular, effective-period policy, external high-water recovery, canonical snapshot content, activation prerequisites, approval cardinality, and registry signer bootstrap remain implementation blockers rather than assumed defaults.
+
+### 12.2 Remaining design gaps to resolve before migration DDL
+
+1. **Approval-consumption inventory and target coverage.** Section 11.3 proposes `approval_consumptions`, but it is not yet included in the table inventory in Section 3. Add it to the inventory before a migration proposal. Also decide whether it applies only to state-transition approvals or to all protected administrative operations. The current `transition_events` supports only ISSUER/MANDATE/KEY, while approvals also permit `REGISTRY_CONFIG`; either model registry-configuration events explicitly or constrain which approval classes can be consumed through this table. The service must verify that the consumed approval's target, action, request digest, and target version match the referenced operation event.
+
+2. **Key activation interval.** `issuer_key_versions` has `activated_at` and `effective_until`, but no distinct `effective_from`. Do not assume that registration time, activation time, and policy effective-start time are interchangeable. Before ACTIVE, define whether `activated_at` is the authoritative effective start or add an explicit `effective_from`; require the approved validity policy and enforce that key use is bounded by issuer recognition and any applicable mandate/key policy (INV-07 and INV-08).
+
+3. **Key and terminal-state transition enforcement.** The table CHECK permits each listed state but cannot prevent a later version from moving COMPROMISED back to ACTIVE, or REVOKED/EXPIRED records from being recreated under the same stable identity. The transition validator must enforce the state machines and terminality (INV-10, INV-11, INV-18). The future migration should include database-level defensive constraints/triggers where feasible, plus negative tests; application prose alone is not enforcement.
+
+4. **Approval independence.** The current CHECKs prevent requester=self-reviewer and requester=self-approver, but do not enforce reviewer != approver. Whether those three roles must be distinct is operation-specific and remains policy-controlled, consistent with the synthetic test profile. The implementation must compare stable authenticated principal identifiers—not display names or caller-supplied role strings—and enforce the selected cardinality before transition commit (INV-12 and INV-13).
+
+5. **Registry identity and genesis/chain semantics.** `registry_snapshots` uses `registry_id` as a repeated text value without a separate stable registry identity record. This can be acceptable if registry identity is provisioned and protected outside SQLite, but that trust boundary must be explicit. Also, the current CHECK permits a snapshot with `version > 1` and NULL `previous_version`; decide and enforce genesis semantics. If only version 1 is genesis, require previous-version linkage for every later version. If sequence continuity is required, validate the immediate predecessor and its hash; if gaps are permitted, specify the authorization and verifier behavior. A foreign key/hash relationship or transactionally verified predecessor check should be considered.
+
+6. **Snapshot completeness and membership binding.** The Section 11.1 composite ownership proposal is necessary but not sufficient by itself. The canonical payload hash and signature must be derived from exactly the immutable membership rows and trust-relevant metadata persisted for that snapshot. The publication process must reject any mismatch between the canonical payload, membership rows, issuer-parent relationships, and stored content hash. Tests must cover omitted records, extra membership rows, cross-issuer rows, and metadata altered after signing (INV-19).
+
+7. **Approval and transition event referential semantics.** `transition_events.approval_id` is nullable and the polymorphic target has no FK. This is structurally reasonable for event types that do not require approval, but the domain policy must decide which transition types require an approval and validate the event's record type/ID/version against the approval target. A generic FK to the approval row alone does not prove that the approval authorizes that event (INV-14, INV-23).
+
+8. **Permanent identifier retention.** `ON DELETE RESTRICT` prevents deletion only when a referencing row exists; it does not by itself prohibit deleting an otherwise unreferenced stable identity row. If never-reuse is a hard invariant, stable identity records need deletion prevention/tombstone retention or a separate durable identifier registry. Add tests for deletion followed by attempted ID reuse (INV-01).
+
+9. **Temporal parent-child validation.** The service-level requirement that mandate/key validity be bounded by issuer validity is correct, but needs explicit tests at both interval boundaries, including issuer suspension/revocation and mandate expiry. A snapshot must not make a child usable when its parent is inactive at the verifier's decision point (INV-08, INV-25).
+
+10. **Privacy classification of actor references.** Opaque principal/evidence references are preferable to personal data, but stable actor references and issuer display labels can still be sensitive or linkable. The eventual schema and access policy must classify these fields, minimize public snapshot exposure, and define retention/access/correction behavior (INV-29).
+
+### 12.3 SQL semantics checked at design level
+
+- The boolean XOR expression `CHECK ((public_key_material IS NOT NULL) <> (public_key_ref IS NOT NULL))` is valid SQLite logic for requiring exactly one of the two values to be present: each `IS NOT NULL` expression evaluates to 0 or 1, and `<>` compares those integer results. It does not validate the key bytes, fingerprint, or referenced object.
+- The boolean equality expression used for previous-version/hash null pairing is also valid SQLite CHECK syntax. It does not establish that the predecessor exists or that its hash matches.
+- `STRICT` is available from SQLite 3.37.0; the stated minimum-version gate is appropriate. `TEXT` and `BLOB` are valid STRICT storage types.
+- The timestamp ordering CHECKs remain unsafe as chronological comparisons until a single canonical sortable UTC text representation is selected and validated. SQLite's ordinary TEXT comparison is lexical.
+- Composite foreign keys require the referenced parent column set to be a PRIMARY KEY or UNIQUE key with compatible column definitions/collations. The existing stable `mandates` and `issuer_keys` fragments provide the required pair uniqueness; the proposed snapshot membership parent key also has the required unique key shape.
+
+These observations validate only the listed SQL expression/type semantics. They do not constitute execution of a complete migration: the current document intentionally contains illustrative fragments, and the Section 11 composite-FK changes have not yet been written as a consolidated DDL script.
+
+### 12.4 Review disposition
+
+The design remains **Draft and not migration-ready**. The core architecture is broadly consistent with the governance, threat, data-model, and invariant documents, but the gaps in 12.2 must be resolved in a consolidated schema proposal and mapped to executable synthetic tests before migrations are authored.
+
+No runtime behavior, real trust authority, or production integration is approved by this review.
