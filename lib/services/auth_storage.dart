@@ -230,21 +230,6 @@ class AuthStorage {
     }
   }
 
-  /// Replaces the access token after a successful refresh.
-  static Future<void> updateAccessToken(String token) async {
-    if (token.isEmpty) {
-      throw ArgumentError('Access token must not be empty.');
-    }
-
-    await _tokenStore.write(_kAccess, token);
-    final stored = await _tokenStore.read(_kAccess);
-    if (stored != token) {
-      throw StateError('Secure access-token persistence could not be verified.');
-    }
-
-    _accessToken = stored;
-  }
-
   /// Stores non-secret profile metadata separately from authentication tokens.
   static Future<void> saveName(String name) async {
     if (name.isEmpty) return;
