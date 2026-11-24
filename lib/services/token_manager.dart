@@ -9,14 +9,17 @@ import 'auth_storage.dart';
 ///
 /// The Django backend uses short-lived access tokens and long-lived refresh
 /// tokens. When the access token expires, we POST to /api/auth/token/refresh/
-/// with the refresh token to get a new access token.
+/// with the refresh token to get a new access/refresh token pair. The backend
+/// rotates refresh tokens and blacklists the previous token, so both returned
+/// values must be persisted together.
 ///
 /// This class:
 ///  1. Decodes the JWT exp to know exactly when the access token expires
 ///  2. Proactively refreshes when < 120s remain (prevents mid-request expiry)
 ///  3. On 401/403: force-refresh immediately and retry
 ///  4. Deduplicates concurrent refresh calls (only one HTTP request at a time)
-///  5. On total session expiry (refresh also expired): clears storage
+///  5. Persists both tokens after rotation; clears storage on invalid responses
+///  6. On total session expiry (refresh also expired): clears storage
 /// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class TokenManager {
   TokenManager._() : _client = http.Client();
@@ -95,7 +98,14 @@ class TokenManager {
       if (kDebugMode) debugPrint('   <- refresh status ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
+        dynamic decoded;
+        try {
+          decoded = jsonDecode(response.body);
+        } catch (_) {
+          debugPrint('âŒ Refresh response contained invalid JSON');
+          await AuthStorage.clear();
+          return false;
+        }
         if (decoded is! Map<String, dynamic>) {
           debugPrint('âŒ Refresh response was not a JSON object');
           await AuthStorage.clear();
