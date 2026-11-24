@@ -195,6 +195,41 @@ class AuthStorage {
     }
   }
 
+  /// Atomically updates the current session after the backend rotates JWTs.
+  ///
+  /// Both tokens are persisted and read back before the in-memory session is
+  /// replaced. If either operation fails, both secure values are deleted so
+  /// an invalid access/refresh pair cannot be used.
+  static Future<void> updateSessionTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    if (accessToken.isEmpty || refreshToken.isEmpty) {
+      throw ArgumentError('Access and refresh tokens must not be empty.');
+    }
+
+    try {
+      // Write the rotated refresh token first because the previous refresh
+      // token may already have been blacklisted by the server.
+      await _tokenStore.write(_kRefresh, refreshToken);
+      await _tokenStore.write(_kAccess, accessToken);
+
+      final storedRefresh = await _tokenStore.read(_kRefresh);
+      final storedAccess = await _tokenStore.read(_kAccess);
+      if (storedAccess != accessToken || storedRefresh != refreshToken) {
+        throw StateError('Secure session-token persistence could not be verified.');
+      }
+
+      _accessToken = storedAccess;
+      _refreshToken = storedRefresh;
+    } catch (_) {
+      _accessToken = null;
+      _refreshToken = null;
+      await _deleteSecureTokensBestEffort();
+      rethrow;
+    }
+  }
+
   /// Replaces the access token after a successful refresh.
   static Future<void> updateAccessToken(String token) async {
     if (token.isEmpty) {
