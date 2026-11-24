@@ -133,6 +133,15 @@ class AuthStorage {
     return migrated;
   }
 
+  static Future<void> _removeLegacyTokens(SharedPreferences prefs) async {
+    await prefs.remove(_kAccess);
+    await prefs.remove(_kRefresh);
+
+    if (prefs.containsKey(_kAccess) || prefs.containsKey(_kRefresh)) {
+      throw StateError('Legacy plaintext token cleanup could not be verified.');
+    }
+  }
+
   static Future<SharedPreferences> _ensurePrefs() async {
     _prefs ??= await SharedPreferences.getInstance();
     return _prefs!;
