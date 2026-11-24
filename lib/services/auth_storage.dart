@@ -99,8 +99,7 @@ class AuthStorage {
 
     // Both secure reads/migrations have completed successfully. It is now
     // safe to remove the legacy plaintext token values.
-    await prefs.remove(_kAccess);
-    await prefs.remove(_kRefresh);
+    await _removeLegacyTokens(prefs);
 
     _accessToken = access;
     _refreshToken = refresh;
@@ -161,8 +160,7 @@ class AuthStorage {
       }
 
       // Remove legacy plaintext values after the secure copies are verified.
-      await prefs.remove(_kAccess);
-      await prefs.remove(_kRefresh);
+      await _removeLegacyTokens(prefs);
 
       await prefs.setString(_kRole, role);
       if (email != null && email.isNotEmpty) {
