@@ -4,8 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Storage boundary for authentication secrets.
 ///
-/// The production implementation uses platform-backed secure storage
-/// (Android Keystore, iOS Keychain, and the plugin's supported web backend).
+/// The production implementation uses Android Keystore and iOS Keychain on
+/// native platforms. Web uses the plugin's separate WebCrypto implementation,
+/// which has different security and hosting requirements.
 /// This interface also allows deterministic tests without invoking platform
 /// channels.
 abstract interface class AuthTokenStore {
