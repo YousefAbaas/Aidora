@@ -38,8 +38,13 @@ class TokenManager {
   /// Returns null if refresh fails and token is expired.
   Future<String?> getValidAccessToken() async {
     final token = AuthStorage.getAccessToken();
-    if (token == null || token.isEmpty) {
-      debugPrint('ðŸ”‘ TokenManager: no stored access token');
+    final refreshToken = AuthStorage.getRefreshToken();
+    if (token == null ||
+        token.isEmpty ||
+        refreshToken == null ||
+        refreshToken.isEmpty) {
+      debugPrint('ðŸ”‘ TokenManager: incomplete session; clearing local credentials');
+      await AuthStorage.clear();
       return null;
     }
 
@@ -76,7 +81,8 @@ class TokenManager {
   Future<bool> _doRefresh() async {
     final refreshToken = AuthStorage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
-      debugPrint('âŒ No refresh token stored');
+      debugPrint('âŒ No refresh token stored; clearing incomplete session');
+      await AuthStorage.clear();
       return false;
     }
 
