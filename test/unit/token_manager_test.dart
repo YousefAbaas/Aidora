@@ -42,6 +42,28 @@ void main() {
     AuthStorage.resetForTesting();
   });
 
+  test('refuses and clears an access-only session', () async {
+    await tokenStore.delete('auth_refresh_token');
+
+    // Reinitialize the token manager's source of truth as if the app started
+    // with an incomplete secure session.
+    AuthStorage.resetForTesting();
+    AuthStorage.setTokenStoreForTesting(tokenStore);
+    await AuthStorage.init();
+
+    final client = MockClient((request) async {
+      fail('An access-only session must not trigger an HTTP refresh.');
+      return http.Response('', 500);
+    });
+    addTearDown(client.close);
+
+    final manager = TokenManager.forTesting(client);
+    expect(await manager.getValidAccessToken(), isNull);
+    expect(AuthStorage.getAccessToken(), isNull);
+    expect(AuthStorage.getRefreshToken(), isNull);
+    expect(AuthStorage.isLoggedIn, isFalse);
+  });
+
   test('stores both new tokens when Django rotates the refresh token', () async {
     late http.Request capturedRequest;
     final client = MockClient((request) async {
