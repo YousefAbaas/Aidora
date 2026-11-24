@@ -42,6 +42,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Upload resolved dependency lock for PR review
+        if: always() && hashFiles('pubspec.lock') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: resolved-pubspec-lock
+          path: pubspec.lock
+          if-no-files-found: warn
+          retention-days: 1
+
+
       - name: Analyze
         run: flutter analyze
 
