@@ -37,9 +37,11 @@ The exact set of service files may evolve as the application changes.
 
 ## Authentication and token storage
 
-The current Flutter implementation stores access and refresh tokens using the `shared_preferences` package through `AuthStorage`. `TokenManager` coordinates access-token validity and refresh behaviour, while `ApiService` attaches bearer tokens to authenticated requests.
+The Flutter implementation stores access and refresh tokens through `AuthStorage` using `flutter_secure_storage` (Android Keystore-backed encrypted storage and iOS Keychain). Synchronous getters are backed by an in-memory cache populated only after secure storage has been read during startup. `TokenManager` coordinates access-token validity and refresh behaviour, while `ApiService` attaches bearer tokens to authenticated requests.
 
-**Security note:** SharedPreferences provides persistence but should not be described as encrypted secure storage. For a security-sensitive production deployment, evaluate a platform-backed secure-storage solution and the associated migration, lifecycle, and web-platform requirements.
+Non-secret display metadata (role, email, and display name) remains in SharedPreferences. Existing installations are migrated on startup: legacy access/refresh values are copied to secure storage, read back and verified, and only then removed from SharedPreferences. If secure storage is unavailable or verification fails, legacy values are retained for a later retry but are never used as a plaintext authentication fallback.
+
+On Android, the secure-storage SharedPreferences file is excluded from cloud backup and device-to-device transfer because the corresponding Keystore material is device-bound. Other app preferences remain eligible for backup. The web implementation uses the plugin's WebCrypto-backed browser storage and requires HTTPS or localhost; it has additional browser-origin and security-header constraints described in the plugin documentation.
 
 Never paste real access tokens, refresh tokens, passwords, or production credentials into issues, documentation, screenshots, or commits.
 
