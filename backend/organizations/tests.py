@@ -2,7 +2,7 @@ from django.db import IntegrityError
 from django.test import TestCase, override_settings
 
 from .models import Organization, OrganizationService, Service
-from accounts.models import User
+from accounts.models import User, VolunteerApplication
 from rest_framework.test import APIClient
 from service_requests.models import ServiceRequest, Task
 
@@ -348,3 +348,75 @@ class TaskAssignmentVolunteerVerificationTests(TestCase):
         self.assertFalse(
             Task.objects.filter(service_request_id=self.request_record).exists()
         )
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class ApplicationApprovalResetsVolunteerVerificationTests(TestCase):
+    def test_new_organization_approval_requires_a_fresh_pin(self):
+        from datetime import timedelta
+        from unittest.mock import patch
+        from django.utils import timezone
+
+        self.client = APIClient()
+        organization_user = User.objects.create_user(
+            username="fresh_pin_org",
+            email="fresh-pin-org@example.com",
+            password="TestPassword123!",
+            role="organization",
+        )
+        new_organization = Organization.objects.create(
+            name="New Approval Organization",
+            title="New Approval Organization",
+            about="Fresh PIN approval test",
+            user=organization_user,
+        )
+        old_organization = Organization.objects.create(
+            name="Previous Organization",
+            title="Previous Organization",
+            about="Previously verified organization",
+        )
+        volunteer_user = User.objects.create_user(
+            username="previously_verified_volunteer",
+            email="previously-verified-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+        )
+        profile = volunteer_user.volunteer_profile
+        profile.organization = old_organization
+        profile.profile_completed = True
+        profile.verification_pin = "4321"
+        profile.pin_expires_at = timezone.now() + timedelta(minutes=10)
+        profile.qr_code = "old-organization-qr"
+        profile.save()
+
+        application = VolunteerApplication.objects.create(
+            user=volunteer_user,
+            organization=new_organization,
+            phone_number="123456789",
+            why_volunteer="I want to help.",
+            i_commit=True,
+            i_agree_terms=True,
+            status="pending",
+            is_verified=True,
+        )
+        self.client.force_authenticate(user=organization_user)
+
+        with patch("accounts.utils.send_aidora_email") as send_email:
+            response = self.client.patch(
+                f"/api/organizations/applications/{application.id}/update-status/",
+                {"status": "approved"},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(send_email.call_count, 1)
+
+        application.refresh_from_db()
+        profile.refresh_from_db()
+        self.assertEqual(application.status, "approved")
+        self.assertFalse(application.is_verified)
+        self.assertEqual(profile.organization, new_organization)
+        self.assertFalse(profile.profile_completed)
+        self.assertNotEqual(profile.verification_pin, "4321")
+        self.assertIsNotNone(profile.pin_expires_at)
+        self.assertIsNone(profile.qr_code)
