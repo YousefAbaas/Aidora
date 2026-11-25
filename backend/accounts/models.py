@@ -22,6 +22,10 @@ class User(AbstractUser):
     otp_expires_at = models.DateTimeField(
     null=True,
     blank=True)
+    otp_failed_attempts = models.PositiveSmallIntegerField(default=0)
+    otp_locked_until = models.DateTimeField(null=True, blank=True)
+    otp_resend_count = models.PositiveSmallIntegerField(default=0)
+    otp_resend_window_started_at = models.DateTimeField(null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)
 class RefugeeProfile(models.Model):
