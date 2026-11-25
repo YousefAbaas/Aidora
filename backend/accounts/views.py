@@ -27,7 +27,7 @@ from .models import VolunteerApplication
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.viewsets import ViewSet
 from .permissions import IsRole
-from .throttles import VolunteerPINResendThrottle, VolunteerPINVerificationThrottle
+from .throttles import VolunteerPINResendThrottle, VolunteerPINVerificationThrottle, OTPResendThrottle, OTPVerificationThrottle
 from .serializers import ResendOTPSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 User = get_user_model()
@@ -238,138 +238,154 @@ from threading import Thread
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
-from .utils import generate_otp
-
-@extend_schema(tags=["Authentication"])
-@api_view(["POST"])
+from .utils import generate_o@api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([OTPResendThrottle])
 def resend_otp(request):
-
     serializer = ResendOTPSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if serializer.is_valid():
-
-        email = serializer.validated_data['email']
-
-        try:
-            user = User.objects.get(email=email)
-
-        except User.DoesNotExist:
-
+    email = serializer.validated_data["email"]
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(email=email).first()
+        # Return the same public response for unknown and already-verified accounts.
+        if user is None or user.is_verified:
             return Response(
-                {"error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"message": "If this account is eligible, a new OTP will be sent."},
+                status=status.HTTP_200_OK,
             )
 
-        # ✅ إذا الحساب مفعل بالفعل
-        if user.is_verified:
+        now = timezone.now()
+        window_started = user.otp_resend_window_started_at
+        if window_started is None or now - window_started >= timedelta(hours=1):
+            user.otp_resend_count = 0
+            user.otp_resend_window_started_at = now
 
+        if user.otp_resend_count >= 3:
             return Response(
-                {"error": "Account already verified"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Too many OTP resend requests. Please try again later."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
             )
 
-        # ✅ توليد OTP جديد
         otp = generate_otp()
-
+        user.otp_resend_count += 1
         user.otp_code = otp
-
-        user.otp_expires_at = (
-            timezone.now() + timedelta(minutes=12)
+        user.otp_expires_at = now + timedelta(minutes=12)
+        user.otp_failed_attempts = 0
+        user.otp_locked_until = None
+        user.save(
+            update_fields=[
+                "otp_resend_count",
+                "otp_resend_window_started_at",
+                "otp_code",
+                "otp_expires_at",
+                "otp_failed_attempts",
+                "otp_locked_until",
+            ]
         )
 
-        user.save()
+    def _send_otp_email(otp_code, user_email):
+        try:
+            send_aidora_email(
+                subject="OTP Verification",
+                message=f"Your new OTP code is: {otp_code}",
+                recipient=user_email,
+            )
+        except Exception:
+            logger.exception("Failed to resend OTP email")
 
-        # ✅ إرسال الإيميل بالخلفية
-        def _send_otp_email(otp_code, user_email):
-
-            try:
-
-              send_aidora_email(
-                  subject="OTP Verification",
-                  message=f"Your new OTP code is: {otp_code}",
-                  recipient=user_email,
-              )
-
-            except Exception:
-                logger.exception("Failed to resend OTP email")
-
-        Thread(
-            target=_send_otp_email,
-            args=(otp, user.email)
-        ).start()
-
-        return Response(
-            {
-                "message": "New OTP sent successfully"
-            },
-            status=status.HTTP_200_OK
-        )
-
+    Thread(target=_send_otp_email, args=(otp, user.email)).start()
     return Response(
-        serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
+        {"message": "If this account is eligible, a new OTP will be sent."},
+        status=status.HTTP_200_OK,
     )
+
+
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([OTPVerificationThrottle])
 def verify_otp(request):
+    serializer = VerifyOTPSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = VerifyOTPSerializer(
-        data=request.data
-    )
+    email = serializer.validated_data["email"]
+    submitted_otp = serializer.validated_data["otp"]
 
-    if serializer.is_valid():
-
-        email = serializer.validated_data['email']
-
-        otp = serializer.validated_data['otp']
-
-        try:
-            user = User.objects.get(email=email)
-
-        except User.DoesNotExist:
-
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(email=email).first()
+        # Unknown accounts and wrong/expired codes share the same response.
+        if user is None:
             return Response(
-                {"error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # ✅ تحقق من OTP
-        if user.otp_code != otp:
-
+        if user.is_verified:
             return Response(
-                {"error": "Invalid OTP"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "Account verified successfully"},
+                status=status.HTTP_200_OK,
             )
 
-        # ✅ تحقق من انتهاء الوقت
-        if timezone.now() > user.otp_expires_at:
-
+        now = timezone.now()
+        if user.otp_locked_until and user.otp_locked_until > now:
             return Response(
-                {"error": "OTP expired"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "OTP verification is temporarily locked. Request a new OTP."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
             )
 
-        # ✅ تفعيل الحساب
+        otp_valid = (
+            bool(user.otp_code)
+            and user.otp_expires_at is not None
+            and user.otp_expires_at > now
+            and secrets.compare_digest(str(user.otp_code), str(submitted_otp))
+        )
+        if not otp_valid:
+            user.otp_failed_attempts += 1
+            if user.otp_failed_attempts >= 5:
+                user.otp_locked_until = (
+                    user.otp_expires_at
+                    if user.otp_expires_at and user.otp_expires_at > now
+                    else now + timedelta(minutes=12)
+                )
+            user.save(
+                update_fields=[
+                    "otp_failed_attempts",
+                    "otp_locked_until",
+                ]
+            )
+            if user.otp_failed_attempts >= 5:
+                return Response(
+                    {"error": "OTP verification is locked. Request a new OTP."},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
+            return Response(
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         user.is_verified = True
-
         user.otp_code = None
-
         user.otp_expires_at = None
-
-        user.save()
-
-        return Response(
-            {
-                "message": "Account verified successfully"
-            },
-            status=status.HTTP_200_OK
+        user.otp_failed_attempts = 0
+        user.otp_locked_until = None
+        user.save(
+            update_fields=[
+                "is_verified",
+                "otp_code",
+                "otp_expires_at",
+                "otp_failed_attempts",
+                "otp_locked_until",
+            ]
         )
 
     return Response(
-        serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
+        {"message": "Account verified successfully"},
+        status=status.HTTP_200_OK,
+    )
+   status=status.HTTP_400_BAD_REQUEST
     )
 
 
