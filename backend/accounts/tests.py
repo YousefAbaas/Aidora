@@ -137,6 +137,23 @@ class VerifiedJWTEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
+    def test_existing_access_token_is_rejected_for_unverified_account(self):
+        access = str(RefreshToken.for_user(self.unverified).access_token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+
+        response = self.client.get("/api/auth/me/")
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_verified_account_can_use_an_access_token(self):
+        access = str(RefreshToken.for_user(self.verified).access_token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+
+        response = self.client.get("/api/auth/me/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["role"], "refugee")
+
     def test_verified_account_can_obtain_and_refresh_tokens(self):
         obtain = self.client.post(
             "/api/auth/token/",
