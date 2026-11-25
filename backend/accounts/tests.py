@@ -93,6 +93,7 @@ class UserModelTests(TestCase):
 class VerifiedJWTEndpointTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
         self.unverified = User.objects.create_user(
             username="unverified",
             email="unverified@example.com",
@@ -182,6 +183,7 @@ class VerifiedJWTEndpointTests(TestCase):
 class ProfileImageUploadSecurityTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
         self.user = User.objects.create_user(
             username="image_owner",
             email="image-owner@example.com",
@@ -241,6 +243,7 @@ class ProfileImageUploadSecurityTests(TestCase):
 class VolunteerApplicationRoleAuthorizationTests(TestCase):
     def test_refugee_cannot_submit_volunteer_application(self):
         client = APIClient()
+        client.defaults["wsgi.url_scheme"] = "https"
         refugee = User.objects.create_user(
             username="applicant_refugee",
             email="applicant-refugee@example.com",
