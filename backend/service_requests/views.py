@@ -405,6 +405,7 @@ class ScanQRAPIView(APIView):
                 qr_code=qr_code,
                 qr_code__isnull=False,
                 organization_id=service_request.organization_id,
+                profile_completed=True,
             ).first()
 
             if volunteer is None:
