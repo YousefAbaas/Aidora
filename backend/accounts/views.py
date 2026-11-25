@@ -601,8 +601,19 @@ def resend_pin(request):
     now = timezone.now()
     if profile.pin_locked_until and profile.pin_locked_until > now:
         # A resend after lockout rotates the PIN instead of recycling it.
-        profile.pin_expires_at = now
-        profile.save(update_fields=["pin_expires_at", "updated_at"])
+        profile.verification_pin = None
+        profile.pin_expires_at = None
+        profile.pin_failed_attempts = 0
+        profile.pin_locked_until = None
+        profile.save(
+            update_fields=[
+                "verification_pin",
+                "pin_expires_at",
+                "pin_failed_attempts",
+                "pin_locked_until",
+                "updated_at",
+            ]
+        )
 
     pin = get_or_create_pin(profile)
     send_aidora_email(
