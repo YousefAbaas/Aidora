@@ -252,3 +252,107 @@ class RefugeeRequestDetailAuthorizationTests(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["family_members"], 4)
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class VolunteerTaskTransitionSecurityTests(TestCase):
+    def setUp(self):
+        from rest_framework.test import APIClient
+
+        self.client = APIClient()
+        self.volunteer_user = User.objects.create_user(
+            username="task_transition_volunteer",
+            email="task-transition-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+        )
+        self.other_volunteer = User.objects.create_user(
+            username="other_task_volunteer",
+            email="other-task-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+        )
+        refugee = User.objects.create_user(
+            username="task_transition_refugee",
+            email="task-transition-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        organization = Organization.objects.create(
+            name="Task Transition Org",
+            title="Task Transition Org",
+            about="Task transition tests",
+        )
+        service = Service.objects.create(
+            name="Task Transition Service",
+            description="Test service",
+            icon="test",
+            service_type="food",
+        )
+        self.request_record = ServiceRequest.objects.create(
+            refugee=refugee.refugee_profile,
+            service=service,
+            organization=organization,
+            family_members=1,
+            description="Test request",
+            location="Test location",
+            status="approved",
+        )
+        self.task = Task.objects.create(
+            service_request_id=self.request_record,
+            volunteer_id=self.volunteer_user.volunteer_profile,
+            title="Assigned delivery",
+            instructions="Complete the delivery",
+            status="pending",
+        )
+        self.url = f"/api/requests/volunteer/tasks/{self.task.id}/update/"
+
+    def test_rejects_unsupported_task_status(self):
+        self.client.force_authenticate(user=self.volunteer_user)
+        response = self.client.patch(
+            self.url, {"status": "approved"}, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
+
+    def test_failed_task_requires_nonempty_reason(self):
+        self.client.force_authenticate(user=self.volunteer_user)
+        response = self.client.patch(
+            self.url,
+            {"status": "failed", "rejection_reason": "   "},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
+
+    def test_failed_task_reason_has_a_length_limit(self):
+        self.client.force_authenticate(user=self.volunteer_user)
+        response = self.client.patch(
+            self.url,
+            {"status": "failed", "rejection_reason": "x" * 2001},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
+
+    def test_assigned_volunteer_can_complete_pending_task(self):
+        self.client.force_authenticate(user=self.volunteer_user)
+        response = self.client.patch(
+            self.url, {"status": "completed"}, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "completed")
+        self.assertEqual(self.task.rejection_reason, "")
+
+    def test_another_volunteer_cannot_change_the_task(self):
+        self.client.force_authenticate(user=self.other_volunteer)
+        response = self.client.patch(
+            self.url, {"status": "completed"}, format="json"
+        )
+        self.assertEqual(response.status_code, 404)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
