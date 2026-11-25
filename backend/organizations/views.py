@@ -220,6 +220,8 @@ class TaskReportAPIView(APIView):
             ).select_related(
                 "service_request_id",
                 "volunteer_id",
+            ).filter(
+                volunteer_id__profile_completed=True,
             ).first()
 
             if task is None:
