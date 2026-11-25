@@ -189,6 +189,8 @@ REST_FRAMEWORK = {
         "anon": "30/min",
         "volunteer_pin_verify": "3/min",
         "volunteer_pin_resend": "3/hour",
+        "otp_verify": "5/min",
+        "otp_resend": "3/hour",
     },
 }
 
