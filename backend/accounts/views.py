@@ -580,7 +580,9 @@ def resend_pin(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
-    profile = getattr(user, "volunteer_profile", None)
+    # Fetch from the database instead of relying on a potentially cached
+    # reverse OneToOne relation attached to request.user.
+    profile = VolunteerProfile.objects.filter(user=user).first()
     if profile is None:
         return Response(
             {"detail": "Volunteer profile not found."},
