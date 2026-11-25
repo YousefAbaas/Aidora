@@ -18,6 +18,8 @@ from .serializers import ( VolunteerProfileSerializer ,VolunteerApplicationSeria
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from django.db import transaction
 from accounts.utils import get_or_create_pin
 from django.utils import timezone
 from .models import VolunteerApplication
@@ -886,10 +888,13 @@ def reset_password(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # ✅ تغيير كلمة المرور
-        user.set_password(new_password)
+        # Change the password and revoke all outstanding refresh tokens atomically.
+        with transaction.atomic():
+            user.set_password(new_password)
+            user.save(update_fields=["password"])
 
-        user.save()
+            for outstanding_token in OutstandingToken.objects.filter(user=user):
+                BlacklistedToken.objects.get_or_create(token=outstanding_token)
 
         return Response(
             {
