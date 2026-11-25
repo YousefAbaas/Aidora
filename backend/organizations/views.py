@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -187,41 +188,54 @@ class TaskReportAPIView(APIView):
         return Response(serializer.data)
 
     def patch(self, request, pk):
-      task = self.get_object(request, pk)
+        points = request.data.get("points")
+        if type(points) is not int or not 0 <= points <= 10000:
+            return Response(
+                {"error": "Points must be an integer between 0 and 10000"},
+                status=400,
+            )
 
-    # 🔐 حماية الحالة
-      if task.status != 'completed' or task.service_request_id.status != 'completed':
-        return Response(
-            {"error": "Cannot update before completion"},
-            status=403
-        )
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Task not found"}, status=404)
 
-    # 🚫 منع إعادة التقييم
-      if task.report_reviewed:
-        return Response(
-            {"error": "Already reviewed"},
-            status=400
-        )
+        with transaction.atomic():
+            task = Task.objects.select_for_update().filter(
+                id=pk,
+                service_request_id__organization=organization,
+            ).select_related(
+                "service_request_id",
+                "volunteer_id",
+            ).first()
 
-      volunteer = task.volunteer_id
-      if not volunteer:
-        return Response({"error": "No volunteer assigned"}, status=400)
+            if task is None:
+                return Response({"error": "Task not found"}, status=404)
 
-      points = request.data.get("points")
+            if (
+                task.status != "completed"
+                or task.service_request_id.status != "completed"
+            ):
+                return Response(
+                    {"error": "Cannot update before completion"},
+                    status=403,
+                )
 
-      if not isinstance(points, int):
-        return Response({"error": "Points must be integer"}, status=400)
+            if task.report_reviewed:
+                return Response({"error": "Already reviewed"}, status=400)
 
-    # 🔥 تخزين القيمة الجديدة
-      volunteer.points = points
-      volunteer.save()
+            volunteer = task.volunteer_id
+            if volunteer is None:
+                return Response({"error": "No volunteer assigned"}, status=400)
 
-    # 🔥 هون النقطة يلي بدك ياها 👇
-      task.report_reviewed = True
-      task.save()
+            volunteer.points = points
+            volunteer.save(update_fields=["points", "updated_at"])
 
-      serializer = TaskReportSerializer(task)
-      return Response(serializer.data)
+            task.report_reviewed = True
+            task.save(update_fields=["report_reviewed", "updated_at"])
+
+        serializer = TaskReportSerializer(task)
+        return Response(serializer.data)
+
     
 from .serializers import AssignTaskGetSerializer, AssignTaskResponseSerializer
 from accounts.models import Notification
