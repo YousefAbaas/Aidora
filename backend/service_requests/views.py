@@ -529,21 +529,23 @@ class OrganizationRequestsAPIView(APIView):
         return Response(serializer.data)
 @extend_schema(tags=["Service Requests"])
 class RequestDetailsAPIView(APIView):
-      permission_classes = [IsAuthenticated, IsRole]
-      allowed_roles = ["organization"]
+    permission_classes = [IsAuthenticated, IsRole]
+    allowed_roles = ["organization"]
 
-      def get(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
+    def get(self, request, pk):
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
             return Response({"error": "Request not found"}, status=404)
 
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
-
-        serializer = RequestDetailsSerializer(req,context={"request": request})
+        req = get_object_or_404(
+            ServiceRequest.objects.filter(organization=organization).select_related(
+                "refugee", "service", "organization"
+            ),
+            id=pk,
+        )
+        serializer = RequestDetailsSerializer(req, context={"request": request})
         return Response(serializer.data)
+
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -554,34 +556,36 @@ class ApproveButtonAPIView(APIView):
     allowed_roles = ["organization"]
 
     def post(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
             return Response({"error": "Request not found"}, status=404)
 
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
+        with transaction.atomic():
+            req = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("refugee", "service", "organization").first()
+            if req is None:
+                return Response({"error": "Request not found"}, status=404)
 
-        
-        if req.status != "pending":
-            return Response({"error": "Request is not pending"}, status=400)
+            if req.status != "pending":
+                return Response({"error": "Request is not pending"}, status=400)
 
-        
-        req.status = "approved"
-        req.approved_at = timezone.now()
-        req.save()
-        
-        #test_user = User.objects.first()
-        Notification.objects.create(
-            user=req.refugee.user,
-            #user=test_user,
-            message=f"Your request has been approved by {req.organization.name} service {req.service.name}",
-            notification_type="approved"
-        )
+            req.status = "approved"
+            req.approved_at = timezone.now()
+            req.save(update_fields=["status", "approved_at", "updated_at"])
 
-        return Response({
-            "message": "Request approved successfully",}, status=200)
+            Notification.objects.create(
+                user=req.refugee.user,
+                message=(
+                    f"Your request has been approved by {req.organization.name} "
+                    f"for service {req.service.name}"
+                ),
+                notification_type="approved",
+            )
+
+        return Response({"message": "Request approved successfully"}, status=200)
+
 
 #كرمال زر رفض الطلب
 @extend_schema(tags=["Service Requests"])
@@ -590,40 +594,42 @@ class RejectButtonAPIView(APIView):
     allowed_roles = ["organization"]
 
     def post(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
-            return Response({"error": "Request not found"}, status=404)
-
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
-
-        
-        if req.status != "pending":
-            return Response({"error": "Request is not pending"}, status=400)
-
-        
         serializer = RejectButtonSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        
-        req.status = "rejected"
-        req.rejection_reason = serializer.validated_data["rejection_reason"]
-        req.rejected_at = timezone.now()
-        req.save()
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
-        #test_user = User.objects.first()
-        Notification.objects.create(
-            #user=test_user,
-            user=req.refugee.user,
-            message=f"Your request has been approved by {req.organization.name} service {req.service.name}",
-            notification_type="rejected",
+        with transaction.atomic():
+            req = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("refugee", "service", "organization").first()
+            if req is None:
+                return Response({"error": "Request not found"}, status=404)
+
+            if req.status != "pending":
+                return Response({"error": "Request is not pending"}, status=400)
+
+            req.status = "rejected"
+            req.rejection_reason = serializer.validated_data["rejection_reason"]
+            req.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+            Notification.objects.create(
+                user=req.refugee.user,
+                message=(
+                    f"Your request has been rejected by {req.organization.name} "
+                    f"for service {req.service.name}"
+                ),
+                notification_type="rejected",
+            )
+
+        return Response(
+            {
+                "message": "Request rejected successfully",
+                "rejection_reason": req.rejection_reason,
+            },
+            status=200,
         )
-
-        return Response({
-            "message": "Request rejected successfully",
-            "rejection_reason": req.rejection_reason
-        }, status=200)
-    
