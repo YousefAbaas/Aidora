@@ -40,6 +40,35 @@ class LoginResponseSerializer(serializers.Serializer):
     access = serializers.CharField()
     refresh = serializers.CharField()
     role = serializers.CharField()
+
+class ProfileImageUploadSerializer(serializers.Serializer):
+    profile_image = serializers.ImageField()
+
+    def validate_profile_image(self, value):
+        if value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError(
+                "Profile images must not exceed 5 MB."
+            )
+
+        from PIL import Image
+
+        try:
+            value.seek(0)
+            with Image.open(value) as image:
+                if image.format not in {"JPEG", "PNG", "WEBP"}:
+                    raise serializers.ValidationError(
+                        "Only JPEG, PNG, and WebP images are supported."
+                    )
+        except serializers.ValidationError:
+            raise
+        except Exception as exc:
+            raise serializers.ValidationError(
+                "The uploaded file is not a valid image."
+            ) from exc
+        finally:
+            value.seek(0)
+
+        return value
 # class LoginResponseSerializer(serializers.Serializer):
 #     access = serializers.CharField()
 #     refresh = serializers.CharField()
