@@ -237,3 +237,28 @@ class ProfileImageUploadSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.user.refugee_profile.refresh_from_db()
         self.assertTrue(self.user.refugee_profile.profile_image)
+
+class VolunteerApplicationRoleAuthorizationTests(TestCase):
+    def test_refugee_cannot_submit_volunteer_application(self):
+        client = APIClient()
+        refugee = User.objects.create_user(
+            username="applicant_refugee",
+            email="applicant-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+        client.force_authenticate(user=refugee)
+
+        response = client.post(
+            "/api/auth/org/1/volunteer/applications/",
+            {
+                "phone_number": "123456789",
+                "why_volunteer": "I want to help.",
+                "i_commit": True,
+                "i_agree_terms": True,
+                "selected_services": [1],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
