@@ -1,5 +1,5 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .models import Notification, RefugeeProfile, User
 from rest_framework.test import APIClient
@@ -93,10 +93,10 @@ class UserModelTests(TestCase):
         self.assertEqual(notification.user, user)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class VerifiedJWTEndpointTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.client.defaults["wsgi.url_scheme"] = "https"
         self.unverified = User.objects.create_user(
             username="unverified",
             email="unverified@example.com",
@@ -183,6 +183,7 @@ class VerifiedJWTEndpointTests(TestCase):
         self.assertEqual(refresh_response.status_code, 200)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class ProfileImageUploadSecurityTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -243,10 +244,10 @@ class ProfileImageUploadSecurityTests(TestCase):
         self.user.refugee_profile.refresh_from_db()
         self.assertTrue(self.user.refugee_profile.profile_image)
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class VolunteerApplicationRoleAuthorizationTests(TestCase):
     def test_refugee_cannot_submit_volunteer_application(self):
         client = APIClient()
-        client.defaults["wsgi.url_scheme"] = "https"
         refugee = User.objects.create_user(
             username="applicant_refugee",
             email="applicant-refugee@example.com",
@@ -270,6 +271,7 @@ class VolunteerApplicationRoleAuthorizationTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class PasswordResetSessionRevocationTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -307,6 +309,7 @@ class PasswordResetSessionRevocationTests(TestCase):
         self.assertEqual(refresh_response.status_code, 401)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class VolunteerPINSecurityTests(TestCase):
     def setUp(self):
         from datetime import timedelta
