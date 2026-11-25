@@ -159,56 +159,71 @@ class VolunteerTasksAPIView(ListAPIView):
 
 @extend_schema(tags=["Service Requests"])
 class TaskUpdateAPIView(APIView):
-    permission_classes=[IsAuthenticated,IsRole]
+    permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["volunteer"]
 
     def get(self, request, id):
         volunteer = request.user.volunteer_profile
 
         try:
-            task = Task.objects.get(id=id, volunteer_id=volunteer, status='pending')
+            task = Task.objects.get(id=id, volunteer_id=volunteer, status="pending")
         except Task.DoesNotExist:
             return Response({"error": "Task not found"}, status=404)
 
         return Response({
             "title": task.title,
-            "request_display": f"Request#{str(task.service_request_id.id).zfill(4)}"
+            "request_display": f"Request#{str(task.service_request_id.id).zfill(4)}",
         })
+
     def patch(self, request, id):
         volunteer = request.user.volunteer_profile
 
-        try:
-            task = Task.objects.get(id=id, volunteer_id=volunteer)
-        except Task.DoesNotExist:
-            return Response({"error": "Task not found"}, status=404)
+        with transaction.atomic():
+            task = Task.objects.select_for_update().filter(
+                id=id,
+                volunteer_id=volunteer,
+            ).first()
+            if task is None:
+                return Response({"error": "Task not found"}, status=404)
 
-        # يجب أن تكون الحالة pending فقط
-        if task.status != 'pending':
-            return Response({"error": "Only pending tasks can be updated"}, status=400)
+            if task.status != "pending":
+                return Response(
+                    {"error": "Only pending tasks can be updated"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        new_status = request.data.get('status')
-        reason = request.data.get('rejection_reason')
+            new_status = request.data.get("status")
+            if new_status not in {"failed", "completed"}:
+                return Response(
+                    {"error": "Status must be either 'failed' or 'completed'"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        
+            reason = request.data.get("rejection_reason")
+            if new_status == "failed":
+                if not isinstance(reason, str) or not reason.strip():
+                    return Response(
+                        {"error": "A rejection reason is required for failed status"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                if len(reason.strip()) > 2000:
+                    return Response(
+                        {"error": "Rejection reason must not exceed 2000 characters"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                task.rejection_reason = reason.strip()
+            else:
+                task.rejection_reason = ""
 
-        # إذا كان failed بتطلب السبب obligatory
-        if new_status == 'failed':
-            if not reason:
-                return Response({"error": "Rejection reason is required for failed status"}, status=400)
-            task.rejection_reason = reason
-        # إذا كان completed بنضع reason ل string فاضي
-        elif new_status == 'completed':
-            task.rejection_reason = ""
-
-        task.status = new_status
-        task.save()  # 🔥 updated_at بيتحدث هون تلقائي
+            task.status = new_status
+            task.save(update_fields=["status", "rejection_reason", "updated_at"])
 
         from .serializers import TaskUpdateSerializer
-        serializer = TaskUpdateSerializer(task, context={'request': request})
+
+        serializer = TaskUpdateSerializer(task, context={"request": request})
         return Response(serializer.data)
-    
-    
-    
+
+
 #شهد
 from django.shortcuts import render
 from rest_framework import generics
