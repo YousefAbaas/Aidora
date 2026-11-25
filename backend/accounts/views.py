@@ -35,6 +35,7 @@ from .serializers import (
     LoginResponseSerializer,
     ErrorResponseSerializer,
     AuthMeResponseSerializer,
+    ProfileImageUploadSerializer,
     MyTokenObtainPairSerializer,
     VerifiedTokenRefreshSerializer,
 )
@@ -693,32 +694,30 @@ class UploadProfileImageAPIView(APIView):
 
     def patch(self, request):
         user = request.user
-        image = request.FILES.get('profile_image')
+        serializer = ProfileImageUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
 
-        if not image:
-            return Response({"error": "No image provided"}, status=400)
+        image = serializer.validated_data["profile_image"]
 
-        # 🔹 تحديد البروفايل حسب الدور + حماية
+        # Resolve only the authenticated user's own profile.
         try:
             if user.role == "volunteer":
                 profile = user.volunteer_profile
-
             elif user.role == "refugee":
                 profile = user.refugee_profile
-
             else:
                 return Response({"error": "Invalid role"}, status=400)
-
-        except:
+        except (VolunteerProfile.DoesNotExist, RefugeeProfile.DoesNotExist):
             return Response({"error": "Profile not found"}, status=404)
 
-        # 🔥 حذف الصورة القديمة إذا موجودة
-        if profile.profile_image:
-            profile.profile_image.delete(save=False)
-
-        # 🔥 حفظ الصورة الجديدة
+        # Keep the previous image until the replacement has been saved.
+        old_image = profile.profile_image
         profile.profile_image = image
-        profile.save()
+        profile.save(update_fields=["profile_image", "updated_at"])
+
+        if old_image:
+            old_image.delete(save=False)
 
         return Response({
             "message": "Profile image updated successfully",
