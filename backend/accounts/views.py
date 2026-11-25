@@ -384,8 +384,6 @@ def verify_otp(request):
         {"message": "Account verified successfully"},
         status=status.HTTP_200_OK,
     )
-   status=status.HTTP_400_BAD_REQUEST
-    )
 
 
 from rest_framework.views import APIView
