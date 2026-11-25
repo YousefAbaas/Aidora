@@ -164,6 +164,8 @@ class TaskUpdateAPIView(APIView):
 
     def get(self, request, id):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed:
+            return Response({"error": "Volunteer PIN verification is required"}, status=403)
 
         try:
             task = Task.objects.get(id=id, volunteer_id=volunteer, status="pending")
@@ -177,6 +179,8 @@ class TaskUpdateAPIView(APIView):
 
     def patch(self, request, id):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed:
+            return Response({"error": "Volunteer PIN verification is required"}, status=403)
 
         with transaction.atomic():
             task = Task.objects.select_for_update().filter(
