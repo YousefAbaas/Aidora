@@ -796,9 +796,15 @@ def volunteer_qr(request, volunteer_id):
     except VolunteerProfile.DoesNotExist:
         return Response({"error": "Volunteer not found"}, status=404)
 
-    # ✅ بعد ما صار موجود فينا نستخدمه
+    # Only the profile owner (or staff) may retrieve the QR.
     if not request.user.is_staff and profile.user.id != request.user.id:
         return Response({"error": "You are not allowed to view this QR."}, status=403)
+
+    if not profile.profile_completed:
+        return Response(
+            {"error": "Volunteer PIN verification is required before QR access."},
+            status=403,
+        )
 
     # توليد QR نصي إذا مش موجود
     if not profile.qr_code:
