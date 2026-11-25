@@ -402,11 +402,12 @@ class ApplicationApprovalResetsVolunteerVerificationTests(TestCase):
         self.client.force_authenticate(user=organization_user)
 
         with patch("accounts.utils.send_aidora_email") as send_email:
-            response = self.client.patch(
-                f"/api/organizations/applications/{application.id}/update-status/",
-                {"status": "approved"},
-                format="json",
-            )
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(
+                    f"/api/organizations/applications/{application.id}/update-status/",
+                    {"status": "approved"},
+                    format="json",
+                )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(send_email.call_count, 1)
