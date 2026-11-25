@@ -356,3 +356,90 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, "pending")
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class OrganizationRequestActionIsolationTests(TestCase):
+    def setUp(self):
+        from rest_framework.test import APIClient
+
+        self.client = APIClient()
+        self.owner_user = User.objects.create_user(
+            username="request_org_owner",
+            email="request-org-owner@example.com",
+            password="TestPassword123!",
+            role="organization",
+        )
+        self.other_org_user = User.objects.create_user(
+            username="request_org_other",
+            email="request-org-other@example.com",
+            password="TestPassword123!",
+            role="organization",
+        )
+        self.owner_org = Organization.objects.create(
+            name="Request Owner Org",
+            title="Request Owner Org",
+            about="Owner organization",
+            user=self.owner_user,
+        )
+        Organization.objects.create(
+            name="Request Other Org",
+            title="Request Other Org",
+            about="Other organization",
+            user=self.other_org_user,
+        )
+        refugee = User.objects.create_user(
+            username="org_request_refugee",
+            email="org-request-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        service = Service.objects.create(
+            name="Org Action Service",
+            description="Test service",
+            icon="test",
+            service_type="food",
+        )
+        self.request_record = ServiceRequest.objects.create(
+            refugee=refugee.refugee_profile,
+            service=service,
+            organization=self.owner_org,
+            family_members=2,
+            description="Sensitive refugee request",
+            location="Private location",
+            status="pending",
+        )
+        self.details_url = f"/api/requests/org/requests/{self.request_record.id}/"
+        self.approve_url = f"/api/requests/org/requests/{self.request_record.id}/approve/"
+        self.reject_url = f"/api/requests/org/requests/{self.request_record.id}/reject/"
+
+    def test_other_organization_cannot_read_request_details(self):
+        self.client.force_authenticate(user=self.other_org_user)
+        response = self.client.get(self.details_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_other_organization_cannot_approve_request(self):
+        self.client.force_authenticate(user=self.other_org_user)
+        response = self.client.post(self.approve_url, {}, format="json")
+        self.assertEqual(response.status_code, 404)
+        self.request_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, "pending")
+
+    def test_other_organization_cannot_reject_request(self):
+        self.client.force_authenticate(user=self.other_org_user)
+        response = self.client.post(
+            self.reject_url,
+            {"rejection_reason": "Not eligible"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+        self.request_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, "pending")
+
+    def test_owning_organization_can_approve_request(self):
+        self.client.force_authenticate(user=self.owner_user)
+        response = self.client.post(self.approve_url, {}, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.request_record.refresh_from_db()
+        self.assertEqual(self.request_record.status, "approved")
+        self.assertIsNotNone(self.request_record.approved_at)
