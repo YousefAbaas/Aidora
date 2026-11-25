@@ -123,6 +123,7 @@ class RefugeeRequestDetailAuthorizationTests(TestCase):
         from rest_framework.test import APIClient
 
         self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
         self.owner = User.objects.create_user(
             username="request_owner",
             email="request-owner@example.com",
