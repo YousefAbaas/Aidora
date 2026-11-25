@@ -59,6 +59,7 @@ class OrganizationModelTests(TestCase):
 class TaskReportOrganizationAuthorizationTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
         self.organization_user = User.objects.create_user(
             username="org_a_user",
             email="org-a@example.com",
