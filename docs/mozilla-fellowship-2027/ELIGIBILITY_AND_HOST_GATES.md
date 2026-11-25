@@ -31,6 +31,19 @@ The message asks:
 
 **Current state — checked 25 November 2026:** sent successfully. An automated acknowledgement from Mozilla Fellowships was received at 21:06:48 UTC on 22 November 2026; it directs applicants to the FAQ/RFP but does not answer the Syria-specific questions. A Gmail search through 25 November found no substantive written response. The message does not establish eligibility. Do not self-certify legal eligibility or attempt to bypass restrictions through another person's account, a false residence, or an undisclosed intermediary.
 
+
+## 1B. Mandatory programme events — wording needs clarification
+
+There is a point that must not be inferred from the general remote-work language:
+
+- The RFP says attendance at the Fellowship kick-off in **July 2027** and **MozFest in October 2027** is mandatory. It does not, in that sentence, say whether remote attendance satisfies the requirement.
+- The FAQ says **in-person activities are not mandatory**, while noting that applicants able to attend in person are preferred.
+- Separately, the Track I section allows Fellows to be based in the listed countries **or** work flexibly as remote Fellows across time zones. The SRHIN host preference is Ibadan/Abuja time (WAT, UTC+1).
+
+These statements may be compatible if attendance at the two programme events can be remote, but the public wording does not settle that. The 22 November clarification email explicitly asks whether all gatherings and events can be attended remotely and whether any in-person attendance is essential. Mozilla's automated acknowledgement did not answer this question.
+
+**Current decision:** treat remote participation in the mandatory kick-off and MozFest as unconfirmed. Do not assume that “in-person activities are not mandatory” waives the RFP's mandatory attendance requirement. Ask Mozilla for written clarification before relying on remote attendance in the application or making a travel commitment.
+
 ## 2. Track and host
 
 - Track I (Embedded) is the only plausible track to pursue. Track II is framed for senior, recognised innovators with a proven record of independent leadership.
