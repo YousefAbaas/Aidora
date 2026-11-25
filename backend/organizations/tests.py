@@ -155,3 +155,94 @@ class TaskReportOrganizationAuthorizationTests(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.volunteer.points, 12)
         self.assertTrue(self.task.report_reviewed)
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class TaskReportScoringValidationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.organization_user = User.objects.create_user(
+            username="scoring_org",
+            email="scoring-org@example.com",
+            password="TestPassword123!",
+            role="organization",
+        )
+        self.organization = Organization.objects.create(
+            name="Scoring Test Org",
+            title="Scoring Test Org",
+            about="Scoring tests",
+            user=self.organization_user,
+        )
+        refugee_user = User.objects.create_user(
+            username="scoring_refugee",
+            email="scoring-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        volunteer_user = User.objects.create_user(
+            username="scoring_volunteer",
+            email="scoring-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+        )
+        self.volunteer = volunteer_user.volunteer_profile
+        self.volunteer.organization = self.organization
+        self.volunteer.full_name = "Scoring Volunteer"
+        self.volunteer.save()
+        service = Service.objects.create(
+            name="Scoring Service",
+            description="Test service",
+            icon="test",
+            service_type="food",
+        )
+        service_request = ServiceRequest.objects.create(
+            refugee=refugee_user.refugee_profile,
+            service=service,
+            organization=self.organization,
+            family_members=1,
+            description="Test request",
+            location="Test location",
+            status="completed",
+        )
+        task = Task.objects.create(
+            service_request_id=service_request,
+            volunteer_id=self.volunteer,
+            title="Completed task",
+            instructions="Test instructions",
+            status="completed",
+        )
+        self.url = f"/api/organizations/tasks/{task.id}/report/"
+        self.client.force_authenticate(user=self.organization_user)
+
+    def test_rejects_negative_points(self):
+        response = self.client.patch(self.url, {"points": -1}, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 0)
+
+    def test_rejects_points_above_ui_limit(self):
+        response = self.client.patch(self.url, {"points": 10001}, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 0)
+
+    def test_rejects_boolean_as_integer_points(self):
+        response = self.client.patch(self.url, {"points": True}, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 0)
+
+    def test_accepts_maximum_allowed_points_and_prevents_second_review(self):
+        response = self.client.patch(
+            self.url, {"points": 10000}, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 10000)
+
+        second = self.client.patch(
+            self.url, {"points": 10}, format="json"
+        )
+        self.assertEqual(second.status_code, 400)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 10000)
