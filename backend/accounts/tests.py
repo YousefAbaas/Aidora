@@ -529,6 +529,29 @@ class VolunteerPINSecurityTests(TestCase):
         self.assertEqual(self.profile.pin_resend_count, 3)
 
 
+    def test_verified_application_cannot_resend_or_reuse_pin(self):
+        from unittest.mock import patch
+
+        self.application.is_verified = True
+        self.application.save(update_fields=["is_verified"])
+        self.client.force_authenticate(user=self.user)
+
+        with patch("accounts.views.send_aidora_email") as send_email:
+            resend = self.client.post(
+                "/api/auth/resend-pin/",
+                {},
+                format="json",
+            )
+            verify = self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "1234"},
+                format="json",
+            )
+
+        self.assertEqual(resend.status_code, 403)
+        self.assertEqual(verify.status_code, 403)
+        send_email.assert_not_called()
+
 @override_settings(SECURE_SSL_REDIRECT=False)
 class OTPVerificationSecurityTests(TestCase):
     def setUp(self):
