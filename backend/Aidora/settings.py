@@ -172,7 +172,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.VerifiedJWTAuthentication",
     ),
     # Secure by default: public endpoints must opt in with AllowAny explicitly.
     "DEFAULT_PERMISSION_CLASSES": (
