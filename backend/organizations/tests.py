@@ -100,6 +100,7 @@ class TaskReportOrganizationAuthorizationTests(TestCase):
         self.volunteer = volunteer_user.volunteer_profile
         self.volunteer.organization = self.organization
         self.volunteer.full_name = "Test Volunteer"
+        self.volunteer.profile_completed = True
         self.volunteer.save()
 
         service = Service.objects.create(
