@@ -263,9 +263,10 @@ def resend_otp(request):
             user.otp_resend_window_started_at = now
 
         if user.otp_resend_count >= 3:
+            # Keep the public response indistinguishable from other ineligible accounts.
             return Response(
-                {"error": "Too many OTP resend requests. Please try again later."},
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
+                {"message": "If this account is eligible, a new OTP will be sent."},
+                status=status.HTTP_200_OK,
             )
 
         otp = generate_otp()
@@ -332,8 +333,8 @@ def verify_otp(request):
         now = timezone.now()
         if user.otp_locked_until and user.otp_locked_until > now:
             return Response(
-                {"error": "OTP verification is temporarily locked. Request a new OTP."},
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         otp_valid = (
@@ -356,11 +357,6 @@ def verify_otp(request):
                     "otp_locked_until",
                 ]
             )
-            if user.otp_failed_attempts >= 5:
-                return Response(
-                    {"error": "OTP verification is locked. Request a new OTP."},
-                    status=status.HTTP_429_TOO_MANY_REQUESTS,
-                )
             return Response(
                 {"error": "Invalid or expired OTP."},
                 status=status.HTTP_400_BAD_REQUEST,
