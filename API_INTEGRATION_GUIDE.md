@@ -37,9 +37,13 @@ The exact set of service files may evolve as the application changes.
 
 ## Authentication and token storage
 
-The current Flutter implementation stores access and refresh tokens using the `shared_preferences` package through `AuthStorage`. `TokenManager` coordinates access-token validity and refresh behaviour, while `ApiService` attaches bearer tokens to authenticated requests.
+The Flutter implementation stores access and refresh tokens through `AuthStorage` using `flutter_secure_storage` (Android Keystore-backed encrypted storage and iOS Keychain). Synchronous getters are backed by an in-memory cache populated only after secure storage has been read during startup. `TokenManager` coordinates access-token validity and refresh behaviour, while `ApiService` attaches bearer tokens to authenticated requests.
 
-**Security note:** SharedPreferences provides persistence but should not be described as encrypted secure storage. For a security-sensitive production deployment, evaluate a platform-backed secure-storage solution and the associated migration, lifecycle, and web-platform requirements.
+The backend currently configures SimpleJWT with refresh-token rotation and blacklisting enabled. A successful refresh therefore returns a replacement access token and replacement refresh token; the client persists the pair together. It must not keep using the old refresh token after a successful rotation. If the response does not contain both values, the client fails closed and clears the local session.
+
+Non-secret display metadata (role, email, and display name) remains in SharedPreferences. Existing installations are migrated on startup: legacy access/refresh values are copied to secure storage, read back and verified, and only then removed from SharedPreferences. If secure storage is unavailable or verification fails, legacy values are retained for a later retry but are never used as a plaintext authentication fallback.
+
+On Android, both the secure-storage SharedPreferences file and the legacy `FlutterSharedPreferences` file are excluded from cloud backup and device-to-device transfer. The latter exclusion is deliberate because older app versions stored plaintext tokens in the same file as non-secret preferences; consequently, Flutter SharedPreferences values such as role, email, language, and theme are not restored from Android backups. Other app files remain eligible for backup. On iOS, Keychain items use `first_unlock_this_device`: they become available after the first unlock following a restart and do not migrate to another device. The web implementation uses the plugin's WebCrypto-backed browser storage and requires HTTPS or localhost; it has additional browser-origin and security-header constraints described in the plugin documentation.
 
 Never paste real access tokens, refresh tokens, passwords, or production credentials into issues, documentation, screenshots, or commits.
 

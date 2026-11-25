@@ -8,6 +8,7 @@ import 'package:aidora/controllers/profile_controller.dart';
 import 'package:aidora/controllers/settings_controller.dart';
 import 'package:aidora/services/api_constants.dart';
 import 'package:aidora/services/auth_service.dart';
+import 'package:aidora/services/auth_storage.dart';
 import 'package:aidora/services/notification_service.dart';
 import 'package:aidora/services/organization_service.dart';
 import 'package:aidora/services/profile_api_service.dart';
@@ -19,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/fake_api_service.dart';
+import '../helpers/fake_auth_token_store.dart';
 import '../helpers/fixtures.dart';
 
 class TestHttpOverrides extends HttpOverrides {}
@@ -160,9 +162,11 @@ void main() {
 
   HttpOverrides.global = TestHttpOverrides();
 
-  setUp(() {
+  setUp(() async {
     // ignore: invalid_use_of_visible_for_testing_member
     SharedPreferences.setMockInitialValues({});
+    AuthStorage.setTokenStoreForTesting(FakeAuthTokenStore());
+    await AuthStorage.init();
   });
 
   tearDown(() async {
@@ -198,6 +202,7 @@ void main() {
     OrganizationService.resetOverride();
     AuthService.resetOverride();
     RequestsApiService.resetOverride();
+    AuthStorage.resetForTesting();
 
     try {
       Get.reset();

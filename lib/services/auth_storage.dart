@@ -1,11 +1,50 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-/// AuthStorage â€” bulletproof persistent token store.
-/// Uses SharedPreferences (works on all platforms incl. Web).
-/// Safe to call getters even before init() â€” returns null gracefully.
-/// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/// Storage boundary for authentication secrets.
+///
+/// The production implementation uses Android Keystore and iOS Keychain on
+/// native platforms. Web uses the plugin's separate WebCrypto implementation,
+/// which has different security and hosting requirements.
+/// This interface also allows deterministic tests without invoking platform
+/// channels.
+abstract interface class AuthTokenStore {
+  Future<String?> read(String key);
+  Future<void> write(String key, String value);
+  Future<void> delete(String key);
+}
+
+class _FlutterSecureTokenStore implements AuthTokenStore {
+  const _FlutterSecureTokenStore();
+
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
+
+  @override
+  Future<String?> read(String key) => _storage.read(key: key);
+
+  @override
+  Future<void> write(String key, String value) =>
+      _storage.write(key: key, value: value);
+
+  @override
+  Future<void> delete(String key) => _storage.delete(key: key);
+}
+
+/// Owns the local authentication session.
+///
+/// Access and refresh tokens are stored in platform-backed secure storage.
+/// Non-secret display metadata remains in SharedPreferences so existing
+/// synchronous UI getters and settings behaviour remain compatible.
+///
+/// On upgrade, old token values are copied from SharedPreferences to secure
+/// storage, read back and verified, and only then removed from the old store.
+/// If migration fails, the old values are retained but are never used as a
+/// plaintext fallback for authentication.
 class AuthStorage {
   AuthStorage._();
 
@@ -16,25 +55,100 @@ class AuthStorage {
   static const _kName = 'auth_display_name';
 
   static SharedPreferences? _prefs;
+  static AuthTokenStore _tokenStore = const _FlutterSecureTokenStore();
 
-  // â”€â”€ Init (called once in main before runApp) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  static String? _accessToken;
+  static String? _refreshToken;
+  static bool _initialized = false;
+  static Future<void>? _initFuture;
+
+  /// Loads the secure session and performs a one-time, verified migration
+  /// from the previous SharedPreferences token keys.
+  ///
+  /// Initialization failure is fail-closed: no token is exposed to callers,
+  /// plaintext legacy values are not deleted, and the app can still start so
+  /// the user can retry by signing in.
   static Future<void> init() async {
+    if (_initialized) return;
+
+    final pending = _initFuture ??= _initialize();
     try {
-      _prefs = await SharedPreferences.getInstance();
-      debugPrint('ðŸ”‘ AuthStorage ready â€” '
-          'loggedIn=$isLoggedIn  role=${getRole()}  name=${getName()}');
-    } catch (e) {
-      debugPrint('âŒ AuthStorage.init error: $e');
+      await pending;
+    } catch (_) {
+      _initFuture = null;
+      _initialized = false;
+      _accessToken = null;
+      _refreshToken = null;
+      debugPrint(
+        'AuthStorage initialization failed; the saved session is unavailable.',
+      );
     }
   }
 
-  // â”€â”€ Ensure prefs loaded (lazy fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  static Future<void> _initialize() async {
+    final prefs = await SharedPreferences.getInstance();
+    _prefs = prefs;
+
+    final legacyAccess = prefs.getString(_kAccess);
+    final legacyRefresh = prefs.getString(_kRefresh);
+
+    final access = await _readOrMigrateToken(
+      key: _kAccess,
+      legacyValue: legacyAccess,
+    );
+    final refresh = await _readOrMigrateToken(
+      key: _kRefresh,
+      legacyValue: legacyRefresh,
+    );
+
+    // Both secure reads/migrations have completed successfully. It is now
+    // safe to remove the legacy plaintext token values.
+    await _removeLegacyTokens(prefs);
+
+    _accessToken = access;
+    _refreshToken = refresh;
+    _initialized = true;
+    debugPrint('AuthStorage ready; authentication secrets use secure storage.');
+  }
+
+  static Future<String?> _readOrMigrateToken({
+    required String key,
+    required String? legacyValue,
+  }) async {
+    final existing = await _tokenStore.read(key);
+    if (existing != null && existing.isNotEmpty) {
+      return existing;
+    }
+
+    if (legacyValue == null || legacyValue.isEmpty) {
+      return null;
+    }
+
+    await _tokenStore.write(key, legacyValue);
+    final migrated = await _tokenStore.read(key);
+    if (migrated != legacyValue) {
+      throw StateError('Secure token migration verification failed.');
+    }
+
+    return migrated;
+  }
+
+  static Future<void> _removeLegacyTokens(SharedPreferences prefs) async {
+    await prefs.remove(_kAccess);
+    await prefs.remove(_kRefresh);
+
+    if (prefs.containsKey(_kAccess) || prefs.containsKey(_kRefresh)) {
+      throw StateError('Legacy plaintext token cleanup could not be verified.');
+    }
+  }
+
   static Future<SharedPreferences> _ensurePrefs() async {
     _prefs ??= await SharedPreferences.getInstance();
     return _prefs!;
   }
 
-  // â”€â”€ Save all tokens + user info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /// Persists a new session. Tokens are verified in secure storage before
+  /// non-secret user metadata is updated.
   static Future<void> saveTokens({
     required String accessToken,
     required String refreshToken,
@@ -42,50 +156,161 @@ class AuthStorage {
     String? email,
     String? displayName,
   }) async {
-    final p = await _ensurePrefs();
-    await p.setString(_kAccess, accessToken);
-    await p.setString(_kRefresh, refreshToken);
-    await p.setString(_kRole, role);
-    if (email != null && email.isNotEmpty) await p.setString(_kEmail, email);
-    if (displayName != null && displayName.isNotEmpty)
-      await p.setString(_kName, displayName);
-    debugPrint('ðŸ”‘ Tokens saved â€” role=$role  name=$displayName');
+    if (accessToken.isEmpty || refreshToken.isEmpty) {
+      throw ArgumentError('Access and refresh tokens must not be empty.');
+    }
+
+    final prefs = await _ensurePrefs();
+
+    try {
+      await _tokenStore.write(_kAccess, accessToken);
+      await _tokenStore.write(_kRefresh, refreshToken);
+
+      final storedAccess = await _tokenStore.read(_kAccess);
+      final storedRefresh = await _tokenStore.read(_kRefresh);
+      if (storedAccess != accessToken || storedRefresh != refreshToken) {
+        throw StateError('Secure token persistence could not be verified.');
+      }
+
+      // Remove legacy plaintext values after the secure copies are verified.
+      await _removeLegacyTokens(prefs);
+
+      await prefs.setString(_kRole, role);
+      if (email != null && email.isNotEmpty) {
+        await prefs.setString(_kEmail, email);
+      }
+      if (displayName != null && displayName.isNotEmpty) {
+        await prefs.setString(_kName, displayName);
+      }
+
+      _accessToken = storedAccess;
+      _refreshToken = storedRefresh;
+      _initialized = true;
+      debugPrint('AuthStorage saved a verified secure session.');
+    } catch (_) {
+      _accessToken = null;
+      _refreshToken = null;
+      await _deleteSecureTokensBestEffort();
+      rethrow;
+    }
   }
 
-  // â”€â”€ Update access token after refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  static Future<void> updateAccessToken(String token) async {
-    final p = await _ensurePrefs();
-    await p.setString(_kAccess, token);
-    debugPrint('ðŸ”‘ Access token updated');
+  /// Atomically updates the current session after the backend rotates JWTs.
+  ///
+  /// Both tokens are persisted and read back before the in-memory session is
+  /// replaced. If either operation fails, both secure values are deleted so
+  /// an invalid access/refresh pair cannot be used.
+  static Future<void> updateSessionTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    if (accessToken.isEmpty || refreshToken.isEmpty) {
+      throw ArgumentError('Access and refresh tokens must not be empty.');
+    }
+
+    try {
+      // Write the rotated refresh token first because the previous refresh
+      // token may already have been blacklisted by the server.
+      await _tokenStore.write(_kRefresh, refreshToken);
+      await _tokenStore.write(_kAccess, accessToken);
+
+      final storedRefresh = await _tokenStore.read(_kRefresh);
+      final storedAccess = await _tokenStore.read(_kAccess);
+      if (storedAccess != accessToken || storedRefresh != refreshToken) {
+        throw StateError('Secure session-token persistence could not be verified.');
+      }
+
+      _accessToken = storedAccess;
+      _refreshToken = storedRefresh;
+    } catch (_) {
+      _accessToken = null;
+      _refreshToken = null;
+      await _deleteSecureTokensBestEffort();
+      rethrow;
+    }
   }
 
-  // â”€â”€ Save display name separately (called after profile load) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /// Stores non-secret profile metadata separately from authentication tokens.
   static Future<void> saveName(String name) async {
     if (name.isEmpty) return;
-    final p = await _ensurePrefs();
-    await p.setString(_kName, name);
+    final prefs = await _ensurePrefs();
+    await prefs.setString(_kName, name);
   }
 
-  // â”€â”€ Synchronous getters (null-safe) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  static String? getAccessToken() => _prefs?.getString(_kAccess);
-  static String? getRefreshToken() => _prefs?.getString(_kRefresh);
+  // Synchronous getters are preserved for existing UI and service callers.
+  // The token cache is populated only after secure storage has been read.
+  static String? getAccessToken() => _accessToken;
+  static String? getRefreshToken() => _refreshToken;
   static String? getRole() => _prefs?.getString(_kRole);
   static String? getUserEmail() => _prefs?.getString(_kEmail);
   static String? getName() => _prefs?.getString(_kName);
 
   static bool get isLoggedIn {
-    final t = getAccessToken();
-    return t != null && t.isNotEmpty;
+    final access = _accessToken;
+    final refresh = _refreshToken;
+    return access != null &&
+        access.isNotEmpty &&
+        refresh != null &&
+        refresh.isNotEmpty;
   }
 
-  // â”€â”€ Clear on logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /// Clears the in-memory session first, then attempts to delete all stored
+  /// authentication values and non-secret session metadata.
   static Future<void> clear() async {
-    final p = await _ensurePrefs();
-    await p.remove(_kAccess);
-    await p.remove(_kRefresh);
-    await p.remove(_kRole);
-    await p.remove(_kEmail);
-    await p.remove(_kName);
-    debugPrint('ðŸ”‘ All tokens cleared');
+    _accessToken = null;
+    _refreshToken = null;
+
+    var secureDeleteFailed = false;
+    for (final key in [_kAccess, _kRefresh]) {
+      try {
+        await _tokenStore.delete(key);
+      } catch (_) {
+        secureDeleteFailed = true;
+      }
+    }
+
+    final prefs = await _ensurePrefs();
+    for (final key in [_kAccess, _kRefresh, _kRole, _kEmail, _kName]) {
+      await prefs.remove(key);
+    }
+
+    _initialized = true;
+    if (secureDeleteFailed) {
+      throw StateError(
+        'The local secure session could not be fully deleted.',
+      );
+    }
+
+    debugPrint('AuthStorage cleared the local session.');
+  }
+
+  static Future<void> _deleteSecureTokensBestEffort() async {
+    for (final key in [_kAccess, _kRefresh]) {
+      try {
+        await _tokenStore.delete(key);
+      } catch (_) {
+        // Do not mask the original persistence error.
+      }
+    }
+  }
+
+  @visibleForTesting
+  static void setTokenStoreForTesting(AuthTokenStore tokenStore) {
+    _tokenStore = tokenStore;
+    _resetStateForTesting();
+  }
+
+  @visibleForTesting
+  static void resetForTesting() {
+    _tokenStore = const _FlutterSecureTokenStore();
+    _resetStateForTesting();
+  }
+
+  static void _resetStateForTesting() {
+    _prefs = null;
+    _accessToken = null;
+    _refreshToken = null;
+    _initialized = false;
+    _initFuture = null;
   }
 }

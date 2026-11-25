@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- The encrypted values cannot be restored without their device-bound Keystore key. -->
+    <exclude domain="sharedpref" path="FlutterSecureStorage" />
+    <!-- This legacy Flutter preferences file previously contained plaintext auth tokens. -->
+    <exclude domain="sharedpref" path="FlutterSharedPreferences" />
+</full-backup-content>
