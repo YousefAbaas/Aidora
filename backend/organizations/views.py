@@ -214,12 +214,11 @@ class TaskReportAPIView(APIView):
             return Response({"error": "Task not found"}, status=404)
 
         with transaction.atomic():
-            task = Task.objects.select_for_update().filter(
+            task = Task.objects.select_for_update(of=("self",)).filter(
                 id=pk,
                 service_request_id__organization=organization,
             ).select_related(
                 "service_request_id",
-                "volunteer_id",
             ).filter(
                 volunteer_id__profile_completed=True,
             ).first()
@@ -239,10 +238,14 @@ class TaskReportAPIView(APIView):
             if task.report_reviewed:
                 return Response({"error": "Already reviewed"}, status=400)
 
-            volunteer = task.volunteer_id
-            if volunteer is None:
+            if task.volunteer_id_id is None:
                 return Response({"error": "No volunteer assigned"}, status=400)
 
+            volunteer = VolunteerProfile.objects.select_for_update().get(
+                pk=task.volunteer_id_id,
+                profile_completed=True,
+            )
+            task.volunteer_id = volunteer
             volunteer.points = points
             volunteer.save(update_fields=["points", "updated_at"])
 
