@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from accounts.models import RefugeeProfile, User
 from organizations.models import Organization, Service
@@ -118,12 +118,12 @@ class ScanQRAuthorizationTests(TestCase):
         self.assertEqual(r.status_code, 400)  # invalid QR, not an auth error
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class RefugeeRequestDetailAuthorizationTests(TestCase):
     def setUp(self):
         from rest_framework.test import APIClient
 
         self.client = APIClient()
-        self.client.defaults["wsgi.url_scheme"] = "https"
         self.owner = User.objects.create_user(
             username="request_owner",
             email="request-owner@example.com",
