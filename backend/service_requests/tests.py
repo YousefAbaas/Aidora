@@ -109,7 +109,8 @@ class ScanQRAuthorizationTests(TestCase):
         self.volunteer = self.volunteer_user.volunteer_profile
         self.volunteer.organization = self.org
         self.volunteer.qr_code = "qr-assigned-volunteer"
-        self.volunteer.save(update_fields=["organization", "qr_code"])
+        self.volunteer.profile_completed = True
+        self.volunteer.save(update_fields=["organization", "qr_code", "profile_completed"])
         self.url = f"/api/requests/{self.req.id}/scan-qr/"
         self._token = lambda u: str(RefreshToken.for_user(u).access_token)
 
@@ -298,6 +299,8 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
             location="Test location",
             status="approved",
         )
+        self.volunteer_user.volunteer_profile.profile_completed = True
+        self.volunteer_user.volunteer_profile.save(update_fields=["profile_completed"])
         self.task = Task.objects.create(
             service_request_id=self.request_record,
             volunteer_id=self.volunteer_user.volunteer_profile,
@@ -347,6 +350,18 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, "completed")
         self.assertEqual(self.task.rejection_reason, "")
+
+    def test_pin_unverified_volunteer_cannot_update_existing_task(self):
+        self.volunteer_user.volunteer_profile.profile_completed = False
+        self.volunteer_user.volunteer_profile.save(update_fields=["profile_completed"])
+        self.client.force_authenticate(user=self.volunteer_user)
+
+        response = self.client.patch(
+            self.url, {"status": "completed"}, format="json"
+        )
+        self.assertEqual(response.status_code, 403)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
 
     def test_another_volunteer_cannot_change_the_task(self):
         self.client.force_authenticate(user=self.other_volunteer)
