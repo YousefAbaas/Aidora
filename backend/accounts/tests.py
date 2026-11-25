@@ -154,6 +154,28 @@ class VerifiedJWTEndpointTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["role"], "refugee")
 
+    def test_unverified_access_token_does_not_block_public_otp_verification(self):
+        from datetime import timedelta
+        from django.core.cache import cache
+        from django.utils import timezone
+
+        cache.clear()
+        self.unverified.otp_code = "123456"
+        self.unverified.otp_expires_at = timezone.now() + timedelta(minutes=10)
+        self.unverified.save(update_fields=["otp_code", "otp_expires_at"])
+        old_access = str(RefreshToken.for_user(self.unverified).access_token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {old_access}")
+
+        response = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.unverified.email, "otp": "123456"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.unverified.refresh_from_db()
+        self.assertTrue(self.unverified.is_verified)
+
     def test_verified_account_can_obtain_and_refresh_tokens(self):
         obtain = self.client.post(
             "/api/auth/token/",
