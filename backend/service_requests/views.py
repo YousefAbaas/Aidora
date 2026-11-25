@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from organizations.models import Service, Organization, OrganizationService
 from .models import ServiceRequest
 from .serializers import ServiceRequestCreateSerializer
@@ -88,6 +89,8 @@ class VolunteerHomeAPIView(APIView):
 
     def get(self, request):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            raise PermissionDenied("Volunteer PIN verification is required.")
 
         # 🔹 معلومات المتطوع
         full_name = volunteer.full_name
@@ -98,7 +101,10 @@ class VolunteerHomeAPIView(APIView):
         volunteer.profile_image.url
               )
         # 🔹 كل المهام تبعه
-        tasks = Task.objects.filter(volunteer_id=volunteer)
+        tasks = Task.objects.filter(
+            volunteer_id=volunteer,
+            service_request_id__organization_id=volunteer.organization_id,
+        )
 
         # 🔹 الإحصائيات
         stats = tasks.aggregate(
@@ -135,10 +141,13 @@ class VolunteerTasksAPIView(ListAPIView):
 
     def get_queryset(self):
         volunteer = self.request.user.volunteer_profile
-        status_filter = self.request.query_params.get('status', 'all')
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            raise PermissionDenied("Volunteer PIN verification is required.")
 
+        status_filter = self.request.query_params.get('status', 'all')
         queryset = Task.objects.filter(
-            volunteer_id=volunteer
+            volunteer_id=volunteer,
+            service_request_id__organization_id=volunteer.organization_id,
         ).select_related('service_request_id')
 
         if status_filter != 'all':
@@ -168,7 +177,12 @@ class TaskUpdateAPIView(APIView):
             return Response({"error": "Volunteer PIN verification is required"}, status=403)
 
         try:
-            task = Task.objects.get(id=id, volunteer_id=volunteer, status="pending")
+            task = Task.objects.get(
+                id=id,
+                volunteer_id=volunteer,
+                service_request_id__organization_id=volunteer.organization_id,
+                status="pending",
+            )
         except Task.DoesNotExist:
             return Response({"error": "Task not found"}, status=404)
 
@@ -186,6 +200,7 @@ class TaskUpdateAPIView(APIView):
             task = Task.objects.select_for_update().filter(
                 id=id,
                 volunteer_id=volunteer,
+                service_request_id__organization_id=volunteer.organization_id,
             ).first()
             if task is None:
                 return Response({"error": "Task not found"}, status=404)
