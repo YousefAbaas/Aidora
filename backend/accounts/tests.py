@@ -177,3 +177,63 @@ class VerifiedJWTEndpointTests(TestCase):
             format="json",
         )
         self.assertEqual(refresh_response.status_code, 200)
+
+
+class ProfileImageUploadSecurityTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="image_owner",
+            email="image-owner@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_non_image_upload_is_rejected(self):
+        upload = SimpleUploadedFile(
+            "not-an-image.txt", b"this is not an image", content_type="text/plain"
+        )
+        response = self.client.patch(
+            "/api/auth/profile/upload-image/",
+            {"profile_image": upload}, format="multipart"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(self.user.refugee_profile.profile_image)
+
+    def test_oversized_valid_image_is_rejected(self):
+        import io
+        import os
+        from PIL import Image
+
+        image = Image.frombytes("RGB", (1400, 1400), os.urandom(1400 * 1400 * 3))
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG", compress_level=0)
+        self.assertGreater(len(buffer.getvalue()), 5 * 1024 * 1024)
+        upload = SimpleUploadedFile(
+            "large.png", buffer.getvalue(), content_type="image/png"
+        )
+        response = self.client.patch(
+            "/api/auth/profile/upload-image/",
+            {"profile_image": upload}, format="multipart"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(self.user.refugee_profile.profile_image)
+
+    def test_valid_png_upload_succeeds(self):
+        image_bytes = bytes.fromhex(
+            "89504e470d0a1a0a0000000d4948445200000001000000010802000000"
+            "907753de0000000c4944415408d763f8cfc00000000300010018dd8db4"
+            "0000000049454e44ae426082"
+        )
+        upload = SimpleUploadedFile(
+            "profile.png", image_bytes, content_type="image/png"
+        )
+        response = self.client.patch(
+            "/api/auth/profile/upload-image/",
+            {"profile_image": upload}, format="multipart"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.user.refugee_profile.refresh_from_db()
+        self.assertTrue(self.user.refugee_profile.profile_image)
