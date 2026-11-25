@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .utils import send_aidora_email
 # Create your views here.
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
@@ -26,6 +26,7 @@ from .models import VolunteerApplication
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.viewsets import ViewSet
 from .permissions import IsRole
+from .throttles import VolunteerPINResendThrottle, VolunteerPINVerificationThrottle
 from .serializers import ResendOTPSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 User = get_user_model()
@@ -567,70 +568,119 @@ def auth_me(request):
 
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@permission_classes([IsRole])
+@throttle_classes([VolunteerPINResendThrottle])
 def resend_pin(request):
     user = request.user
-
-    # تأكد أنه المستخدم عنده بروفايل متطوع
-    profile = getattr(user, "volunteer_profile", None)
-    if not profile:
+    if user.role != "volunteer":
         return Response(
-            {"detail": "Volunteer profile not found."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Only volunteer accounts can request a verification PIN."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
+    profile = getattr(user, "volunteer_profile", None)
+    if profile is None:
+        return Response(
+            {"detail": "Volunteer profile not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
-    # توليد أو إعادة الـ PIN الحالي إذا صالح
+    from accounts.models import VolunteerApplication
+    has_approved_application = VolunteerApplication.objects.filter(
+        user=user,
+        status="approved",
+    ).exists()
+    if not has_approved_application:
+        return Response(
+            {"detail": "An approved volunteer application is required."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     pin = get_or_create_pin(profile)
-
-
     send_aidora_email(
-             subject="Aidora Verification PIN",
-             message=f"Your verification PIN is: {pin}",
-             recipient=user.email,
-         )
-    return Response({"detail": "Verification PIN resent successfully."}, status=status.HTTP_200_OK)
-resend_pin.allowed_roles = ["volunteer"]
-@api_view(['POST'])
+        subject="Aidora Verification PIN",
+        message=f"Your verification PIN is: {pin}",
+        recipient=user.email,
+    )
+    return Response(
+        {"detail": "Verification PIN sent successfully."},
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@permission_classes([IsRole])
+@throttle_classes([VolunteerPINVerificationThrottle])
 def verify_pin(request):
     user = request.user
-    input_pin = request.data.get('pin')
+    if user.role != "volunteer":
+        return Response(
+            {"detail": "Only volunteer accounts can verify a PIN."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
-    if not input_pin:
-        return Response({"detail": "PIN is required."}, status=status.HTTP_400_BAD_REQUEST)
+    input_pin = request.data.get("pin")
+    if input_pin is None:
+        return Response(
+            {"detail": "PIN is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     profile = getattr(user, "volunteer_profile", None)
-    if not profile:
-        return Response({"detail": "Volunteer profile not found."}, status=status.HTTP_400_BAD_REQUEST)
+    if profile is None:
+        return Response(
+            {"detail": "Volunteer profile not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    from accounts.models import VolunteerApplication
+    application = VolunteerApplication.objects.filter(
+        user=user,
+        status="approved",
+    ).select_related("organization").order_by("-id").first()
+    if application is None:
+        return Response(
+            {"detail": "An approved volunteer application is required."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     now = timezone.now()
-    if profile.verification_pin != input_pin:
-        return Response({"detail": "Invalid PIN."}, status=status.HTTP_400_BAD_REQUEST)
-    if profile.pin_expires_at < now:
-        return Response({"detail": "PIN has expired."}, status=status.HTTP_400_BAD_REQUEST)
+    pin_valid = (
+        bool(profile.verification_pin)
+        and profile.pin_expires_at is not None
+        and profile.pin_expires_at > now
+        and secrets.compare_digest(
+            str(profile.verification_pin),
+            str(input_pin),
+        )
+    )
+    if not pin_valid:
+        return Response(
+            {"detail": "Invalid or expired PIN."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-    # ✅ تم التحقق بنجاح
     profile.is_verified = True
     profile.profile_completed = True
-
-    # ✅ اسند organization_id من الطلب الموافق عليه
-    from django.shortcuts import get_object_or_404
-    from accounts.models import VolunteerApplication
-    application = get_object_or_404(
-    VolunteerApplication,
-    user=user,
-    status='approved'
-    )
     profile.organization = application.organization
-    profile.save()
+    profile.verification_pin = None
+    profile.pin_expires_at = None
+    profile.save(
+        update_fields=[
+            "is_verified",
+            "profile_completed",
+            "organization",
+            "verification_pin",
+            "pin_expires_at",
+            "updated_at",
+        ]
+    )
 
-    return Response({"detail": "PIN verified successfully and organisation assigned."}, status=200)
-verify_pin.allowed_roles = ["volunteer"]
-
+    return Response(
+        {"detail": "PIN verified successfully and organisation assigned."},
+        status=status.HTTP_200_OK,
+    )
 
 from rest_framework.exceptions import NotFound
 class VolunteerApplicationDetailView(RetrieveAPIView):
