@@ -84,13 +84,15 @@ class ScanQRAuthorizationTests(TestCase):
         from rest_framework_simplejwt.tokens import RefreshToken
 
         self.client = APIClient()
+        # These fixtures mint real JWTs directly, so they represent accounts
+        # that have already completed email verification.
         self.owner = User.objects.create_user(
             username="owner", email="owner@example.com",
-            password="TestPassword123!", role="refugee",
+            password="TestPassword123!", role="refugee", is_verified=True,
         )
         self.other = User.objects.create_user(
             username="other", email="other@example.com",
-            password="TestPassword123!", role="refugee",
+            password="TestPassword123!", role="refugee", is_verified=True,
         )
         service = Service.objects.create(
             name="Svc", description="d", icon="food", service_type="food",
