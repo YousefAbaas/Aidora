@@ -83,6 +83,10 @@ class VerifiedTokenRefreshView(TokenRefreshView):
               "or incorrect password."
           ),
       ),
+      403: OpenApiResponse(
+          response=ErrorResponseSerializer,
+          description="Email verification is required before login.",
+      ),
   },
 )
 @api_view(["POST"])
@@ -486,6 +490,12 @@ class VolunteerProfileViewSet(ViewSet):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def submit_volunteer_application(request, id):
+    if request.user.role != "volunteer":
+        return Response(
+            {"error": "Only volunteer accounts can submit volunteer applications."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     serializer = VolunteerApplicationSerializer(
         data=request.data,
         context={
