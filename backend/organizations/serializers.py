@@ -273,7 +273,8 @@ class AssignTaskGetSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         volunteers = VolunteerProfile.objects.filter(
-            organization=request.user.organization
+            organization=request.user.organization,
+            profile_completed=True,
         )
 
         return [
