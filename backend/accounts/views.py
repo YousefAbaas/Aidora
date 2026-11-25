@@ -595,7 +595,7 @@ def resend_pin(request):
 
     # Fetch from the database instead of relying on a potentially cached
     # reverse OneToOne relation attached to request.user.
-    profile = VolunteerProfile.objects.filter(user=user).first()
+    profile = VolunteerProfile.objects.filter(user=user).only("id").first()
     if profile is None:
         return Response(
             {"detail": "Volunteer profile not found."},
@@ -603,19 +603,26 @@ def resend_pin(request):
         )
 
     from accounts.models import VolunteerApplication
-    has_approved_application = VolunteerApplication.objects.filter(
-        user=user,
-        status="approved",
-        is_verified=False,
-    ).exists()
-    if not has_approved_application:
-        return Response(
-            {"detail": "An approved volunteer application is required."},
-            status=status.HTTP_403_FORBIDDEN,
-        )
-
     with transaction.atomic():
         profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
+        if profile.organization_id is None:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        has_approved_application = VolunteerApplication.objects.filter(
+            user=user,
+            organization_id=profile.organization_id,
+            status="approved",
+            is_verified=False,
+        ).exists()
+        if not has_approved_application:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         now = timezone.now()
         window_started = profile.pin_resend_window_started_at
         if window_started is None or now - window_started >= timedelta(hours=1):
@@ -680,20 +687,25 @@ def verify_pin(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    profile = getattr(user, "volunteer_profile", None)
+    profile = VolunteerProfile.objects.filter(user=user).only("id", "organization_id").first()
     if profile is None:
         return Response(
             {"detail": "Volunteer profile not found."},
             status=status.HTTP_404_NOT_FOUND,
         )
+    if profile.organization_id is None:
+        return Response(
+            {"detail": "An approved volunteer application is required."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     from accounts.models import VolunteerApplication
 
     with transaction.atomic():
-        # Lock in the same order as organization approval: application first,
-        # then volunteer profile. This avoids lock-order inversions.
+        # Lock the application first, then the profile, matching the approval flow.
         application = VolunteerApplication.objects.select_for_update().filter(
             user=user,
+            organization_id=profile.organization_id,
             status="approved",
             is_verified=False,
         ).select_related("organization").order_by("-id").first()
@@ -704,6 +716,11 @@ def verify_pin(request):
             )
 
         profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
+        if profile.organization_id != application.organization_id:
+            return Response(
+                {"detail": "The approved organization changed. Request a new PIN."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         now = timezone.now()
 
         if profile.pin_locked_until and profile.pin_locked_until > now:
