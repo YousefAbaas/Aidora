@@ -10,6 +10,8 @@ dist/
 .installed.cfg
 *.egg
 .env
+.env.*
+!.env.example
 .envrc
 .venv
 env/

@@ -2,10 +2,11 @@ from django.shortcuts import render
 from .utils import send_aidora_email
 # Create your views here.
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
+import secrets
 from django.conf import settings
 from .serializers import RefugeeProfileCompleteSerializer
 from .serializers import RegisterSerializer
@@ -16,12 +17,17 @@ from .models import VolunteerProfile
 from .serializers import ( VolunteerProfileSerializer ,VolunteerApplicationSerializer,
                          VolunteerProfileViewSerializer, VolunteerApplicationReadOnlySerializer)    
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from django.db import transaction
 from accounts.utils import get_or_create_pin
 from django.utils import timezone
 from .models import VolunteerApplication
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.viewsets import ViewSet
 from .permissions import IsRole
+from .throttles import VolunteerPINResendThrottle, VolunteerPINVerificationThrottle, OTPResendThrottle, OTPVerificationThrottle
 from .serializers import ResendOTPSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 User = get_user_model()
@@ -33,6 +39,9 @@ from .serializers import (
     LoginResponseSerializer,
     ErrorResponseSerializer,
     AuthMeResponseSerializer,
+    ProfileImageUploadSerializer,
+    MyTokenObtainPairSerializer,
+    VerifiedTokenRefreshSerializer,
 )
 from drf_spectacular.utils import (
     extend_schema,
@@ -50,6 +59,14 @@ class LoginSerializer(serializers.Serializer):
         write_only=True,
         style={"input_type": "password"},
     )
+class VerifiedTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class VerifiedTokenRefreshView(TokenRefreshView):
+    serializer_class = VerifiedTokenRefreshSerializer
+
+
 @extend_schema(
     tags=["Authentication"],
     summary="Login",
@@ -70,6 +87,10 @@ class LoginSerializer(serializers.Serializer):
               "or incorrect password."
           ),
       ),
+      403: OpenApiResponse(
+          response=ErrorResponseSerializer,
+          description="Email verification is required before login.",
+      ),
   },
 )
 @api_view(["POST"])
@@ -86,19 +107,25 @@ def login_api(request):
         )
 
     try:
-        user = User.objects.get(email=email)
+        candidate = User.objects.get(email=email)
     except User.DoesNotExist:
         return Response(
-            {"error": "Email does not exist"},
+            {"error": "Invalid email or password."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    user = authenticate(username=user.username, password=password)
+    user = authenticate(username=candidate.username, password=password)
 
     if user is None:
         return Response(
-            {"error": "Incorrect password"},
+            {"error": "Invalid email or password."},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not user.is_verified:
+        return Response(
+            {"error": "Please verify your email before logging in."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
     refresh = RefreshToken.for_user(user)
@@ -120,6 +147,12 @@ def logout_view(request):
     try:
         refresh_token = request.data["refresh"]
         token = RefreshToken(refresh_token)
+        token_user_id = token.get(api_settings.USER_ID_CLAIM)
+        if str(token_user_id) != str(request.user.pk):
+            return Response(
+                {"error": "Invalid token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         token.blacklist()
 
         return Response({"message": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
@@ -207,136 +240,149 @@ from datetime import timedelta
 from django.core.mail import send_mail
 from .utils import generate_otp
 
-@extend_schema(tags=["Authentication"])
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([OTPResendThrottle])
 def resend_otp(request):
-
     serializer = ResendOTPSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if serializer.is_valid():
-
-        email = serializer.validated_data['email']
-
-        try:
-            user = User.objects.get(email=email)
-
-        except User.DoesNotExist:
-
+    email = serializer.validated_data["email"]
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(email=email).first()
+        # Return the same public response for unknown and already-verified accounts.
+        if user is None or user.is_verified:
             return Response(
-                {"error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"message": "If this account is eligible, a new OTP will be sent."},
+                status=status.HTTP_200_OK,
             )
 
-        # ✅ إذا الحساب مفعل بالفعل
-        if user.is_verified:
+        now = timezone.now()
+        window_started = user.otp_resend_window_started_at
+        if window_started is None or now - window_started >= timedelta(hours=1):
+            user.otp_resend_count = 0
+            user.otp_resend_window_started_at = now
 
+        if user.otp_resend_count >= 3:
+            # Keep the public response indistinguishable from other ineligible accounts.
             return Response(
-                {"error": "Account already verified"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "If this account is eligible, a new OTP will be sent."},
+                status=status.HTTP_200_OK,
             )
 
-        # ✅ توليد OTP جديد
         otp = generate_otp()
-
+        user.otp_resend_count += 1
         user.otp_code = otp
-
-        user.otp_expires_at = (
-            timezone.now() + timedelta(minutes=12)
+        user.otp_expires_at = now + timedelta(minutes=12)
+        user.otp_failed_attempts = 0
+        user.otp_locked_until = None
+        user.save(
+            update_fields=[
+                "otp_resend_count",
+                "otp_resend_window_started_at",
+                "otp_code",
+                "otp_expires_at",
+                "otp_failed_attempts",
+                "otp_locked_until",
+            ]
         )
 
-        user.save()
+    def _send_otp_email(otp_code, user_email):
+        try:
+            send_aidora_email(
+                subject="OTP Verification",
+                message=f"Your new OTP code is: {otp_code}",
+                recipient=user_email,
+            )
+        except Exception:
+            logger.exception("Failed to resend OTP email")
 
-        # ✅ إرسال الإيميل بالخلفية
-        def _send_otp_email(otp_code, user_email):
-
-            try:
-
-              send_aidora_email(
-                  subject="OTP Verification",
-                  message=f"Your new OTP code is: {otp_code}",
-                  recipient=user_email,
-              )
-
-            except Exception:
-                logger.exception("Failed to resend OTP email")
-
-        Thread(
-            target=_send_otp_email,
-            args=(otp, user.email)
-        ).start()
-
-        return Response(
-            {
-                "message": "New OTP sent successfully"
-            },
-            status=status.HTTP_200_OK
-        )
-
+    Thread(target=_send_otp_email, args=(otp, user.email)).start()
     return Response(
-        serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
+        {"message": "If this account is eligible, a new OTP will be sent."},
+        status=status.HTTP_200_OK,
     )
+
+
 @extend_schema(tags=["Authentication"])
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([OTPVerificationThrottle])
 def verify_otp(request):
+    serializer = VerifyOTPSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = VerifyOTPSerializer(
-        data=request.data
-    )
+    email = serializer.validated_data["email"]
+    submitted_otp = serializer.validated_data["otp"]
 
-    if serializer.is_valid():
-
-        email = serializer.validated_data['email']
-
-        otp = serializer.validated_data['otp']
-
-        try:
-            user = User.objects.get(email=email)
-
-        except User.DoesNotExist:
-
+    with transaction.atomic():
+        user = User.objects.select_for_update().filter(email=email).first()
+        # Unknown accounts and wrong/expired codes share the same response.
+        if user is None:
             return Response(
-                {"error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # ✅ تحقق من OTP
-        if user.otp_code != otp:
-
+        if user.is_verified:
             return Response(
-                {"error": "Invalid OTP"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # ✅ تحقق من انتهاء الوقت
-        if timezone.now() > user.otp_expires_at:
-
+        now = timezone.now()
+        if user.otp_locked_until and user.otp_locked_until > now:
             return Response(
-                {"error": "OTP expired"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # ✅ تفعيل الحساب
+        otp_valid = (
+            bool(user.otp_code)
+            and user.otp_expires_at is not None
+            and user.otp_expires_at > now
+            and secrets.compare_digest(str(user.otp_code), str(submitted_otp))
+        )
+        if not otp_valid:
+            user.otp_failed_attempts += 1
+            if user.otp_failed_attempts >= 5:
+                user.otp_locked_until = (
+                    user.otp_expires_at
+                    if user.otp_expires_at and user.otp_expires_at > now
+                    else now + timedelta(minutes=12)
+                )
+            user.save(
+                update_fields=[
+                    "otp_failed_attempts",
+                    "otp_locked_until",
+                ]
+            )
+            return Response(
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         user.is_verified = True
-
         user.otp_code = None
-
         user.otp_expires_at = None
-
-        user.save()
-
-        return Response(
-            {
-                "message": "Account verified successfully"
-            },
-            status=status.HTTP_200_OK
+        user.otp_failed_attempts = 0
+        user.otp_locked_until = None
+        user.save(
+            update_fields=[
+                "is_verified",
+                "otp_code",
+                "otp_expires_at",
+                "otp_failed_attempts",
+                "otp_locked_until",
+            ]
         )
 
     return Response(
-        serializer.errors,
-        status=status.HTTP_400_BAD_REQUEST
+        {"message": "Account verified successfully"},
+        status=status.HTTP_200_OK,
     )
 
 
@@ -461,6 +507,12 @@ class VolunteerProfileViewSet(ViewSet):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def submit_volunteer_application(request, id):
+    if request.user.role != "volunteer":
+        return Response(
+            {"error": "Only volunteer accounts can submit volunteer applications."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     serializer = VolunteerApplicationSerializer(
         data=request.data,
         context={
@@ -530,70 +582,212 @@ def auth_me(request):
 
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@permission_classes([IsRole])
+@throttle_classes([VolunteerPINResendThrottle])
 def resend_pin(request):
     user = request.user
-
-    # تأكد أنه المستخدم عنده بروفايل متطوع
-    profile = getattr(user, "volunteer_profile", None)
-    if not profile:
+    if user.role != "volunteer":
         return Response(
-            {"detail": "Volunteer profile not found."},
-            status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Only volunteer accounts can request a verification PIN."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
+    # Fetch from the database instead of relying on a potentially cached
+    # reverse OneToOne relation attached to request.user.
+    profile = VolunteerProfile.objects.filter(user=user).only("id").first()
+    if profile is None:
+        return Response(
+            {"detail": "Volunteer profile not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
-    # توليد أو إعادة الـ PIN الحالي إذا صالح
-    pin = get_or_create_pin(profile)
+    from accounts.models import VolunteerApplication
+    with transaction.atomic():
+        profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
+        if profile.organization_id is None:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
+        has_approved_application = VolunteerApplication.objects.filter(
+            user=user,
+            organization_id=profile.organization_id,
+            status="approved",
+            is_verified=False,
+        ).exists()
+        if not has_approved_application:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        now = timezone.now()
+        window_started = profile.pin_resend_window_started_at
+        if window_started is None or now - window_started >= timedelta(hours=1):
+            profile.pin_resend_count = 0
+            profile.pin_resend_window_started_at = now
+
+        if profile.pin_resend_count >= 3:
+            return Response(
+                {"detail": "Too many PIN resend requests. Please try again later."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        profile.pin_resend_count += 1
+        update_fields = [
+            "pin_resend_count",
+            "pin_resend_window_started_at",
+            "updated_at",
+        ]
+
+        if profile.pin_locked_until and profile.pin_locked_until > now:
+            # A resend after lockout rotates the PIN instead of recycling it.
+            profile.verification_pin = None
+            profile.pin_expires_at = None
+            profile.pin_failed_attempts = 0
+            profile.pin_locked_until = None
+            update_fields.extend([
+                "verification_pin",
+                "pin_expires_at",
+                "pin_failed_attempts",
+                "pin_locked_until",
+            ])
+
+        profile.save(update_fields=update_fields)
+        pin = get_or_create_pin(profile)
 
     send_aidora_email(
-             subject="Aidora Verification PIN",
-             message=f"Your verification PIN is: {pin}",
-             recipient=user.email,
-         )
-    return Response({"detail": "Verification PIN resent successfully."}, status=status.HTTP_200_OK)
-resend_pin.allowed_roles = ["volunteer"]
-@api_view(['POST'])
+        subject="Aidora Verification PIN",
+        message=f"Your verification PIN is: {pin}",
+        recipient=user.email,
+    )
+    return Response(
+        {"detail": "Verification PIN sent successfully."},
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@permission_classes([IsRole])
+@throttle_classes([VolunteerPINVerificationThrottle])
 def verify_pin(request):
     user = request.user
-    input_pin = request.data.get('pin')
+    if user.role != "volunteer":
+        return Response(
+            {"detail": "Only volunteer accounts can verify a PIN."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
-    if not input_pin:
-        return Response({"detail": "PIN is required."}, status=status.HTTP_400_BAD_REQUEST)
+    input_pin = request.data.get("pin")
+    if input_pin is None:
+        return Response(
+            {"detail": "PIN is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-    profile = getattr(user, "volunteer_profile", None)
-    if not profile:
-        return Response({"detail": "Volunteer profile not found."}, status=status.HTTP_400_BAD_REQUEST)
+    profile = VolunteerProfile.objects.filter(user=user).only("id", "organization_id").first()
+    if profile is None:
+        return Response(
+            {"detail": "Volunteer profile not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    if profile.organization_id is None:
+        return Response(
+            {"detail": "An approved volunteer application is required."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
-    now = timezone.now()
-    if profile.verification_pin != input_pin:
-        return Response({"detail": "Invalid PIN."}, status=status.HTTP_400_BAD_REQUEST)
-    if profile.pin_expires_at < now:
-        return Response({"detail": "PIN has expired."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # ✅ تم التحقق بنجاح
-    profile.is_verified = True
-    profile.profile_completed = True
-
-    # ✅ اسند organization_id من الطلب الموافق عليه
-    from django.shortcuts import get_object_or_404
     from accounts.models import VolunteerApplication
-    application = get_object_or_404(
-    VolunteerApplication,
-    user=user,
-    status='approved'
+
+    with transaction.atomic():
+        # Lock the application first, then the profile, matching the approval flow.
+        application = VolunteerApplication.objects.select_for_update().filter(
+            user=user,
+            organization_id=profile.organization_id,
+            status="approved",
+            is_verified=False,
+        ).select_related("organization").order_by("-id").first()
+        if application is None:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
+        if profile.organization_id != application.organization_id:
+            return Response(
+                {"detail": "The approved organization changed. Request a new PIN."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        now = timezone.now()
+
+        if profile.pin_locked_until and profile.pin_locked_until > now:
+            return Response(
+                {"detail": "PIN verification is temporarily locked. Request a new PIN."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        pin_valid = (
+            bool(profile.verification_pin)
+            and profile.pin_expires_at is not None
+            and profile.pin_expires_at > now
+            and secrets.compare_digest(
+                str(profile.verification_pin),
+                str(input_pin),
+            )
+        )
+        if not pin_valid:
+            profile.pin_failed_attempts += 1
+            if profile.pin_failed_attempts >= 5:
+                profile.pin_locked_until = (
+                    profile.pin_expires_at
+                    if profile.pin_expires_at and profile.pin_expires_at > now
+                    else now + timezone.timedelta(minutes=10)
+                )
+            profile.save(
+                update_fields=[
+                    "pin_failed_attempts",
+                    "pin_locked_until",
+                    "updated_at",
+                ]
+            )
+            if profile.pin_failed_attempts >= 5:
+                return Response(
+                    {"detail": "PIN verification is locked. Request a new PIN."},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
+            return Response(
+                {"detail": "Invalid or expired PIN."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        application.is_verified = True
+        application.save(update_fields=["is_verified"])
+
+        profile.profile_completed = True
+        profile.organization = application.organization
+        profile.verification_pin = None
+        profile.pin_expires_at = None
+        profile.pin_failed_attempts = 0
+        profile.pin_locked_until = None
+        profile.save(
+            update_fields=[
+                "profile_completed",
+                "organization",
+                "verification_pin",
+                "pin_expires_at",
+                "pin_failed_attempts",
+                "pin_locked_until",
+                "updated_at",
+            ]
+        )
+
+    return Response(
+        {"detail": "PIN verified successfully and organisation assigned."},
+        status=status.HTTP_200_OK,
     )
-    profile.organization = application.organization
-    profile.save()
-
-    return Response({"detail": "PIN verified successfully and organisation assigned."}, status=200)
-verify_pin.allowed_roles = ["volunteer"]
-
 
 from rest_framework.exceptions import NotFound
 class VolunteerApplicationDetailView(RetrieveAPIView):
@@ -624,9 +818,15 @@ def volunteer_qr(request, volunteer_id):
     except VolunteerProfile.DoesNotExist:
         return Response({"error": "Volunteer not found"}, status=404)
 
-    # ✅ بعد ما صار موجود فينا نستخدمه
+    # Only the profile owner (or staff) may retrieve the QR.
     if not request.user.is_staff and profile.user.id != request.user.id:
         return Response({"error": "You are not allowed to view this QR."}, status=403)
+
+    if not profile.profile_completed:
+        return Response(
+            {"error": "Volunteer PIN verification is required before QR access."},
+            status=403,
+        )
 
     # توليد QR نصي إذا مش موجود
     if not profile.qr_code:
@@ -669,32 +869,30 @@ class UploadProfileImageAPIView(APIView):
 
     def patch(self, request):
         user = request.user
-        image = request.FILES.get('profile_image')
+        serializer = ProfileImageUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
 
-        if not image:
-            return Response({"error": "No image provided"}, status=400)
+        image = serializer.validated_data["profile_image"]
 
-        # 🔹 تحديد البروفايل حسب الدور + حماية
+        # Resolve only the authenticated user's own profile.
         try:
             if user.role == "volunteer":
                 profile = user.volunteer_profile
-
             elif user.role == "refugee":
                 profile = user.refugee_profile
-
             else:
                 return Response({"error": "Invalid role"}, status=400)
-
-        except:
+        except (VolunteerProfile.DoesNotExist, RefugeeProfile.DoesNotExist):
             return Response({"error": "Profile not found"}, status=404)
 
-        # 🔥 حذف الصورة القديمة إذا موجودة
-        if profile.profile_image:
-            profile.profile_image.delete(save=False)
-
-        # 🔥 حفظ الصورة الجديدة
+        # Keep the previous image until the replacement has been saved.
+        old_image = profile.profile_image
         profile.profile_image = image
-        profile.save()
+        profile.save(update_fields=["profile_image", "updated_at"])
+
+        if old_image:
+            old_image.delete(save=False)
 
         return Response({
             "message": "Profile image updated successfully",
@@ -853,10 +1051,13 @@ def reset_password(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # ✅ تغيير كلمة المرور
-        user.set_password(new_password)
+        # Change the password and revoke all outstanding refresh tokens atomically.
+        with transaction.atomic():
+            user.set_password(new_password)
+            user.save(update_fields=["password"])
 
-        user.save()
+            for outstanding_token in OutstandingToken.objects.filter(user=user):
+                BlacklistedToken.objects.get_or_create(token=outstanding_token)
 
         return Response(
             {

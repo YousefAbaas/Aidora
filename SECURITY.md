@@ -12,7 +12,8 @@ Please do **not** open a public issue. Email the maintainer (see the GitHub prof
 - No secrets are committed; configuration is read from environment variables (`SECRET_KEY` is mandatory at startup).
 - `DEBUG` defaults to `False`; CORS is only opened to all origins in debug mode.
 - Authentication uses short-lived JWT access tokens with refresh-token rotation.
-- Production database exports, keystores and credential files are git-ignored.
+- Production database exports, keystores and local environment files are git-ignored.
+- Docker Compose requires a database password from the local environment; PostgreSQL is published only on host loopback for local development.
 
 ## Known limitations
 

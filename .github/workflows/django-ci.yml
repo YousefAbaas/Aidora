@@ -29,7 +29,7 @@ jobs:
           --health-retries=5
 
     env:
-      SECRET_KEY: ci-test-secret-key
+      SECRET_KEY: ci-test-secret-key-for-aidora-jwt-signing-2026-secure
 
       DB_NAME: aidora_ci
       DB_USER: aidora_ci

@@ -1,3 +1,13 @@
+from django.db import transaction
+from rest_framework import generics
+from rest_framework.generics import ListAPIView
+from .models import Service
+from .serializers import (
+    ServiceTypeSerializer,
+    OrganizationCardSerializer,
+    OrganizationDetailSerializer,
+    TaskSerializer,
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -63,37 +73,40 @@ class OrganizationApplicationsAPIView(APIView):
         })
     
     def patch(self, request, pk):
-      organization = request.user.organization
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Application not found"}, status=404)
 
-      application = get_object_or_404(
-        VolunteerApplication,
-        id=pk,
-        organization=organization
+        new_status = request.data.get("status")
+        if new_status not in {"approved", "rejected"}:
+            return Response({"error": "Invalid status"}, status=400)
+
+        with transaction.atomic():
+            application = VolunteerApplication.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("user", "organization").first()
+
+            if application is None:
+                return Response({"error": "Application not found"}, status=404)
+
+            if application.status != "pending":
+                return Response(
+                    {"error": "Only pending applications can be updated"},
+                    status=400,
+                )
+
+            application.status = new_status
+            application.processed_at = now()
+            application.save(update_fields=["status", "processed_at", "is_verified"])
+
+        serializer = VolunteerApplicationDetailSerializer(
+            application,
+            context={"request": request},
         )
+        return Response(serializer.data)
 
-    # ❌ فقط pending
-      if application.status != "pending":
-        return Response({
-            "error": "Only pending applications can be updated"
-        }, status=400)
 
-      new_status = request.data.get("status")
-
-      if new_status not in ["approved", "rejected"]:
-        return Response({
-            "error": "Invalid status"
-        }, status=400)
-
-      application.status = new_status
-      application.processed_at = now()
-      application.save()
-
-    # 🔥 هون بتحطيه بدل message
-      serializer = VolunteerApplicationDetailSerializer(
-        application,
-        context={'request': request}
-       )
-      return Response(serializer.data)
 
 
 
@@ -159,14 +172,24 @@ class TaskReportAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
 
-    def get_object(self, pk):
-        return Task.objects.select_related(
+    def get_object(self, request, pk):
+        try:
+            organization = request.user.organization
+        except Organization.DoesNotExist:
+            return get_object_or_404(Task.objects.none(), id=pk)
+
+        queryset = Task.objects.filter(
+            service_request_id__organization=organization
+        ).select_related(
             'service_request_id',
             'volunteer_id'
-        ).get(id=pk)
+        ).filter(
+            volunteer_id__profile_completed=True,
+        )
+        return get_object_or_404(queryset, id=pk)
 
     def get(self, request, pk):
-        task = get_object_or_404(Task, id=pk)
+        task = self.get_object(request, pk)
 
         # 🔐 حماية
         if task.status != 'completed' or task.service_request_id.status != 'completed':
@@ -179,41 +202,59 @@ class TaskReportAPIView(APIView):
         return Response(serializer.data)
 
     def patch(self, request, pk):
-      task = get_object_or_404(Task, id=pk)
+        points = request.data.get("points")
+        if type(points) is not int or not 0 <= points <= 10000:
+            return Response(
+                {"error": "Points must be an integer between 0 and 10000"},
+                status=400,
+            )
 
-    # 🔐 حماية الحالة
-      if task.status != 'completed' or task.service_request_id.status != 'completed':
-        return Response(
-            {"error": "Cannot update before completion"},
-            status=403
-        )
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Task not found"}, status=404)
 
-    # 🚫 منع إعادة التقييم
-      if task.report_reviewed:
-        return Response(
-            {"error": "Already reviewed"},
-            status=400
-        )
+        with transaction.atomic():
+            task = Task.objects.select_for_update(of=("self",)).filter(
+                id=pk,
+                service_request_id__organization=organization,
+            ).select_related(
+                "service_request_id",
+            ).filter(
+                volunteer_id__profile_completed=True,
+            ).first()
 
-      volunteer = task.volunteer_id
-      if not volunteer:
-        return Response({"error": "No volunteer assigned"}, status=400)
+            if task is None:
+                return Response({"error": "Task not found"}, status=404)
 
-      points = request.data.get("points")
+            if (
+                task.status != "completed"
+                or task.service_request_id.status != "completed"
+            ):
+                return Response(
+                    {"error": "Cannot update before completion"},
+                    status=403,
+                )
 
-      if not isinstance(points, int):
-        return Response({"error": "Points must be integer"}, status=400)
+            if task.report_reviewed:
+                return Response({"error": "Already reviewed"}, status=400)
 
-    # 🔥 تخزين القيمة الجديدة
-      volunteer.points = points
-      volunteer.save()
+            if task.volunteer_id_id is None:
+                return Response({"error": "No volunteer assigned"}, status=400)
 
-    # 🔥 هون النقطة يلي بدك ياها 👇
-      task.report_reviewed = True
-      task.save()
+            volunteer = VolunteerProfile.objects.select_for_update().get(
+                pk=task.volunteer_id_id,
+                profile_completed=True,
+            )
+            task.volunteer_id = volunteer
+            volunteer.points = points
+            volunteer.save(update_fields=["points", "updated_at"])
 
-      serializer = TaskReportSerializer(task)
-      return Response(serializer.data)
+            task.report_reviewed = True
+            task.save(update_fields=["report_reviewed", "updated_at"])
+
+        serializer = TaskReportSerializer(task)
+        return Response(serializer.data)
+
     
 from .serializers import AssignTaskGetSerializer, AssignTaskResponseSerializer
 from accounts.models import Notification
@@ -236,62 +277,63 @@ class AssignTaskAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, request_id):
-        service_request = get_object_or_404(
-            ServiceRequest,
-            id=request_id,
-            organization=request.user.organization
-        )
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
-        # 🔐 لازم يكون approved
-        if service_request.status != 'approved':
-            return Response(
-                {"error": "Request must be approved first"},
-                status=400
-            )
-
-        # ❌ منع أكثر من Task
-        if Task.objects.filter(service_request_id=service_request).exists():
-            return Response(
-                {"error": "Task already assigned"},
-                status=400
-            )
-
-        # الحصول على بيانات المتطوع والعنوان
         volunteer_id = request.data.get("volunteer_id")
         title = request.data.get("title")
         instructions = request.data.get("instructions")
 
-        volunteer = get_object_or_404(
-            VolunteerProfile,
-            id=volunteer_id,
-            organization=request.user.organization
-        )
+        if not isinstance(title, str) or not title.strip() or len(title.strip()) > 255:
+            return Response({"error": "A task title of 1-255 characters is required"}, status=400)
+        if not isinstance(instructions, str) or not instructions.strip() or len(instructions.strip()) > 5000:
+            return Response({"error": "Task instructions of 1-5000 characters are required"}, status=400)
 
-        # إنشاء المهمة
-        task = Task.objects.create(
-            service_request_id=service_request,
-            volunteer_id=volunteer,
-            title=title,
-            instructions=instructions
-        )
+        with transaction.atomic():
+            service_request = get_object_or_404(
+                ServiceRequest.objects.select_for_update(),
+                id=request_id,
+                organization=organization,
+            )
 
-        # إشعار للمتطوع (إشعار إسناد المهمة)
-        notification_message = f"You can pick up the service request {service_request.service.name}. The task has been assigned to {volunteer.full_name}."
-        
-        # إضافة نوع الإشعار "assigned"
-        Notification.objects.create(
-            user=volunteer.user,
-            message=notification_message,
-            notification_type="assigned"  # نوع الإشعار "assigned"
-        )
+            if service_request.status != "approved":
+                return Response(
+                    {"error": "Request must be approved first"},
+                    status=400,
+                )
 
-        # الرد مع البيانات
+            if Task.objects.filter(service_request_id=service_request).exists():
+                return Response({"error": "Task already assigned"}, status=400)
+
+            # Serialize assignment with organization re-approval, which also
+            # locks and resets this volunteer profile.
+            volunteer = get_object_or_404(
+                VolunteerProfile.objects.select_for_update(),
+                id=volunteer_id,
+                organization=organization,
+                profile_completed=True,
+            )
+
+            task = Task.objects.create(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                title=title.strip(),
+                instructions=instructions.strip(),
+            )
+
+            Notification.objects.create(
+                user=volunteer.user,
+                message=(
+                    f"You can pick up the service request {service_request.service.name}. "
+                    f"The task has been assigned to {volunteer.full_name}."
+                ),
+                notification_type="assigned",
+            )
+
         serializer = AssignTaskResponseSerializer(task)
-        return Response(serializer.data, status=201)    
+        return Response(serializer.data, status=201)
 
-    
-from .serializers import TaskSerializer
-@extend_schema(tags=["Organizations"])
 class TaskListAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -331,7 +373,8 @@ class ReassignTaskAPIView(APIView):
         task = get_object_or_404(
             Task,
             id=task_id,
-            service_request_id__organization=request.user.organization
+            service_request_id__organization=request.user.organization,
+            volunteer_id__profile_completed=True,
         )
 
         # 🔒 فقط إذا كانت failed
@@ -365,7 +408,8 @@ class AssignTaskListAPIView(APIView):
         )
 
         volunteers = VolunteerProfile.objects.filter(
-            organization=request.user.organization
+            organization=request.user.organization,
+            profile_completed=True,
         )
 
         return Response({
@@ -380,71 +424,57 @@ class AssignTaskListAPIView(APIView):
         })
 
     def post(self, request):
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
         service_request_id = request.data.get("service_request_id")
         volunteer_id = request.data.get("volunteer_id")
         title = request.data.get("title")
         instructions = request.data.get("instructions")
 
-        service_request = get_object_or_404(
-            ServiceRequest,
-            id=service_request_id,
-            organization=request.user.organization,
-            status='approved'
-        )
+        if not isinstance(title, str) or not title.strip() or len(title.strip()) > 255:
+            return Response({"error": "A task title of 1-255 characters is required"}, status=400)
+        if not isinstance(instructions, str) or not instructions.strip() or len(instructions.strip()) > 5000:
+            return Response({"error": "Task instructions of 1-5000 characters are required"}, status=400)
 
-        if Task.objects.filter(
-            service_request_id=service_request
-        ).exists():
-            return Response(
-                {"error": "Task already assigned"},
-                status=400
+        with transaction.atomic():
+            service_request = get_object_or_404(
+                ServiceRequest.objects.select_for_update(),
+                id=service_request_id,
+                organization=organization,
+                status="approved",
             )
 
-        volunteer = get_object_or_404(
-            VolunteerProfile,
-            id=volunteer_id,
-            organization=request.user.organization
-        )
+            if Task.objects.filter(service_request_id=service_request).exists():
+                return Response({"error": "Task already assigned"}, status=400)
 
-        task = Task.objects.create(
-            service_request_id=service_request,
-            volunteer_id=volunteer,
-            title=title,
-            instructions=instructions
-        )
+            volunteer = get_object_or_404(
+                VolunteerProfile,
+                id=volunteer_id,
+                organization=organization,
+                profile_completed=True,
+            )
 
-        notification_message = (
-            f"You can pick up the service request "
-            f"{service_request.service.name}. "
-            f"The task has been assigned to "
-            f"{volunteer.full_name}."
-        )
+            task = Task.objects.create(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                title=title.strip(),
+                instructions=instructions.strip(),
+            )
 
-        Notification.objects.create(
-            user=volunteer.user,
-            message=notification_message,
-            notification_type="assigned"
-        )
+            Notification.objects.create(
+                user=volunteer.user,
+                message=(
+                    f"You can pick up the service request {service_request.service.name}. "
+                    f"The task has been assigned to {volunteer.full_name}."
+                ),
+                notification_type="assigned",
+            )
 
         serializer = AssignTaskResponseSerializer(task)
-
         return Response(serializer.data, status=201)
 
-#قسم شهد
-from django.shortcuts import render
-from rest_framework import generics
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
-from .models import Service
-from .models import Organization
-from .serializers import ServiceTypeSerializer
-from .serializers import OrganizationCardSerializer
-from .serializers import OrganizationDetailSerializer
-from .serializers import OrganizationSimpleSerializer
-@extend_schema(tags=["Organizations"])
 class ServiceTypeListAPIView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = ServiceTypeSerializer

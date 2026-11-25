@@ -2,6 +2,7 @@ from django.dispatch import receiver
 from django.conf import settings
 from .models import RefugeeProfile, VolunteerProfile, VolunteerApplication
 from django.db.models.signals import pre_save, post_save
+from django.db import transaction
 from .utils import send_verification_pin
 
 
@@ -51,10 +52,34 @@ def handle_application_approval(sender, instance, **kwargs):
     except VolunteerApplication.DoesNotExist:
         return
 
-    # detect transition to approved
+    # A new approval (including re-approval) must be verified for this
+    # organization; verification from a previous organization must not carry over.
     if old_instance.status != "approved" and instance.status == "approved":
-        profile = getattr(instance.user, "volunteer_profile", None)
-        if profile:
-            profile.organization_id = instance.organization_id
-            profile.save()
-            send_verification_pin(profile)
+        instance.is_verified = False
+        with transaction.atomic():
+            profile = VolunteerProfile.objects.select_for_update().filter(
+                user_id=instance.user_id
+            ).first()
+            if profile:
+                profile.organization_id = instance.organization_id
+                profile.profile_completed = False
+                profile.verification_pin = None
+                profile.pin_expires_at = None
+                profile.pin_failed_attempts = 0
+                profile.pin_locked_until = None
+                profile.qr_code = None
+                profile.save(
+                    update_fields=[
+                        "organization",
+                        "profile_completed",
+                        "verification_pin",
+                        "pin_expires_at",
+                        "pin_failed_attempts",
+                        "pin_locked_until",
+                        "qr_code",
+                        "updated_at",
+                    ]
+                )
+                transaction.on_commit(
+                    lambda: send_verification_pin(profile)
+                )

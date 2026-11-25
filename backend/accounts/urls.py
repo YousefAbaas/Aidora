@@ -2,11 +2,12 @@ from django.urls import path
 from .views import ( login_api ,logout_view, register_refugee , register_volunteer,resend_otp,forgot_password 
                     ,verify_otp,reset_password,
                     submit_volunteer_application,auth_me)
-from .views import CompleteRefugeeProfileView 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
+from .views import (
+    VerifiedTokenObtainPairView,
+    VerifiedTokenRefreshView,
 )
+from .views import CompleteRefugeeProfileView 
+
 from .views import (
     VolunteerProfileViewSet,
     VolunteerApplicationDetailView,
@@ -22,8 +23,8 @@ from .views import NotificationListAPIView
 
 urlpatterns = [
     # JWT endpoints
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/', VerifiedTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', VerifiedTokenRefreshView.as_view(), name='token_refresh'),
     path('login/', login_api, name='api-login'),
     path('logout/', logout_view),
     path('register/refugee/', register_refugee),

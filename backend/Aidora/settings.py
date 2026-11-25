@@ -172,7 +172,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.VerifiedJWTAuthentication",
     ),
     # Secure by default: public endpoints must opt in with AllowAny explicitly.
     "DEFAULT_PERMISSION_CLASSES": (
@@ -187,6 +187,10 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_THROTTLE_RATES": {
         "anon": "30/min",
+        "volunteer_pin_verify": "3/min",
+        "volunteer_pin_resend": "3/hour",
+        "otp_verify": "5/min",
+        "otp_resend": "3/hour",
     },
 }
 

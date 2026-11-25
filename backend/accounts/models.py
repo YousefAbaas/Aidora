@@ -22,6 +22,10 @@ class User(AbstractUser):
     otp_expires_at = models.DateTimeField(
     null=True,
     blank=True)
+    otp_failed_attempts = models.PositiveSmallIntegerField(default=0)
+    otp_locked_until = models.DateTimeField(null=True, blank=True)
+    otp_resend_count = models.PositiveSmallIntegerField(default=0)
+    otp_resend_window_started_at = models.DateTimeField(null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)
 class RefugeeProfile(models.Model):
@@ -53,6 +57,10 @@ class VolunteerProfile(models.Model):
     full_name = models.CharField(max_length=255)
     verification_pin = models.CharField(max_length=10, blank=True, null=True)
     pin_expires_at = models.DateTimeField(blank=True, null=True)
+    pin_failed_attempts = models.PositiveSmallIntegerField(default=0)
+    pin_locked_until = models.DateTimeField(blank=True, null=True)
+    pin_resend_count = models.PositiveSmallIntegerField(default=0)
+    pin_resend_window_started_at = models.DateTimeField(blank=True, null=True)
     organization = models.ForeignKey('organizations.Organization', on_delete=models.SET_NULL, null=True,blank=True)
     phone_number = models.CharField(max_length=20)
     gender = models.CharField(max_length=10, choices=(('male','Male'),('female','Female')))

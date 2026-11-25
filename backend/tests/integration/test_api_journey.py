@@ -1,15 +1,16 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 from django.test import override_settings
 from accounts.models import User
 
 @override_settings(SECURE_SSL_REDIRECT=False)
+@override_settings(SECURE_SSL_REDIRECT=False)
 class RefugeeAuthenticationJourneyTest(TestCase):
     """
     Integration journey:
 
-    Register → Login → JWT validation → Protected API
+    Register → OTP verification → Login → JWT validation → Protected API
     """
 
     def setUp(self):
@@ -37,7 +38,7 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         print(f"      → {label}: {value}")
 
     def test_refugee_authentication_journey(self):
-        total_steps = 4
+        total_steps = 5
 
         print()
         print("🚀 Refugee Authentication Journey")
@@ -129,9 +130,28 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         )
 
         # ==========================================================
-        # 2. LOGIN
+        # 2. OTP VERIFICATION
         # ==========================================================
-        self._step(2, total_steps, "🔐 Login")
+        self._step(2, total_steps, "📩 Verify OTP")
+
+        verify_response = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.email, "otp": user.otp_code},
+            format="json",
+        )
+        self.assertEqual(
+            verify_response.status_code,
+            200,
+            msg=f"OTP verification failed: {verify_response.data}",
+        )
+        user.refresh_from_db()
+        self.assertTrue(user.is_verified)
+        self._result("OTP verification", "successful ✅")
+
+        # ==========================================================
+        # 3. LOGIN
+        # ==========================================================
+        self._step(3, total_steps, "🔐 Login")
 
         login_response = self.client.post(
             "/api/auth/login/",
@@ -181,7 +201,7 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         # ==========================================================
         # 3. JWT VALIDATION
         # ==========================================================
-        self._step(3, total_steps, "🎫 Validate JWT")
+        self._step(4, total_steps, "🎫 Validate JWT")
 
         token = AccessToken(access_token)
         token_user_id = int(token["user_id"])
@@ -208,7 +228,7 @@ class RefugeeAuthenticationJourneyTest(TestCase):
         # ==========================================================
         # 4. PROTECTED API
         # ==========================================================
-        self._step(4, total_steps, "🛡️ Call protected API")
+        self._step(5, total_steps, "🛡️ Call protected API")
 
         self.client.credentials(
             HTTP_AUTHORIZATION=f"Bearer {access_token}"

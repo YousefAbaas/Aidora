@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.db import transaction
+from django.shortcuts import get_object_or_404, render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from organizations.models import Service, Organization, OrganizationService
 from .models import ServiceRequest
 from .serializers import ServiceRequestCreateSerializer
@@ -87,6 +89,8 @@ class VolunteerHomeAPIView(APIView):
 
     def get(self, request):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            raise PermissionDenied("Volunteer PIN verification is required.")
 
         # 🔹 معلومات المتطوع
         full_name = volunteer.full_name
@@ -97,7 +101,10 @@ class VolunteerHomeAPIView(APIView):
         volunteer.profile_image.url
               )
         # 🔹 كل المهام تبعه
-        tasks = Task.objects.filter(volunteer_id=volunteer)
+        tasks = Task.objects.filter(
+            volunteer_id=volunteer,
+            service_request_id__organization_id=volunteer.organization_id,
+        )
 
         # 🔹 الإحصائيات
         stats = tasks.aggregate(
@@ -134,10 +141,13 @@ class VolunteerTasksAPIView(ListAPIView):
 
     def get_queryset(self):
         volunteer = self.request.user.volunteer_profile
-        status_filter = self.request.query_params.get('status', 'all')
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            raise PermissionDenied("Volunteer PIN verification is required.")
 
+        status_filter = self.request.query_params.get('status', 'all')
         queryset = Task.objects.filter(
-            volunteer_id=volunteer
+            volunteer_id=volunteer,
+            service_request_id__organization_id=volunteer.organization_id,
         ).select_related('service_request_id')
 
         if status_filter != 'all':
@@ -158,56 +168,81 @@ class VolunteerTasksAPIView(ListAPIView):
 
 @extend_schema(tags=["Service Requests"])
 class TaskUpdateAPIView(APIView):
-    permission_classes=[IsAuthenticated,IsRole]
+    permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["volunteer"]
 
     def get(self, request, id):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            return Response({"error": "Volunteer PIN verification is required"}, status=403)
 
         try:
-            task = Task.objects.get(id=id, volunteer_id=volunteer, status='pending')
+            task = Task.objects.get(
+                id=id,
+                volunteer_id=volunteer,
+                service_request_id__organization_id=volunteer.organization_id,
+                status="pending",
+            )
         except Task.DoesNotExist:
             return Response({"error": "Task not found"}, status=404)
 
         return Response({
             "title": task.title,
-            "request_display": f"Request#{str(task.service_request_id.id).zfill(4)}"
+            "request_display": f"Request#{str(task.service_request_id.id).zfill(4)}",
         })
+
     def patch(self, request, id):
         volunteer = request.user.volunteer_profile
+        if not volunteer.profile_completed or volunteer.organization_id is None:
+            return Response({"error": "Volunteer PIN verification is required"}, status=403)
 
-        try:
-            task = Task.objects.get(id=id, volunteer_id=volunteer)
-        except Task.DoesNotExist:
-            return Response({"error": "Task not found"}, status=404)
+        with transaction.atomic():
+            task = Task.objects.select_for_update().filter(
+                id=id,
+                volunteer_id=volunteer,
+                service_request_id__organization_id=volunteer.organization_id,
+            ).first()
+            if task is None:
+                return Response({"error": "Task not found"}, status=404)
 
-        # يجب أن تكون الحالة pending فقط
-        if task.status != 'pending':
-            return Response({"error": "Only pending tasks can be updated"}, status=400)
+            if task.status != "pending":
+                return Response(
+                    {"error": "Only pending tasks can be updated"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        new_status = request.data.get('status')
-        reason = request.data.get('rejection_reason')
+            new_status = request.data.get("status")
+            if new_status not in {"failed", "completed"}:
+                return Response(
+                    {"error": "Status must be either 'failed' or 'completed'"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        
+            reason = request.data.get("rejection_reason")
+            if new_status == "failed":
+                if not isinstance(reason, str) or not reason.strip():
+                    return Response(
+                        {"error": "A rejection reason is required for failed status"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                if len(reason.strip()) > 2000:
+                    return Response(
+                        {"error": "Rejection reason must not exceed 2000 characters"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                task.rejection_reason = reason.strip()
+            else:
+                task.rejection_reason = ""
 
-        # إذا كان failed بتطلب السبب obligatory
-        if new_status == 'failed':
-            if not reason:
-                return Response({"error": "Rejection reason is required for failed status"}, status=400)
-            task.rejection_reason = reason
-        # إذا كان completed بنضع reason ل string فاضي
-        elif new_status == 'completed':
-            task.rejection_reason = ""
-
-        task.status = new_status
-        task.save()  # 🔥 updated_at بيتحدث هون تلقائي
+            task.status = new_status
+            task.save(update_fields=["status", "rejection_reason", "updated_at"])
 
         from .serializers import TaskUpdateSerializer
-        serializer = TaskUpdateSerializer(task, context={'request': request})
+
+        serializer = TaskUpdateSerializer(task, context={"request": request})
         return Response(serializer.data)
-    
-    
-    
+
+
 #شهد
 from django.shortcuts import render
 from rest_framework import generics
@@ -326,7 +361,10 @@ class ServiceRequestDetailAPIView(APIView):
     permission_classes = [IsRole]
     allowed_roles = ["refugee"]
     def get(self, request, pk):
-        service_request = ServiceRequest.objects.filter(id=pk).select_related(
+        service_request = ServiceRequest.objects.filter(
+            id=pk,
+            refugee__user=request.user,
+        ).select_related(
             "organization", "service", "refugee"
         ).first()
 
@@ -343,64 +381,81 @@ class ScanQRAPIView(APIView):
     allowed_roles = ["refugee"]
 
     def post(self, request, pk):
-
         qr_code = request.data.get("qr_code")
-
-        # 🔍 تحقق من وجود الطلب
-        # Only the refugee who owns the request may complete it. Requests of
-        # other users return the same 404 to avoid leaking which ids exist.
-        service_request = ServiceRequest.objects.filter(
-            id=pk, refugee__user=request.user
-        ).first()
-
-        if not service_request:
+        if not isinstance(qr_code, str) or not qr_code.strip() or len(qr_code) > 100:
             return Response(
-                {"error": "Request not found"},
-                status=404
+                {"error": "Invalid QR code for this request."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        qr_code = qr_code.strip()
 
-        # 🔍 تحقق من الحالة
-        if service_request.status == "completed":
-            return Response(
-                {"error": "Request already completed"},
-                status=400
-            )
+        # Lock the request so two concurrent scans cannot complete it twice.
+        with transaction.atomic():
+            service_request = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                refugee__user=request.user,
+            ).first()
 
-        if service_request.status != "approved":
-            return Response(
-                {"error": "Request is not approved"},
-                status=400
-            )
+            if not service_request:
+                return Response(
+                    {"error": "Request not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        # 🔍 تحقق من QR
-        volunteer = VolunteerProfile.objects.filter(
-            qr_code=qr_code
-        ).first()
+            if service_request.status == "completed":
+                return Response(
+                    {"error": "Request already completed"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        if not volunteer:
-            return Response(
-                {"error": "Invalid QR code"},
-                status=400
-            )
+            if service_request.status != "approved":
+                return Response(
+                    {"error": "Request is not approved"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        # 🔐 تحقق من المنظمة
-        if volunteer.organization != service_request.organization:
-            return Response(
-                {"error": "Unauthorized volunteer"},
-                status=403
-            )
+            # Never allow a missing/NULL QR value to match a profile whose
+            # QR has not been generated.
+            volunteer = VolunteerProfile.objects.filter(
+                qr_code=qr_code,
+                qr_code__isnull=False,
+                organization_id=service_request.organization_id,
+                profile_completed=True,
+            ).first()
 
-        # 🔥 تحديث الطلب
-        service_request.status = "completed"
-        service_request.received_at = now()
-        service_request.save()
+            if volunteer is None:
+                return Response(
+                    {"error": "Invalid QR code for this request."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        return Response({
-            "message": "Request completed successfully",
-            "request_id": f"R-{service_request.id}",
-            "status": service_request.status,
-            "received_at": service_request.received_at
-        }, status=200)
+            # Only the volunteer assigned to this request may confirm handover,
+            # and only after they have marked the assigned task completed.
+            assigned_completed_task = Task.objects.filter(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                status="completed",
+            ).exists()
+
+            if not assigned_completed_task:
+                return Response(
+                    {"error": "Invalid QR code for this request."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            service_request.status = "completed"
+            service_request.received_at = now()
+            service_request.save(update_fields=["status", "received_at", "updated_at"])
+
+        return Response(
+            {
+                "message": "Request completed successfully",
+                "request_id": f"R-{service_request.id}",
+                "status": service_request.status,
+                "received_at": service_request.received_at,
+            },
+            status=status.HTTP_200_OK,
+        )
 @extend_schema(tags=["Service Requests"])
 class RequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -494,21 +549,23 @@ class OrganizationRequestsAPIView(APIView):
         return Response(serializer.data)
 @extend_schema(tags=["Service Requests"])
 class RequestDetailsAPIView(APIView):
-      permission_classes = [IsAuthenticated, IsRole]
-      allowed_roles = ["organization"]
+    permission_classes = [IsAuthenticated, IsRole]
+    allowed_roles = ["organization"]
 
-      def get(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
+    def get(self, request, pk):
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
             return Response({"error": "Request not found"}, status=404)
 
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
-
-        serializer = RequestDetailsSerializer(req,context={"request": request})
+        req = get_object_or_404(
+            ServiceRequest.objects.filter(organization=organization).select_related(
+                "refugee", "service", "organization"
+            ),
+            id=pk,
+        )
+        serializer = RequestDetailsSerializer(req, context={"request": request})
         return Response(serializer.data)
+
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -519,34 +576,36 @@ class ApproveButtonAPIView(APIView):
     allowed_roles = ["organization"]
 
     def post(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
             return Response({"error": "Request not found"}, status=404)
 
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
+        with transaction.atomic():
+            req = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("refugee", "service", "organization").first()
+            if req is None:
+                return Response({"error": "Request not found"}, status=404)
 
-        
-        if req.status != "pending":
-            return Response({"error": "Request is not pending"}, status=400)
+            if req.status != "pending":
+                return Response({"error": "Request is not pending"}, status=400)
 
-        
-        req.status = "approved"
-        req.approved_at = timezone.now()
-        req.save()
-        
-        #test_user = User.objects.first()
-        Notification.objects.create(
-            user=req.refugee.user,
-            #user=test_user,
-            message=f"Your request has been approved by {req.organization.name} service {req.service.name}",
-            notification_type="approved"
-        )
+            req.status = "approved"
+            req.approved_at = timezone.now()
+            req.save(update_fields=["status", "approved_at", "updated_at"])
 
-        return Response({
-            "message": "Request approved successfully",}, status=200)
+            Notification.objects.create(
+                user=req.refugee.user,
+                message=(
+                    f"Your request has been approved by {req.organization.name} "
+                    f"for service {req.service.name}"
+                ),
+                notification_type="approved",
+            )
+
+        return Response({"message": "Request approved successfully"}, status=200)
+
 
 #كرمال زر رفض الطلب
 @extend_schema(tags=["Service Requests"])
@@ -555,40 +614,42 @@ class RejectButtonAPIView(APIView):
     allowed_roles = ["organization"]
 
     def post(self, request, pk):
-        try:
-            req = ServiceRequest.objects.get(id=pk)
-        except ServiceRequest.DoesNotExist:
-            return Response({"error": "Request not found"}, status=404)
-
-        #organization = Organization.objects.first()
-        if req.organization != request.user.organization:
-            return Response({"error": "Not allowed"}, status=403)
-
-        
-        if req.status != "pending":
-            return Response({"error": "Request is not pending"}, status=400)
-
-        
         serializer = RejectButtonSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        
-        req.status = "rejected"
-        req.rejection_reason = serializer.validated_data["rejection_reason"]
-        req.rejected_at = timezone.now()
-        req.save()
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
-        #test_user = User.objects.first()
-        Notification.objects.create(
-            #user=test_user,
-            user=req.refugee.user,
-            message=f"Your request has been approved by {req.organization.name} service {req.service.name}",
-            notification_type="rejected",
+        with transaction.atomic():
+            req = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("refugee", "service", "organization").first()
+            if req is None:
+                return Response({"error": "Request not found"}, status=404)
+
+            if req.status != "pending":
+                return Response({"error": "Request is not pending"}, status=400)
+
+            req.status = "rejected"
+            req.rejection_reason = serializer.validated_data["rejection_reason"]
+            req.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+            Notification.objects.create(
+                user=req.refugee.user,
+                message=(
+                    f"Your request has been rejected by {req.organization.name} "
+                    f"for service {req.service.name}"
+                ),
+                notification_type="rejected",
+            )
+
+        return Response(
+            {
+                "message": "Request rejected successfully",
+                "rejection_reason": req.rejection_reason,
+            },
+            status=200,
         )
-
-        return Response({
-            "message": "Request rejected successfully",
-            "rejection_reason": req.rejection_reason
-        }, status=200)
-    
