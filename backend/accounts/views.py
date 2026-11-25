@@ -612,24 +612,43 @@ def resend_pin(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
-    now = timezone.now()
-    if profile.pin_locked_until and profile.pin_locked_until > now:
-        # A resend after lockout rotates the PIN instead of recycling it.
-        profile.verification_pin = None
-        profile.pin_expires_at = None
-        profile.pin_failed_attempts = 0
-        profile.pin_locked_until = None
-        profile.save(
-            update_fields=[
+    with transaction.atomic():
+        profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
+        now = timezone.now()
+        window_started = profile.pin_resend_window_started_at
+        if window_started is None or now - window_started >= timedelta(hours=1):
+            profile.pin_resend_count = 0
+            profile.pin_resend_window_started_at = now
+
+        if profile.pin_resend_count >= 3:
+            return Response(
+                {"detail": "Too many PIN resend requests. Please try again later."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        profile.pin_resend_count += 1
+        update_fields = [
+            "pin_resend_count",
+            "pin_resend_window_started_at",
+            "updated_at",
+        ]
+
+        if profile.pin_locked_until and profile.pin_locked_until > now:
+            # A resend after lockout rotates the PIN instead of recycling it.
+            profile.verification_pin = None
+            profile.pin_expires_at = None
+            profile.pin_failed_attempts = 0
+            profile.pin_locked_until = None
+            update_fields.extend([
                 "verification_pin",
                 "pin_expires_at",
                 "pin_failed_attempts",
                 "pin_locked_until",
-                "updated_at",
-            ]
-        )
+            ])
 
-    pin = get_or_create_pin(profile)
+        profile.save(update_fields=update_fields)
+        pin = get_or_create_pin(profile)
+
     send_aidora_email(
         subject="Aidora Verification PIN",
         message=f"Your verification PIN is: {pin}",
