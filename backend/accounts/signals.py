@@ -80,4 +80,6 @@ def handle_application_approval(sender, instance, **kwargs):
                         "updated_at",
                     ]
                 )
-                send_verification_pin(profile)
+                transaction.on_commit(
+                    lambda: send_verification_pin(profile)
+                )
