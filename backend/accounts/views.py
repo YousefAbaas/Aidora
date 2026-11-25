@@ -598,6 +598,12 @@ def resend_pin(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
+    now = timezone.now()
+    if profile.pin_locked_until and profile.pin_locked_until > now:
+        # A resend after lockout rotates the PIN instead of recycling it.
+        profile.pin_expires_at = now
+        profile.save(update_fields=["pin_expires_at", "updated_at"])
+
     pin = get_or_create_pin(profile)
     send_aidora_email(
         subject="Aidora Verification PIN",
@@ -646,38 +652,70 @@ def verify_pin(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
-    now = timezone.now()
-    pin_valid = (
-        bool(profile.verification_pin)
-        and profile.pin_expires_at is not None
-        and profile.pin_expires_at > now
-        and secrets.compare_digest(
-            str(profile.verification_pin),
-            str(input_pin),
-        )
-    )
-    if not pin_valid:
-        return Response(
-            {"detail": "Invalid or expired PIN."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    with transaction.atomic():
+        profile = type(profile).objects.select_for_update().get(pk=profile.pk)
+        now = timezone.now()
 
-    application.is_verified = True
-    application.save(update_fields=["is_verified"])
+        if profile.pin_locked_until and profile.pin_locked_until > now:
+            return Response(
+                {"detail": "PIN verification is temporarily locked. Request a new PIN."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
 
-    profile.profile_completed = True
-    profile.organization = application.organization
-    profile.verification_pin = None
-    profile.pin_expires_at = None
-    profile.save(
-        update_fields=[
-            "profile_completed",
-            "organization",
-            "verification_pin",
-            "pin_expires_at",
-            "updated_at",
-        ]
-    )
+        pin_valid = (
+            bool(profile.verification_pin)
+            and profile.pin_expires_at is not None
+            and profile.pin_expires_at > now
+            and secrets.compare_digest(
+                str(profile.verification_pin),
+                str(input_pin),
+            )
+        )
+        if not pin_valid:
+            profile.pin_failed_attempts += 1
+            if profile.pin_failed_attempts >= 5:
+                profile.pin_locked_until = (
+                    profile.pin_expires_at
+                    if profile.pin_expires_at and profile.pin_expires_at > now
+                    else now + timezone.timedelta(minutes=10)
+                )
+            profile.save(
+                update_fields=[
+                    "pin_failed_attempts",
+                    "pin_locked_until",
+                    "updated_at",
+                ]
+            )
+            if profile.pin_failed_attempts >= 5:
+                return Response(
+                    {"detail": "PIN verification is locked. Request a new PIN."},
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
+            return Response(
+                {"detail": "Invalid or expired PIN."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        application.is_verified = True
+        application.save(update_fields=["is_verified"])
+
+        profile.profile_completed = True
+        profile.organization = application.organization
+        profile.verification_pin = None
+        profile.pin_expires_at = None
+        profile.pin_failed_attempts = 0
+        profile.pin_locked_until = None
+        profile.save(
+            update_fields=[
+                "profile_completed",
+                "organization",
+                "verification_pin",
+                "pin_expires_at",
+                "pin_failed_attempts",
+                "pin_locked_until",
+                "updated_at",
+            ]
+        )
 
     return Response(
         {"detail": "PIN verified successfully and organisation assigned."},
