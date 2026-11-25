@@ -286,7 +286,8 @@ class AssignTaskAPIView(APIView):
         volunteer = get_object_or_404(
             VolunteerProfile,
             id=volunteer_id,
-            organization=request.user.organization
+            organization=request.user.organization,
+            profile_completed=True,
         )
 
         # إنشاء المهمة
@@ -353,7 +354,8 @@ class ReassignTaskAPIView(APIView):
         task = get_object_or_404(
             Task,
             id=task_id,
-            service_request_id__organization=request.user.organization
+            service_request_id__organization=request.user.organization,
+            volunteer_id__profile_completed=True,
         )
 
         # 🔒 فقط إذا كانت failed
@@ -387,7 +389,8 @@ class AssignTaskListAPIView(APIView):
         )
 
         volunteers = VolunteerProfile.objects.filter(
-            organization=request.user.organization
+            organization=request.user.organization,
+            profile_completed=True,
         )
 
         return Response({
@@ -426,7 +429,8 @@ class AssignTaskListAPIView(APIView):
         volunteer = get_object_or_404(
             VolunteerProfile,
             id=volunteer_id,
-            organization=request.user.organization
+            organization=request.user.organization,
+            profile_completed=True,
         )
 
         task = Task.objects.create(
