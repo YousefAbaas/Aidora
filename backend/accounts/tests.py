@@ -580,6 +580,8 @@ class OTPVerificationSecurityTests(TestCase):
         self.assertEqual(self.user.otp_failed_attempts, 5)
         self.assertIsNotNone(self.user.otp_locked_until)
 
+        # Isolate the persisted account lock from the independent per-IP throttle.
+        cache.clear()
         sixth = self.client.post(
             "/api/auth/verify-otp/",
             {"email": self.user.email, "otp": "123456"},
