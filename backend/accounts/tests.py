@@ -501,6 +501,34 @@ class VolunteerPINSecurityTests(TestCase):
         self.assertIsNotNone(self.profile.verification_pin)
 
 
+    def test_pin_resend_account_limit_survives_cache_reset(self):
+        from django.core.cache import cache
+        from unittest.mock import patch
+
+        self.client.force_authenticate(user=self.user)
+        with patch("accounts.views.send_aidora_email") as send_email:
+            for _ in range(3):
+                cache.clear()
+                response = self.client.post(
+                    "/api/auth/resend-pin/",
+                    {},
+                    format="json",
+                )
+                self.assertEqual(response.status_code, 200)
+
+            cache.clear()
+            limited = self.client.post(
+                "/api/auth/resend-pin/",
+                {},
+                format="json",
+            )
+
+        self.assertEqual(limited.status_code, 429)
+        self.assertEqual(send_email.call_count, 3)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.pin_resend_count, 3)
+
+
 @override_settings(SECURE_SSL_REDIRECT=False)
 class OTPVerificationSecurityTests(TestCase):
     def setUp(self):
