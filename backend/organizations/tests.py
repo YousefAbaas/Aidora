@@ -234,6 +234,18 @@ class TaskReportScoringValidationTests(TestCase):
         self.volunteer.refresh_from_db()
         self.assertEqual(self.volunteer.points, 0)
 
+    def test_unverified_volunteer_cannot_be_scored(self):
+        self.volunteer.profile_completed = False
+        self.volunteer.save(update_fields=["profile_completed"])
+
+        response = self.client.patch(
+            self.url, {"points": 50}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.volunteer.refresh_from_db()
+        self.assertEqual(self.volunteer.points, 0)
+
     def test_accepts_maximum_allowed_points_and_prevents_second_review(self):
         response = self.client.patch(
             self.url, {"points": 10000}, format="json"
