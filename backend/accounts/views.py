@@ -687,18 +687,21 @@ def verify_pin(request):
         )
 
     from accounts.models import VolunteerApplication
-    application = VolunteerApplication.objects.filter(
-        user=user,
-        status="approved",
-    ).select_related("organization").order_by("-id").first()
-    if application is None:
-        return Response(
-            {"detail": "An approved volunteer application is required."},
-            status=status.HTTP_403_FORBIDDEN,
-        )
 
     with transaction.atomic():
-        profile = type(profile).objects.select_for_update().get(pk=profile.pk)
+        # Lock in the same order as organization approval: application first,
+        # then volunteer profile. This avoids lock-order inversions.
+        application = VolunteerApplication.objects.select_for_update().filter(
+            user=user,
+            status="approved",
+        ).select_related("organization").order_by("-id").first()
+        if application is None:
+            return Response(
+                {"detail": "An approved volunteer application is required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        profile = VolunteerProfile.objects.select_for_update().get(pk=profile.pk)
         now = timezone.now()
 
         if profile.pin_locked_until and profile.pin_locked_until > now:
