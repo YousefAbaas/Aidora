@@ -326,7 +326,10 @@ class ServiceRequestDetailAPIView(APIView):
     permission_classes = [IsRole]
     allowed_roles = ["refugee"]
     def get(self, request, pk):
-        service_request = ServiceRequest.objects.filter(id=pk).select_related(
+        service_request = ServiceRequest.objects.filter(
+            id=pk,
+            refugee__user=request.user,
+        ).select_related(
             "organization", "service", "refugee"
         ).first()
 
