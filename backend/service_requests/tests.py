@@ -116,3 +116,54 @@ class ScanQRAuthorizationTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self._token(self.owner)}")
         r = self.client.post(self.url, {"qr_code": "not-a-real-code"}, format="json", secure=True)
         self.assertEqual(r.status_code, 400)  # invalid QR, not an auth error
+
+
+class RefugeeRequestDetailAuthorizationTests(TestCase):
+    def setUp(self):
+        from rest_framework.test import APIClient
+
+        self.client = APIClient()
+        self.owner = User.objects.create_user(
+            username="request_owner",
+            email="request-owner@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        self.other_refugee = User.objects.create_user(
+            username="other_refugee",
+            email="other-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        service = Service.objects.create(
+            name="Private Request Service",
+            description="Test service",
+            icon="test",
+            service_type="food",
+        )
+        organization = Organization.objects.create(
+            name="Private Request Org",
+            title="Private Request Org",
+            about="Test organization",
+        )
+        self.request_record = ServiceRequest.objects.create(
+            refugee=self.owner.refugee_profile,
+            service=service,
+            organization=organization,
+            family_members=4,
+            description="Private request details",
+            location="Private location",
+            status="approved",
+        )
+        self.url = f"/api/requests/{self.request_record.id}/details/"
+
+    def test_other_refugee_cannot_read_request_details(self):
+        self.client.force_authenticate(user=self.other_refugee)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_request_owner_can_read_own_details(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["family_members"], 4)
