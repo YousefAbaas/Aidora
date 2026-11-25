@@ -29,7 +29,7 @@ The message asks:
 4. Whether all Fellowship gatherings/events can be attended remotely and whether any in-person attendance is essential.
 5. Whether Mozilla recommends additional eligibility guidance for Syria-resident applicants.
 
-**Current state:** sent successfully. An automated acknowledgement from Mozilla Fellowships was received at 21:06:48 UTC on 22 November 2026; it directs applicants to the FAQ/RFP but does not answer the Syria-specific questions. No substantive written response is recorded. The message does not establish eligibility. Do not self-certify legal eligibility or attempt to bypass restrictions through another person's account, a false residence, or an undisclosed intermediary.
+**Current state — checked 25 November 2026:** sent successfully. An automated acknowledgement from Mozilla Fellowships was received at 21:06:48 UTC on 22 November 2026; it directs applicants to the FAQ/RFP but does not answer the Syria-specific questions. A Gmail search through 25 November found no substantive written response. The message does not establish eligibility. Do not self-certify legal eligibility or attempt to bypass restrictions through another person's account, a false residence, or an undisclosed intermediary.
 
 ## 2. Track and host
 
