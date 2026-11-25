@@ -238,7 +238,10 @@ from threading import Thread
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
-from .utils import generate_o@api_view(["POST"])
+from .utils import generate_otp
+
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 @throttle_classes([OTPResendThrottle])
 def resend_otp(request):
