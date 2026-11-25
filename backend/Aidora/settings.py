@@ -187,6 +187,8 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_THROTTLE_RATES": {
         "anon": "30/min",
+        "volunteer_pin_verify": "3/min",
+        "volunteer_pin_resend": "3/hour",
     },
 }
 
