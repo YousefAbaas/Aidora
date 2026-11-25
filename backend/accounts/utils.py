@@ -1,7 +1,5 @@
 import logging
-import random
 import secrets
-from random import randint
 
 import requests
 from django.conf import settings
@@ -85,10 +83,14 @@ def generate_otp():
 
 def get_or_create_pin(volunteer_profile):
     now = timezone.now()
-    if volunteer_profile.verification_pin and volunteer_profile.pin_expires_at > now:
+    if (
+        volunteer_profile.verification_pin
+        and volunteer_profile.pin_expires_at
+        and volunteer_profile.pin_expires_at > now
+    ):
         return volunteer_profile.verification_pin
     else:
-        pin = f"{randint(1000, 9999)}"
+        pin = f"{secrets.randbelow(9000) + 1000}"
         volunteer_profile.verification_pin = pin
         volunteer_profile.pin_expires_at = now + timezone.timedelta(minutes=10)
         volunteer_profile.save()
