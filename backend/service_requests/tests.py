@@ -146,6 +146,9 @@ class RefugeeRequestDetailAuthorizationTests(TestCase):
             title="Private Request Org",
             about="Test organization",
         )
+        self.owner.refugee_profile.sector_name = "Test sector"
+        self.owner.refugee_profile.save(update_fields=["sector_name"])
+
         self.request_record = ServiceRequest.objects.create(
             refugee=self.owner.refugee_profile,
             service=service,
