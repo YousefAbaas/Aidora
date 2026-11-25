@@ -1,6 +1,6 @@
 # SRHIN host enquiry — sent record
 
-**Status: sent on 22 November 2026 at 21:06:48 UTC; awaiting response.**  
+**Status: sent on 22 November 2026 at 21:06:48 UTC; no reply found in Gmail as of 25 November 2026.**  
 **Recipient:** partnership@srhin.org  
 **Subject:** Potential Mozilla Foundation Embedded Fellowship collaboration (2027–2028)  
 **Channel:** Gmail  
@@ -18,6 +18,10 @@ The message asked SRHIN:
 3. Whether primarily remote work with the Nigeria-based team is feasible.
 4. What mentorship, team engagement, and community participation would be expected.
 5. Whether SRHIN would consider a short online introductory meeting.
+
+## Response status checked 25 November 2026
+
+A Gmail search for recent messages from SRHIN found no reply to this enquiry as of 25 November 2026. The sent message remains an exploratory request only; it is not evidence of host interest, endorsement, or a partnership.
 
 ## Follow-up protocol
 
