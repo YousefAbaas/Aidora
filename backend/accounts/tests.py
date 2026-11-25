@@ -546,7 +546,7 @@ class OTPVerificationSecurityTests(TestCase):
             {"email": self.user.email, "otp": "999999"},
             format="json",
         )
-        self.assertEqual(fifth.status_code, 429)
+        self.assertEqual(fifth.status_code, 400)
 
         self.user.refresh_from_db()
         self.assertEqual(self.user.otp_failed_attempts, 5)
@@ -557,7 +557,7 @@ class OTPVerificationSecurityTests(TestCase):
             {"email": self.user.email, "otp": "123456"},
             format="json",
         )
-        self.assertEqual(sixth.status_code, 429)
+        self.assertEqual(sixth.status_code, 400)
 
     def test_valid_otp_verifies_account_and_consumes_code(self):
         response = self.client.post(
@@ -621,7 +621,11 @@ class OTPVerificationSecurityTests(TestCase):
                 format="json",
             )
 
-        self.assertEqual(limited.status_code, 429)
+        self.assertEqual(limited.status_code, 200)
+        self.assertEqual(
+            limited.data["message"],
+            "If this account is eligible, a new OTP will be sent.",
+        )
         self.user.refresh_from_db()
         self.assertEqual(self.user.otp_resend_count, 3)
 
