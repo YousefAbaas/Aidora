@@ -1,9 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 from django.test import override_settings
 from accounts.models import User
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 @override_settings(SECURE_SSL_REDIRECT=False)
 class RefugeeAuthenticationJourneyTest(TestCase):
     """
@@ -14,7 +15,6 @@ class RefugeeAuthenticationJourneyTest(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.client.defaults["wsgi.url_scheme"] = "https"
 
         self.email = "integration_refugee@example.com"
         self.password = "TestPassword123!"
