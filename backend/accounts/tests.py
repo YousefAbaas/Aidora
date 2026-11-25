@@ -228,13 +228,13 @@ class ProfileImageUploadSecurityTests(TestCase):
         self.assertFalse(self.user.refugee_profile.profile_image)
 
     def test_valid_png_upload_succeeds(self):
-        image_bytes = bytes.fromhex(
-            "89504e470d0a1a0a0000000d4948445200000001000000010802000000"
-            "907753de0000000c4944415408d763f8cfc00000000300010018dd8db4"
-            "0000000049454e44ae426082"
-        )
+        import io
+        from PIL import Image
+
+        buffer = io.BytesIO()
+        Image.new("RGB", (2, 2), color="white").save(buffer, format="PNG")
         upload = SimpleUploadedFile(
-            "profile.png", image_bytes, content_type="image/png"
+            "profile.png", buffer.getvalue(), content_type="image/png"
         )
         response = self.client.patch(
             "/api/auth/profile/upload-image/",
