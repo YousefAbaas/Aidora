@@ -4,6 +4,9 @@ from django.test import TestCase
 from .models import Notification, RefugeeProfile, User
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 
 class UserModelTests(TestCase):
@@ -265,3 +268,40 @@ class VolunteerApplicationRoleAuthorizationTests(TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+
+class PasswordResetSessionRevocationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
+        self.user = User.objects.create_user(
+            username="password_reset_user",
+            email="password-reset@example.com",
+            password="OldPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+        self.refresh_token = str(RefreshToken.for_user(self.user))
+
+    def test_password_reset_blacklists_existing_refresh_tokens(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = PasswordResetTokenGenerator().make_token(self.user)
+
+        response = self.client.patch(
+            "/api/auth/reset-password/",
+            {
+                "uid": uid,
+                "token": token,
+                "new_password": "NewPassword456!",
+                "confirm_password": "NewPassword456!",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        refresh_response = self.client.post(
+            "/api/auth/token/refresh/",
+            {"refresh": self.refresh_token},
+            format="json",
+        )
+        self.assertEqual(refresh_response.status_code, 401)
