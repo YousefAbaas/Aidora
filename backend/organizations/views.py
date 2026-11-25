@@ -98,7 +98,7 @@ class OrganizationApplicationsAPIView(APIView):
 
             application.status = new_status
             application.processed_at = now()
-            application.save(update_fields=["status", "processed_at"])
+            application.save(update_fields=["status", "processed_at", "is_verified"])
 
         serializer = VolunteerApplicationDetailSerializer(
             application,
