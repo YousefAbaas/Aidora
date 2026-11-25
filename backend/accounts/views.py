@@ -16,6 +16,8 @@ from .models import VolunteerProfile
 from .serializers import ( VolunteerProfileSerializer ,VolunteerApplicationSerializer,
                          VolunteerProfileViewSerializer, VolunteerApplicationReadOnlySerializer)    
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.utils import get_or_create_pin
 from django.utils import timezone
 from .models import VolunteerApplication
@@ -33,6 +35,8 @@ from .serializers import (
     LoginResponseSerializer,
     ErrorResponseSerializer,
     AuthMeResponseSerializer,
+    MyTokenObtainPairSerializer,
+    VerifiedTokenRefreshSerializer,
 )
 from drf_spectacular.utils import (
     extend_schema,
@@ -50,6 +54,14 @@ class LoginSerializer(serializers.Serializer):
         write_only=True,
         style={"input_type": "password"},
     )
+class VerifiedTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class VerifiedTokenRefreshView(TokenRefreshView):
+    serializer_class = VerifiedTokenRefreshSerializer
+
+
 @extend_schema(
     tags=["Authentication"],
     summary="Login",
@@ -86,19 +98,25 @@ def login_api(request):
         )
 
     try:
-        user = User.objects.get(email=email)
+        candidate = User.objects.get(email=email)
     except User.DoesNotExist:
         return Response(
-            {"error": "Email does not exist"},
+            {"error": "Invalid email or password."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    user = authenticate(username=user.username, password=password)
+    user = authenticate(username=candidate.username, password=password)
 
     if user is None:
         return Response(
-            {"error": "Incorrect password"},
+            {"error": "Invalid email or password."},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not user.is_verified:
+        return Response(
+            {"error": "Please verify your email before logging in."},
+            status=status.HTTP_403_FORBIDDEN,
         )
 
     refresh = RefreshToken.for_user(user)
@@ -120,6 +138,12 @@ def logout_view(request):
     try:
         refresh_token = request.data["refresh"]
         token = RefreshToken(refresh_token)
+        token_user_id = token.get(api_settings.USER_ID_CLAIM)
+        if str(token_user_id) != str(request.user.pk):
+            return Response(
+                {"error": "Invalid token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         token.blacklist()
 
         return Response({"message": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
