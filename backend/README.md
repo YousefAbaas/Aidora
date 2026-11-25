@@ -338,11 +338,28 @@ The production API root responds with:
 
 ### With Docker Compose (recommended)
 
+1. Create a local environment file and replace every placeholder with unique values:
+
 ```bash
-docker-compose up --build
+cp .env.example .env
 ```
 
-This builds and runs both the Django API and a PostgreSQL container, linked over an internal Docker network (Django reaches the database via the service name `db`, not `localhost`). Data persists across container restarts via a named volume.
+Use a long, unique URL-safe value for `DB_PASSWORD` and a separate random value for `SECRET_KEY`. Do not commit `.env`.
+
+2. Create the external Docker resources referenced by the Compose file (only once):
+
+```bash
+docker volume create 0c0344486df5f235a9c469431a43cd421271b3309a2a2a643faa242b87a73427
+docker network create aidora-network
+```
+
+3. Start the services:
+
+```bash
+docker compose up --build
+```
+
+Compose reads `DB_NAME`, `DB_USER`, and `DB_PASSWORD` from the root `.env`. It fails rather than starting PostgreSQL with a default password when any required value is missing. Inside the Compose network, Django connects to PostgreSQL through the service name `aidora-postgres`; the PostgreSQL port is published only on host loopback (`127.0.0.1:5432`).
 
 The API is then available at:
 ```text
