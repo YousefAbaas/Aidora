@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .models import Organization, OrganizationService, Service
 from accounts.models import User
@@ -56,10 +56,10 @@ class OrganizationModelTests(TestCase):
                 service=self.service,
             )
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class TaskReportOrganizationAuthorizationTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.client.defaults["wsgi.url_scheme"] = "https"
         self.organization_user = User.objects.create_user(
             username="org_a_user",
             email="org-a@example.com",
