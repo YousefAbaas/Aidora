@@ -260,63 +260,61 @@ class AssignTaskAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, request_id):
-        service_request = get_object_or_404(
-            ServiceRequest,
-            id=request_id,
-            organization=request.user.organization
-        )
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
-        # 🔐 لازم يكون approved
-        if service_request.status != 'approved':
-            return Response(
-                {"error": "Request must be approved first"},
-                status=400
-            )
-
-        # ❌ منع أكثر من Task
-        if Task.objects.filter(service_request_id=service_request).exists():
-            return Response(
-                {"error": "Task already assigned"},
-                status=400
-            )
-
-        # الحصول على بيانات المتطوع والعنوان
         volunteer_id = request.data.get("volunteer_id")
         title = request.data.get("title")
         instructions = request.data.get("instructions")
 
-        volunteer = get_object_or_404(
-            VolunteerProfile,
-            id=volunteer_id,
-            organization=request.user.organization,
-            profile_completed=True,
-        )
+        if not isinstance(title, str) or not title.strip() or len(title.strip()) > 255:
+            return Response({"error": "A task title of 1-255 characters is required"}, status=400)
+        if not isinstance(instructions, str) or not instructions.strip() or len(instructions.strip()) > 5000:
+            return Response({"error": "Task instructions of 1-5000 characters are required"}, status=400)
 
-        # إنشاء المهمة
-        task = Task.objects.create(
-            service_request_id=service_request,
-            volunteer_id=volunteer,
-            title=title,
-            instructions=instructions
-        )
+        with transaction.atomic():
+            service_request = get_object_or_404(
+                ServiceRequest.objects.select_for_update(),
+                id=request_id,
+                organization=organization,
+            )
 
-        # إشعار للمتطوع (إشعار إسناد المهمة)
-        notification_message = f"You can pick up the service request {service_request.service.name}. The task has been assigned to {volunteer.full_name}."
-        
-        # إضافة نوع الإشعار "assigned"
-        Notification.objects.create(
-            user=volunteer.user,
-            message=notification_message,
-            notification_type="assigned"  # نوع الإشعار "assigned"
-        )
+            if service_request.status != "approved":
+                return Response(
+                    {"error": "Request must be approved first"},
+                    status=400,
+                )
 
-        # الرد مع البيانات
+            if Task.objects.filter(service_request_id=service_request).exists():
+                return Response({"error": "Task already assigned"}, status=400)
+
+            volunteer = get_object_or_404(
+                VolunteerProfile,
+                id=volunteer_id,
+                organization=organization,
+                profile_completed=True,
+            )
+
+            task = Task.objects.create(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                title=title.strip(),
+                instructions=instructions.strip(),
+            )
+
+            Notification.objects.create(
+                user=volunteer.user,
+                message=(
+                    f"You can pick up the service request {service_request.service.name}. "
+                    f"The task has been assigned to {volunteer.full_name}."
+                ),
+                notification_type="assigned",
+            )
+
         serializer = AssignTaskResponseSerializer(task)
-        return Response(serializer.data, status=201)    
+        return Response(serializer.data, status=201)
 
-    
-from .serializers import TaskSerializer
-@extend_schema(tags=["Organizations"])
 class TaskListAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
@@ -407,72 +405,57 @@ class AssignTaskListAPIView(APIView):
         })
 
     def post(self, request):
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Request not found"}, status=404)
 
         service_request_id = request.data.get("service_request_id")
         volunteer_id = request.data.get("volunteer_id")
         title = request.data.get("title")
         instructions = request.data.get("instructions")
 
-        service_request = get_object_or_404(
-            ServiceRequest,
-            id=service_request_id,
-            organization=request.user.organization,
-            status='approved'
-        )
+        if not isinstance(title, str) or not title.strip() or len(title.strip()) > 255:
+            return Response({"error": "A task title of 1-255 characters is required"}, status=400)
+        if not isinstance(instructions, str) or not instructions.strip() or len(instructions.strip()) > 5000:
+            return Response({"error": "Task instructions of 1-5000 characters are required"}, status=400)
 
-        if Task.objects.filter(
-            service_request_id=service_request
-        ).exists():
-            return Response(
-                {"error": "Task already assigned"},
-                status=400
+        with transaction.atomic():
+            service_request = get_object_or_404(
+                ServiceRequest.objects.select_for_update(),
+                id=service_request_id,
+                organization=organization,
+                status="approved",
             )
 
-        volunteer = get_object_or_404(
-            VolunteerProfile,
-            id=volunteer_id,
-            organization=request.user.organization,
-            profile_completed=True,
-        )
+            if Task.objects.filter(service_request_id=service_request).exists():
+                return Response({"error": "Task already assigned"}, status=400)
 
-        task = Task.objects.create(
-            service_request_id=service_request,
-            volunteer_id=volunteer,
-            title=title,
-            instructions=instructions
-        )
+            volunteer = get_object_or_404(
+                VolunteerProfile,
+                id=volunteer_id,
+                organization=organization,
+                profile_completed=True,
+            )
 
-        notification_message = (
-            f"You can pick up the service request "
-            f"{service_request.service.name}. "
-            f"The task has been assigned to "
-            f"{volunteer.full_name}."
-        )
+            task = Task.objects.create(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                title=title.strip(),
+                instructions=instructions.strip(),
+            )
 
-        Notification.objects.create(
-            user=volunteer.user,
-            message=notification_message,
-            notification_type="assigned"
-        )
+            Notification.objects.create(
+                user=volunteer.user,
+                message=(
+                    f"You can pick up the service request {service_request.service.name}. "
+                    f"The task has been assigned to {volunteer.full_name}."
+                ),
+                notification_type="assigned",
+            )
 
         serializer = AssignTaskResponseSerializer(task)
-
         return Response(serializer.data, status=201)
 
-#قسم شهد
-from django.shortcuts import render
-from rest_framework import generics
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
-from .models import Service
-from .models import Organization
-from .serializers import ServiceTypeSerializer
-from .serializers import OrganizationCardSerializer
-from .serializers import OrganizationDetailSerializer
-from .serializers import OrganizationSimpleSerializer
-@extend_schema(tags=["Organizations"])
 class ServiceTypeListAPIView(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = ServiceTypeSerializer
