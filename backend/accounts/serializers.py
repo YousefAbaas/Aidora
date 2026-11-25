@@ -59,6 +59,10 @@ class ProfileImageUploadSerializer(serializers.Serializer):
                     raise serializers.ValidationError(
                         "Only JPEG, PNG, and WebP images are supported."
                     )
+                if image.width * image.height > 20_000_000:
+                    raise serializers.ValidationError(
+                        "Profile images must not exceed 20 megapixels."
+                    )
         except serializers.ValidationError:
             raise
         except Exception as exc:
