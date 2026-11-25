@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes, throttle_cla
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
+import secrets
 from django.conf import settings
 from .serializers import RefugeeProfileCompleteSerializer
 from .serializers import RegisterSerializer
@@ -661,14 +662,15 @@ def verify_pin(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    profile.is_verified = True
+    application.is_verified = True
+    application.save(update_fields=["is_verified"])
+
     profile.profile_completed = True
     profile.organization = application.organization
     profile.verification_pin = None
     profile.pin_expires_at = None
     profile.save(
         update_fields=[
-            "is_verified",
             "profile_completed",
             "organization",
             "verification_pin",
