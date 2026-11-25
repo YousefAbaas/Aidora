@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import RefugeeProfile ,RefugeeFamilyMember,VolunteerProfile
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.exceptions import InvalidToken
 from .models import VolunteerApplication
 from organizations.models import Organization, OrganizationService
 from rest_framework import serializers
@@ -159,16 +161,31 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # هنا ممكن تضيف حقول إضافية مثل role
         token['role'] = user.role
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # إضافة role في response
+        if not self.user.is_verified:
+            raise InvalidToken("Email verification is required before login.")
         data['role'] = self.user.role
-        # الآن data يحتوي على 'access', 'refresh', 'role'
         return data
+
+
+class VerifiedTokenRefreshSerializer(TokenRefreshSerializer):
+    """Refuse refreshes for accounts that have not completed email verification."""
+
+    def validate(self, attrs):
+        refresh = self.token_class(attrs["refresh"])
+        user_id = refresh.get(api_settings.USER_ID_CLAIM)
+        user = User.objects.filter(
+            **{api_settings.USER_ID_FIELD: user_id}
+        ).first()
+
+        if user is None or not user.is_active or not user.is_verified:
+            raise InvalidToken("The account is not active and verified.")
+
+        return super().validate(attrs)
 
 
 from rest_framework import serializers
