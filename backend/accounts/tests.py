@@ -499,3 +499,150 @@ class VolunteerPINSecurityTests(TestCase):
         self.assertEqual(self.profile.pin_failed_attempts, 0)
         self.assertIsNone(self.profile.pin_locked_until)
         self.assertIsNotNone(self.profile.verification_pin)
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class OTPVerificationSecurityTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+        from django.core.cache import cache
+        from django.utils import timezone
+
+        cache.clear()
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="otp_security_user",
+            email="otp-security@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=False,
+        )
+        self.user.otp_code = "123456"
+        self.user.otp_expires_at = timezone.now() + timedelta(minutes=12)
+        self.user.save(update_fields=["otp_code", "otp_expires_at"])
+
+    def test_otp_wrong_attempts_persistently_lock_the_account(self):
+        from django.core.cache import cache
+
+        for _ in range(3):
+            response = self.client.post(
+                "/api/auth/verify-otp/",
+                {"email": self.user.email, "otp": "999999"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, 400)
+
+        # Simulate a different application worker with an empty local cache.
+        cache.clear()
+        fourth = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.user.email, "otp": "999999"},
+            format="json",
+        )
+        self.assertEqual(fourth.status_code, 400)
+
+        fifth = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.user.email, "otp": "999999"},
+            format="json",
+        )
+        self.assertEqual(fifth.status_code, 429)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.otp_failed_attempts, 5)
+        self.assertIsNotNone(self.user.otp_locked_until)
+
+        sixth = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.user.email, "otp": "123456"},
+            format="json",
+        )
+        self.assertEqual(sixth.status_code, 429)
+
+    def test_valid_otp_verifies_account_and_consumes_code(self):
+        response = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.user.email, "otp": "123456"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_verified)
+        self.assertIsNone(self.user.otp_code)
+        self.assertIsNone(self.user.otp_expires_at)
+        self.assertEqual(self.user.otp_failed_attempts, 0)
+        self.assertIsNone(self.user.otp_locked_until)
+
+    def test_resend_otp_rotates_code_and_clears_lockout(self):
+        from datetime import timedelta
+        from unittest.mock import patch
+        from django.utils import timezone
+
+        self.user.otp_failed_attempts = 5
+        self.user.otp_locked_until = timezone.now() + timedelta(minutes=10)
+        self.user.save(update_fields=["otp_failed_attempts", "otp_locked_until"])
+
+        with patch("accounts.views.Thread") as thread:
+            response = self.client.post(
+                "/api/auth/resend-otp/",
+                {"email": self.user.email},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        thread.assert_called_once()
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.otp_failed_attempts, 0)
+        self.assertIsNone(self.user.otp_locked_until)
+        self.assertEqual(self.user.otp_resend_count, 1)
+        self.assertIsNotNone(self.user.otp_code)
+        self.assertIsNotNone(self.user.otp_expires_at)
+        self.assertNotEqual(self.user.otp_code, "123456")
+
+    def test_resend_account_limit_survives_cache_reset(self):
+        from unittest.mock import patch
+        from django.core.cache import cache
+
+        with patch("accounts.views.Thread"):
+            for _ in range(3):
+                cache.clear()
+                response = self.client.post(
+                    "/api/auth/resend-otp/",
+                    {"email": self.user.email},
+                    format="json",
+                )
+                self.assertEqual(response.status_code, 200)
+
+            cache.clear()
+            limited = self.client.post(
+                "/api/auth/resend-otp/",
+                {"email": self.user.email},
+                format="json",
+            )
+
+        self.assertEqual(limited.status_code, 429)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.otp_resend_count, 3)
+
+    def test_resend_does_not_disclose_unknown_or_verified_accounts(self):
+        from unittest.mock import patch
+
+        with patch("accounts.views.Thread"):
+            unknown = self.client.post(
+                "/api/auth/resend-otp/",
+                {"email": "unknown-otp@example.com"},
+                format="json",
+            )
+            self.assertEqual(unknown.status_code, 200)
+
+            self.user.is_verified = True
+            self.user.save(update_fields=["is_verified"])
+            verified = self.client.post(
+                "/api/auth/resend-otp/",
+                {"email": self.user.email},
+                format="json",
+            )
+
+        self.assertEqual(verified.status_code, 200)
+        self.assertEqual(unknown.data["message"], verified.data["message"])
