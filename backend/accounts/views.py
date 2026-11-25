@@ -329,8 +329,8 @@ def verify_otp(request):
 
         if user.is_verified:
             return Response(
-                {"message": "Account verified successfully"},
-                status=status.HTTP_200_OK,
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         now = timezone.now()
