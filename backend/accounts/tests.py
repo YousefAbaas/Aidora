@@ -343,9 +343,84 @@ class VolunteerPINSecurityTests(TestCase):
             i_agree_terms=True,
             status="approved",
         )
+        self.profile.organization = self.organization
         self.profile.verification_pin = "1234"
         self.profile.pin_expires_at = timezone.now() + timedelta(minutes=10)
-        self.profile.save(update_fields=["verification_pin", "pin_expires_at"])
+        self.profile.save(
+            update_fields=["organization", "verification_pin", "pin_expires_at"]
+        )
+
+    def test_pin_verifies_only_the_current_organizations_application(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from accounts.models import VolunteerApplication
+        from organizations.models import Organization
+
+        other_organization = Organization.objects.create(
+            name="Newer PIN Organization",
+            title="Newer PIN Organization",
+            about="A second organization application",
+        )
+        other_application = VolunteerApplication.objects.create(
+            user=self.user,
+            organization=other_organization,
+            phone_number="123456789",
+            why_volunteer="I want to help another organization.",
+            i_commit=True,
+            i_agree_terms=True,
+            status="approved",
+        )
+        self.profile.organization = self.organization
+        self.profile.verification_pin = "1234"
+        self.profile.pin_expires_at = timezone.now() + timedelta(minutes=10)
+        self.profile.save(
+            update_fields=["organization", "verification_pin", "pin_expires_at"]
+        )
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            "/api/auth/verify-pin/", {"pin": "1234"}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.application.refresh_from_db()
+        other_application.refresh_from_db()
+        self.profile.refresh_from_db()
+        self.assertTrue(self.application.is_verified)
+        self.assertFalse(other_application.is_verified)
+        self.assertEqual(self.profile.organization, self.organization)
+
+    def test_pin_resend_cannot_be_triggered_by_another_organizations_application(self):
+        from unittest.mock import patch
+        from accounts.models import VolunteerApplication
+        from organizations.models import Organization
+
+        self.application.is_verified = True
+        self.application.save(update_fields=["is_verified"])
+        other_organization = Organization.objects.create(
+            name="Other Approved PIN Organization",
+            title="Other Approved PIN Organization",
+            about="A different approved organization",
+        )
+        VolunteerApplication.objects.create(
+            user=self.user,
+            organization=other_organization,
+            phone_number="123456789",
+            why_volunteer="I want to help another organization.",
+            i_commit=True,
+            i_agree_terms=True,
+            status="approved",
+            is_verified=False,
+        )
+        self.profile.organization = self.organization
+        self.profile.save(update_fields=["organization"])
+        self.client.force_authenticate(user=self.user)
+
+        with patch("accounts.views.send_aidora_email") as send_email:
+            response = self.client.post("/api/auth/resend-pin/", {}, format="json")
+
+        self.assertEqual(response.status_code, 403)
+        send_email.assert_not_called()
 
     def test_refugee_cannot_verify_volunteer_pin(self):
         refugee = User.objects.create_user(
