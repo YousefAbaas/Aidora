@@ -2,6 +2,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from .models import Notification, RefugeeProfile, User
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class UserModelTests(TestCase):
@@ -86,3 +88,92 @@ class UserModelTests(TestCase):
 
         self.assertFalse(notification.is_read)
         self.assertEqual(notification.user, user)
+
+
+class VerifiedJWTEndpointTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.unverified = User.objects.create_user(
+            username="unverified",
+            email="unverified@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=False,
+        )
+        self.verified = User.objects.create_user(
+            username="verified",
+            email="verified@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+
+    def test_custom_login_rejects_unverified_account(self):
+        response = self.client.post(
+            "/api/auth/login/",
+            {"email": self.unverified.email, "password": "TestPassword123!"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_standard_jwt_obtain_route_rejects_unverified_account(self):
+        response = self.client.post(
+            "/api/auth/token/",
+            {"username": self.unverified.username, "password": "TestPassword123!"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_refresh_route_rejects_unverified_account(self):
+        refresh = str(RefreshToken.for_user(self.unverified))
+        response = self.client.post(
+            "/api/auth/token/refresh/",
+            {"refresh": refresh},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_verified_account_can_obtain_and_refresh_tokens(self):
+        obtain = self.client.post(
+            "/api/auth/token/",
+            {"username": self.verified.username, "password": "TestPassword123!"},
+            format="json",
+        )
+        self.assertEqual(obtain.status_code, 200)
+        self.assertIn("access", obtain.data)
+        self.assertIn("refresh", obtain.data)
+        self.assertEqual(obtain.data["role"], "refugee")
+
+        refresh = self.client.post(
+            "/api/auth/token/refresh/",
+            {"refresh": obtain.data["refresh"]},
+            format="json",
+        )
+        self.assertEqual(refresh.status_code, 200)
+        self.assertIn("access", refresh.data)
+
+    def test_logout_cannot_blacklist_another_users_refresh_token(self):
+        other_refresh = str(RefreshToken.for_user(self.verified))
+        actor = User.objects.create_user(
+            username="actor",
+            email="actor@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+        actor_access = str(RefreshToken.for_user(actor).access_token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {actor_access}")
+
+        response = self.client.post(
+            "/api/auth/logout/",
+            {"refresh": other_refresh},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        refresh_response = self.client.post(
+            "/api/auth/token/refresh/",
+            {"refresh": other_refresh},
+            format="json",
+        )
+        self.assertEqual(refresh_response.status_code, 200)
