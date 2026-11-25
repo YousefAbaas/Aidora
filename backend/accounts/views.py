@@ -606,6 +606,7 @@ def resend_pin(request):
     has_approved_application = VolunteerApplication.objects.filter(
         user=user,
         status="approved",
+        is_verified=False,
     ).exists()
     if not has_approved_application:
         return Response(
@@ -694,6 +695,7 @@ def verify_pin(request):
         application = VolunteerApplication.objects.select_for_update().filter(
             user=user,
             status="approved",
+            is_verified=False,
         ).select_related("organization").order_by("-id").first()
         if application is None:
             return Response(
