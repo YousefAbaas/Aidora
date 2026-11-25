@@ -657,6 +657,25 @@ class OTPVerificationSecurityTests(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.otp_resend_count, 3)
 
+    def test_verify_does_not_disclose_unknown_or_verified_accounts(self):
+        unknown = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": "unknown-otp@example.com", "otp": "123456"},
+            format="json",
+        )
+
+        self.user.is_verified = True
+        self.user.save(update_fields=["is_verified"])
+        verified = self.client.post(
+            "/api/auth/verify-otp/",
+            {"email": self.user.email, "otp": "999999"},
+            format="json",
+        )
+
+        self.assertEqual(unknown.status_code, 400)
+        self.assertEqual(verified.status_code, 400)
+        self.assertEqual(unknown.data, verified.data)
+
     def test_resend_does_not_disclose_unknown_or_verified_accounts(self):
         from unittest.mock import patch
 
