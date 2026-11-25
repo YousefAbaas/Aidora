@@ -59,6 +59,8 @@ class VolunteerProfile(models.Model):
     pin_expires_at = models.DateTimeField(blank=True, null=True)
     pin_failed_attempts = models.PositiveSmallIntegerField(default=0)
     pin_locked_until = models.DateTimeField(blank=True, null=True)
+    pin_resend_count = models.PositiveSmallIntegerField(default=0)
+    pin_resend_window_started_at = models.DateTimeField(blank=True, null=True)
     organization = models.ForeignKey('organizations.Organization', on_delete=models.SET_NULL, null=True,blank=True)
     phone_number = models.CharField(max_length=20)
     gender = models.CharField(max_length=10, choices=(('male','Male'),('female','Female')))
