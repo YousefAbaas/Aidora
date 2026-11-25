@@ -93,7 +93,17 @@ def get_or_create_pin(volunteer_profile):
         pin = f"{secrets.randbelow(9000) + 1000}"
         volunteer_profile.verification_pin = pin
         volunteer_profile.pin_expires_at = now + timezone.timedelta(minutes=10)
-        volunteer_profile.save()
+        volunteer_profile.pin_failed_attempts = 0
+        volunteer_profile.pin_locked_until = None
+        volunteer_profile.save(
+            update_fields=[
+                "verification_pin",
+                "pin_expires_at",
+                "pin_failed_attempts",
+                "pin_locked_until",
+                "updated_at",
+            ]
+        )
         return pin
 
 def send_verification_pin(volunteer_profile):
