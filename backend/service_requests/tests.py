@@ -286,6 +286,9 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
             title="Task Transition Org",
             about="Task transition tests",
         )
+        other_profile = self.other_volunteer.volunteer_profile
+        other_profile.organization = organization
+        other_profile.save(update_fields=["organization"])
         service = Service.objects.create(
             name="Task Transition Service",
             description="Test service",
