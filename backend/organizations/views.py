@@ -64,37 +64,40 @@ class OrganizationApplicationsAPIView(APIView):
         })
     
     def patch(self, request, pk):
-      organization = request.user.organization
+        organization = getattr(request.user, "organization", None)
+        if organization is None:
+            return Response({"error": "Application not found"}, status=404)
 
-      application = get_object_or_404(
-        VolunteerApplication,
-        id=pk,
-        organization=organization
+        new_status = request.data.get("status")
+        if new_status not in {"approved", "rejected"}:
+            return Response({"error": "Invalid status"}, status=400)
+
+        with transaction.atomic():
+            application = VolunteerApplication.objects.select_for_update().filter(
+                id=pk,
+                organization=organization,
+            ).select_related("user", "organization").first()
+
+            if application is None:
+                return Response({"error": "Application not found"}, status=404)
+
+            if application.status != "pending":
+                return Response(
+                    {"error": "Only pending applications can be updated"},
+                    status=400,
+                )
+
+            application.status = new_status
+            application.processed_at = now()
+            application.save(update_fields=["status", "processed_at"])
+
+        serializer = VolunteerApplicationDetailSerializer(
+            application,
+            context={"request": request},
         )
+        return Response(serializer.data)
 
-    # ❌ فقط pending
-      if application.status != "pending":
-        return Response({
-            "error": "Only pending applications can be updated"
-        }, status=400)
 
-      new_status = request.data.get("status")
-
-      if new_status not in ["approved", "rejected"]:
-        return Response({
-            "error": "Invalid status"
-        }, status=400)
-
-      application.status = new_status
-      application.processed_at = now()
-      application.save()
-
-    # 🔥 هون بتحطيه بدل message
-      serializer = VolunteerApplicationDetailSerializer(
-        application,
-        context={'request': request}
-       )
-      return Response(serializer.data)
 
 
 
