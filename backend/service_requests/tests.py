@@ -301,8 +301,10 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
             location="Test location",
             status="approved",
         )
-        self.volunteer_user.volunteer_profile.profile_completed = True
-        self.volunteer_user.volunteer_profile.save(update_fields=["profile_completed"])
+        volunteer_profile = self.volunteer_user.volunteer_profile
+        volunteer_profile.organization = organization
+        volunteer_profile.profile_completed = True
+        volunteer_profile.save(update_fields=["organization", "profile_completed"])
         self.task = Task.objects.create(
             service_request_id=self.request_record,
             volunteer_id=self.volunteer_user.volunteer_profile,
@@ -374,6 +376,59 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, "pending")
 
+    def test_unverified_volunteer_cannot_read_task_list_or_home(self):
+        profile = self.volunteer_user.volunteer_profile
+        profile.profile_completed = False
+        profile.save(update_fields=["profile_completed"])
+        self.client.force_authenticate(user=self.volunteer_user)
+
+        list_response = self.client.get("/api/requests/volunteer/tasks/")
+        home_response = self.client.get("/api/requests/volunteer/home/")
+
+        self.assertEqual(list_response.status_code, 403)
+        self.assertEqual(home_response.status_code, 403)
+
+    def test_volunteer_cannot_read_or_update_tasks_from_a_previous_organization(self):
+        new_organization = Organization.objects.create(
+            name="New Task Transition Org",
+            title="New Task Transition Org",
+            about="New organization after transfer",
+        )
+        profile = self.volunteer_user.volunteer_profile
+        profile.organization = new_organization
+        profile.profile_completed = True
+        profile.save(update_fields=["organization", "profile_completed"])
+        self.client.force_authenticate(user=self.volunteer_user)
+
+        list_response = self.client.get("/api/requests/volunteer/tasks/")
+        home_response = self.client.get("/api/requests/volunteer/home/")
+        detail_response = self.client.get(self.url)
+        update_response = self.client.patch(
+            self.url, {"status": "completed"}, format="json"
+        )
+
+        self.assertEqual(list_response.status_code, 200)
+        self.assertEqual(list_response.data["count"], 0)
+        self.assertEqual(home_response.status_code, 200)
+        self.assertEqual(home_response.data["recent_tasks"], [])
+        self.assertEqual(detail_response.status_code, 404)
+        self.assertEqual(update_response.status_code, 404)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, "pending")
+
+    def test_verified_volunteer_can_read_tasks_in_the_current_organization(self):
+        self.client.force_authenticate(user=self.volunteer_user)
+
+        list_response = self.client.get("/api/requests/volunteer/tasks/")
+        home_response = self.client.get("/api/requests/volunteer/home/")
+
+        self.assertEqual(list_response.status_code, 200)
+        self.assertEqual(list_response.data["count"], 1)
+        self.assertEqual(home_response.status_code, 200)
+        self.assertEqual(
+            [item["id"] for item in home_response.data["recent_tasks"]],
+            [self.task.id],
+        )
 
 @override_settings(SECURE_SSL_REDIRECT=False)
 class OrganizationRequestActionIsolationTests(TestCase):
