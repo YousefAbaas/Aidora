@@ -421,3 +421,81 @@ class VolunteerPINSecurityTests(TestCase):
 
         self.assertEqual(limited.status_code, 429)
         self.assertEqual(send_email.call_count, 3)
+
+
+    def test_database_lockout_survives_throttle_cache_reset(self):
+        from django.core.cache import cache
+        self.client.force_authenticate(user=self.user)
+
+        for _ in range(3):
+            response = self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "9999"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, 400)
+
+        # Simulate a different app worker with an empty local throttle cache.
+        cache.clear()
+        fourth = self.client.post(
+            "/api/auth/verify-pin/",
+            {"pin": "9999"},
+            format="json",
+        )
+        self.assertEqual(fourth.status_code, 400)
+
+        fifth = self.client.post(
+            "/api/auth/verify-pin/",
+            {"pin": "9999"},
+            format="json",
+        )
+        self.assertEqual(fifth.status_code, 429)
+
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.pin_failed_attempts, 5)
+        self.assertIsNotNone(self.profile.pin_locked_until)
+
+    def test_resend_rotates_a_locked_pin_and_resets_failures(self):
+        from django.core.cache import cache
+        from unittest.mock import patch
+
+        self.client.force_authenticate(user=self.user)
+        for _ in range(3):
+            response = self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "9999"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, 400)
+
+        cache.clear()
+        self.assertEqual(
+            self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "9999"},
+                format="json",
+            ).status_code,
+            400,
+        )
+        self.assertEqual(
+            self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "9999"},
+                format="json",
+            ).status_code,
+            429,
+        )
+
+        with patch("accounts.views.send_aidora_email") as send_email:
+            response = self.client.post(
+                "/api/auth/resend-pin/",
+                {},
+                format="json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(send_email.call_count, 1)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.pin_failed_attempts, 0)
+        self.assertIsNone(self.profile.pin_locked_until)
+        self.assertIsNotNone(self.profile.verification_pin)
