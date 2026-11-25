@@ -189,6 +189,7 @@ class TaskReportScoringValidationTests(TestCase):
         self.volunteer = volunteer_user.volunteer_profile
         self.volunteer.organization = self.organization
         self.volunteer.full_name = "Scoring Volunteer"
+        self.volunteer.profile_completed = True
         self.volunteer.save()
         service = Service.objects.create(
             name="Scoring Service",
@@ -247,3 +248,91 @@ class TaskReportScoringValidationTests(TestCase):
         self.assertEqual(second.status_code, 400)
         self.volunteer.refresh_from_db()
         self.assertEqual(self.volunteer.points, 10000)
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class TaskAssignmentVolunteerVerificationTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.organization_user = User.objects.create_user(
+            username="assign_org",
+            email="assign-org@example.com",
+            password="TestPassword123!",
+            role="organization",
+        )
+        self.organization = Organization.objects.create(
+            name="Assignment Verification Org",
+            title="Assignment Verification Org",
+            about="Assignment verification tests",
+            user=self.organization_user,
+        )
+        volunteer_user = User.objects.create_user(
+            username="unverified_assign_volunteer",
+            email="unverified-assign-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+        )
+        self.volunteer = volunteer_user.volunteer_profile
+        self.volunteer.organization = self.organization
+        self.volunteer.profile_completed = False
+        self.volunteer.save(update_fields=["organization", "profile_completed"])
+
+        refugee = User.objects.create_user(
+            username="assign_refugee",
+            email="assign-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+        )
+        service = Service.objects.create(
+            name="Assignment Service",
+            description="Test service",
+            icon="test",
+            service_type="food",
+        )
+        self.request_record = ServiceRequest.objects.create(
+            refugee=refugee.refugee_profile,
+            service=service,
+            organization=self.organization,
+            family_members=1,
+            description="Request for task assignment",
+            location="Test location",
+            status="approved",
+        )
+        self.client.force_authenticate(user=self.organization_user)
+
+    def test_unverified_volunteer_is_not_in_assignment_list(self):
+        response = self.client.get("/api/organizations/assign-task/")
+        self.assertEqual(response.status_code, 200)
+        listed_ids = [v["id"] for v in response.data["volunteers"]]
+        self.assertNotIn(self.volunteer.id, listed_ids)
+
+    def test_unverified_volunteer_cannot_be_assigned_through_list_endpoint(self):
+        response = self.client.post(
+            "/api/organizations/assign-task/",
+            {
+                "service_request_id": self.request_record.id,
+                "volunteer_id": self.volunteer.id,
+                "title": "Test task",
+                "instructions": "Test instructions",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(
+            Task.objects.filter(service_request_id=self.request_record).exists()
+        )
+
+    def test_unverified_volunteer_cannot_be_assigned_through_single_request_endpoint(self):
+        response = self.client.post(
+            f"/api/organizations/assign-task/{self.request_record.id}/",
+            {
+                "volunteer_id": self.volunteer.id,
+                "title": "Test task",
+                "instructions": "Test instructions",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(
+            Task.objects.filter(service_request_id=self.request_record).exists()
+        )
