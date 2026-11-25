@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings
 
-from accounts.models import RefugeeProfile, User, VolunteerProfile
+from accounts.models import RefugeeProfile, User
 from organizations.models import Organization, Service
 
 from .models import ServiceRequest, Task
