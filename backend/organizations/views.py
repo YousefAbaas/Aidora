@@ -159,14 +159,22 @@ class TaskReportAPIView(APIView):
     permission_classes = [IsAuthenticated, IsRole]
     allowed_roles = ["organization"]
 
-    def get_object(self, pk):
-        return Task.objects.select_related(
+    def get_object(self, request, pk):
+        try:
+            organization = request.user.organization
+        except Organization.DoesNotExist:
+            return get_object_or_404(Task.objects.none(), id=pk)
+
+        queryset = Task.objects.filter(
+            service_request_id__organization=organization
+        ).select_related(
             'service_request_id',
             'volunteer_id'
-        ).get(id=pk)
+        )
+        return get_object_or_404(queryset, id=pk)
 
     def get(self, request, pk):
-        task = get_object_or_404(Task, id=pk)
+        task = self.get_object(request, pk)
 
         # 🔐 حماية
         if task.status != 'completed' or task.service_request_id.status != 'completed':
@@ -179,7 +187,7 @@ class TaskReportAPIView(APIView):
         return Response(serializer.data)
 
     def patch(self, request, pk):
-      task = get_object_or_404(Task, id=pk)
+      task = self.get_object(request, pk)
 
     # 🔐 حماية الحالة
       if task.status != 'completed' or task.service_request_id.status != 'completed':
