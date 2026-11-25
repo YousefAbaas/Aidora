@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -346,64 +347,80 @@ class ScanQRAPIView(APIView):
     allowed_roles = ["refugee"]
 
     def post(self, request, pk):
-
         qr_code = request.data.get("qr_code")
-
-        # 🔍 تحقق من وجود الطلب
-        # Only the refugee who owns the request may complete it. Requests of
-        # other users return the same 404 to avoid leaking which ids exist.
-        service_request = ServiceRequest.objects.filter(
-            id=pk, refugee__user=request.user
-        ).first()
-
-        if not service_request:
+        if not isinstance(qr_code, str) or not qr_code.strip() or len(qr_code) > 100:
             return Response(
-                {"error": "Request not found"},
-                status=404
+                {"error": "Invalid QR code for this request."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        qr_code = qr_code.strip()
 
-        # 🔍 تحقق من الحالة
-        if service_request.status == "completed":
-            return Response(
-                {"error": "Request already completed"},
-                status=400
-            )
+        # Lock the request so two concurrent scans cannot complete it twice.
+        with transaction.atomic():
+            service_request = ServiceRequest.objects.select_for_update().filter(
+                id=pk,
+                refugee__user=request.user,
+            ).first()
 
-        if service_request.status != "approved":
-            return Response(
-                {"error": "Request is not approved"},
-                status=400
-            )
+            if not service_request:
+                return Response(
+                    {"error": "Request not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        # 🔍 تحقق من QR
-        volunteer = VolunteerProfile.objects.filter(
-            qr_code=qr_code
-        ).first()
+            if service_request.status == "completed":
+                return Response(
+                    {"error": "Request already completed"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        if not volunteer:
-            return Response(
-                {"error": "Invalid QR code"},
-                status=400
-            )
+            if service_request.status != "approved":
+                return Response(
+                    {"error": "Request is not approved"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        # 🔐 تحقق من المنظمة
-        if volunteer.organization != service_request.organization:
-            return Response(
-                {"error": "Unauthorized volunteer"},
-                status=403
-            )
+            # Never allow a missing/NULL QR value to match a profile whose
+            # QR has not been generated.
+            volunteer = VolunteerProfile.objects.filter(
+                qr_code=qr_code,
+                qr_code__isnull=False,
+                organization_id=service_request.organization_id,
+            ).first()
 
-        # 🔥 تحديث الطلب
-        service_request.status = "completed"
-        service_request.received_at = now()
-        service_request.save()
+            if volunteer is None:
+                return Response(
+                    {"error": "Invalid QR code for this request."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        return Response({
-            "message": "Request completed successfully",
-            "request_id": f"R-{service_request.id}",
-            "status": service_request.status,
-            "received_at": service_request.received_at
-        }, status=200)
+            # Only the volunteer assigned to this request may confirm handover,
+            # and only after they have marked the assigned task completed.
+            assigned_completed_task = Task.objects.filter(
+                service_request_id=service_request,
+                volunteer_id=volunteer,
+                status="completed",
+            ).exists()
+
+            if not assigned_completed_task:
+                return Response(
+                    {"error": "Invalid QR code for this request."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            service_request.status = "completed"
+            service_request.received_at = now()
+            service_request.save(update_fields=["status", "received_at", "updated_at"])
+
+        return Response(
+            {
+                "message": "Request completed successfully",
+                "request_id": f"R-{service_request.id}",
+                "status": service_request.status,
+                "received_at": service_request.received_at,
+            },
+            status=status.HTTP_200_OK,
+        )
 @extend_schema(tags=["Service Requests"])
 class RequestsListAPIView(APIView):
     permission_classes = [IsAuthenticated]
