@@ -9,7 +9,7 @@ Official RFP: https://assets.mofoprod.net/network/documents/PUBLIC_2027_2028_Fel
 ## Track and host
 
 **Provisional choice:** Track I — Embedded Fellow.  
-**Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. An exploratory enquiry was sent on 23 November 2026; no host relationship, response, or endorsement is recorded yet.
+**Potential host:** Slum & Rural Health Initiative (SRHIN), Nigeria. An exploratory enquiry was sent on 22 November 2026 at 21:06:48 UTC; no reply, host relationship, or endorsement is recorded as of 25 November 2026.
 
 Rationale: the RFP directly identifies a community-owned mental-health data governance challenge for SRHIN and describes a rising builder with demonstrated technical excellence. Aidora supports the engineering side of that fit. Important caveats: the applicant is an early-career student rather than an established mid-career specialist; SRHIN already publishes substantial community-governance tools; and remote/time-zone and current-location eligibility require confirmation. Track I is the only credible track to pursue; Track II expects senior, recognised innovators.
 
@@ -25,7 +25,7 @@ Rationale: the RFP directly identifies a community-owned mental-health data gove
 | Builder profile | Aidora repository plus the technical evidence dossier; add a short demo only after verifying it is accurate and safe |
 | Relevant experience | Likely 0–2 years if that matches actual relevant professional experience; academic projects are experience but not automatically employment |
 | Fellowship availability | Confirm ability to commit from 1 June 2027 for 12 months |
-| Legal eligibility | Mozilla's FAQ says funds are paid to individuals (not organisations), generally as grants; the Fellow needs a bank account in their own name able to accept U.S. funds and must be legally eligible to receive the funds in the country where they reside and work. As the applicant resides in Syria, obtain written confirmation from Mozilla on country eligibility, compliance screening, and acceptable payment route before answering Yes. |
+| Legal eligibility | Mozilla's FAQ says funds are paid to individuals (not organisations), generally as grants; the Fellow needs a bank account in their own name able to accept U.S. funds and must be legally eligible to receive the funds in the country where they reside and work. The clarification email was sent on 22 November 2026; the only reply found by 25 November is a generic automated acknowledgement, not an answer. As the applicant resides in Syria, obtain written confirmation from Mozilla on country eligibility, compliance screening, and acceptable payment route before answering Yes. |
 | Track I geography | The RFP says applicants must be based in Chile, Germany, Indonesia, Nigeria, or the US, **or be able to work flexibly as a remote Fellow across time zones**; it also requires timezone compatibility with the host. The LOI form repeats this as a Yes/No gate. For Syria, this remains unconfirmed: Mozilla must clarify whether the remote exception applies and whether the location-based funding screen blocks the application. Answer only for the real primary location; never use a temporary IP or false address |
 
 ## Project proposal fields
@@ -74,7 +74,7 @@ AI disclosure: answer Yes and describe AI use as brainstorming, checking alignme
 - [ ] Existing LEEF, co-design, compensation/governance template, Epistemic Authority Decision Matrix, co-production readiness tool, GENSCORE, GENCurate, consent, and data-use workflows have been mapped.
 - [ ] A 12-month technical plan has a clear definition of done.
 - [ ] Mozilla confirms in writing whether a person whose actual primary location is Syria can pass the location-based funding screen, meet Track I's remote-across-time-zones geographic condition, legally receive the grant/stipend, and use a lawful own-name bank/payment route; local legal/tax requirements are checked.
-- [ ] The applicant can meet SRHIN's WAT (UTC+1) schedule flexibly and can attend required virtual programme commitments. The RFP states that the July 2027 Fellowship Kick-off and October 2027 MozFest attendance are mandatory; the FAQ's different wording must be clarified in writing before confirming full availability.
+- [ ] The applicant can meet SRHIN's WAT (UTC+1) schedule flexibly and can attend required virtual programme commitments. The RFP states that attendance at the July 2027 Fellowship Kick-off and October 2027 MozFest is mandatory, while the FAQ says in-person activities are not mandatory. It is unclear from the public wording whether remote attendance satisfies the event requirement; obtain written clarification before confirming full availability.
 - [ ] Aidora's clean build, demo, and current CI status are verified.
 - [ ] The synthetic policy-check reference prototype is tested and labelled accurately as synthetic-only, non-production, and not host-approved.
 - [ ] All claims about community feedback, use, users, deployments, and impact are substantiated.
