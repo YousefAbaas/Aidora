@@ -305,3 +305,116 @@ class PasswordResetSessionRevocationTests(TestCase):
             format="json",
         )
         self.assertEqual(refresh_response.status_code, 401)
+
+
+class VolunteerPINSecurityTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+        from django.core.cache import cache
+        from django.utils import timezone
+        from organizations.models import Organization
+        from accounts.models import VolunteerApplication
+
+        cache.clear()
+        self.client = APIClient()
+        self.client.defaults["wsgi.url_scheme"] = "https"
+        self.user = User.objects.create_user(
+            username="pin_volunteer",
+            email="pin-volunteer@example.com",
+            password="TestPassword123!",
+            role="volunteer",
+            is_verified=True,
+        )
+        self.profile = self.user.volunteer_profile
+        self.organization = Organization.objects.create(
+            name="PIN Test Organization",
+            title="PIN Test Organization",
+            about="Organization for PIN verification tests",
+        )
+        self.application = VolunteerApplication.objects.create(
+            user=self.user,
+            organization=self.organization,
+            phone_number="123456789",
+            why_volunteer="I want to help.",
+            i_commit=True,
+            i_agree_terms=True,
+            status="approved",
+        )
+        self.profile.verification_pin = "1234"
+        self.profile.pin_expires_at = timezone.now() + timedelta(minutes=10)
+        self.profile.save(update_fields=["verification_pin", "pin_expires_at"])
+
+    def test_refugee_cannot_verify_volunteer_pin(self):
+        refugee = User.objects.create_user(
+            username="pin_refugee",
+            email="pin-refugee@example.com",
+            password="TestPassword123!",
+            role="refugee",
+            is_verified=True,
+        )
+        self.client.force_authenticate(user=refugee)
+
+        response = self.client.post(
+            "/api/auth/verify-pin/",
+            {"pin": "1234"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_wrong_pin_attempts_are_rate_limited_per_user(self):
+        self.client.force_authenticate(user=self.user)
+
+        for _ in range(3):
+            response = self.client.post(
+                "/api/auth/verify-pin/",
+                {"pin": "9999"},
+                format="json",
+            )
+            self.assertEqual(response.status_code, 400)
+
+        limited = self.client.post(
+            "/api/auth/verify-pin/",
+            {"pin": "9999"},
+            format="json",
+        )
+        self.assertEqual(limited.status_code, 429)
+
+    def test_successful_pin_verification_consumes_pin_and_marks_application(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            "/api/auth/verify-pin/",
+            {"pin": "1234"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.profile.refresh_from_db()
+        self.application.refresh_from_db()
+        self.assertTrue(self.profile.profile_completed)
+        self.assertEqual(self.profile.organization, self.organization)
+        self.assertTrue(self.application.is_verified)
+        self.assertIsNone(self.profile.verification_pin)
+        self.assertIsNone(self.profile.pin_expires_at)
+
+    def test_pin_resend_is_rate_limited(self):
+        from unittest.mock import patch
+
+        self.client.force_authenticate(user=self.user)
+        with patch("accounts.views.send_aidora_email") as send_email:
+            for _ in range(3):
+                response = self.client.post(
+                    "/api/auth/resend-pin/",
+                    {},
+                    format="json",
+                )
+                self.assertEqual(response.status_code, 200)
+
+            limited = self.client.post(
+                "/api/auth/resend-pin/",
+                {},
+                format="json",
+            )
+
+        self.assertEqual(limited.status_code, 429)
+        self.assertEqual(send_email.call_count, 3)
