@@ -384,9 +384,11 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
 
         list_response = self.client.get("/api/requests/volunteer/tasks/")
         home_response = self.client.get("/api/requests/volunteer/home/")
+        task_detail_response = self.client.get(self.url)
 
         self.assertEqual(list_response.status_code, 403)
         self.assertEqual(home_response.status_code, 403)
+        self.assertEqual(task_detail_response.status_code, 403)
 
     def test_volunteer_cannot_read_or_update_tasks_from_a_previous_organization(self):
         new_organization = Organization.objects.create(
