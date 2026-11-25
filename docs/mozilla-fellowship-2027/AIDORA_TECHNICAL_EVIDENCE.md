@@ -100,7 +100,7 @@ These results verify the tested PR-head changes. They are not a claim that an in
 
 ## 6. Security and engineering judgement
 
-The repository documents environment-based secret configuration, JWT authentication, role checks on most API endpoints (one unauthenticated endpoint was found in the 23 November 2026 review, see 6.1), database SSL/TLS settings for production, and rules against committing local secrets and database exports. The commit history also records removal of a production database dump and rules to ignore database backups.
+The 23 November 2026 internal review identified concrete backend and mobile security gaps. PR #1 and PR #3 subsequently merged remediations for QR authentication/ownership, secure-by-default API permissions, stronger OTP/QR randomness, account-enumeration behavior, production network configuration, and token logging. Further mobile credential-storage and backend authorization work is proposed in open PRs #13 and #14; see section 6.2. The commit history also records removal of a production database dump and rules to ignore database backups, but removal from the working tree did not erase the file from Git history.
 
 These are evidence of security-conscious engineering practices. They should not be described as an independent penetration test, formal security certification, or comprehensive privacy audit.
 
@@ -123,12 +123,20 @@ These are evidence of security-conscious engineering practices. They should not 
 | Android/mobile network and logging | PR #3 merged in [490b53b](https://github.com/YousefAbaas/Aidora/commit/490b53ba2ca3737d2f077356dc7ba5601ccd15fb). Release cleartext traffic is disabled; development allowances are isolated to debug configuration; token-bearing refresh response bodies are no longer printed, and response previews are debug-only. [Django CI](https://github.com/YousefAbaas/Aidora/actions/runs/45073134286) and [Flutter CI](https://github.com/YousefAbaas/Aidora/actions/runs/45073134396) passed on the PR head. |
 | Synthetic policy API approval verification | PR #9 merged in [af98656](https://github.com/YousefAbaas/Aidora/commit/af986565c59c3791af0740f42e2635bda0109615). The API verifies Ed25519-signed synthetic evidence with configured public keys; the private signing helper is kept separate from API verification. [API CI](https://github.com/YousefAbaas/Aidora/actions/runs/45272014135), [Django CI](https://github.com/YousefAbaas/Aidora/actions/runs/45272014009), and [Flutter CI](https://github.com/YousefAbaas/Aidora/actions/runs/45272013841) passed on the PR head. |
 
+### 6.2 Pending security pull requests — status verified 25 November 2026
+
+The following remediation work is validated by CI on its current pull-request head, but neither PR is merged into `main`:
+
+- **Platform-backed mobile token storage — [PR #13](https://github.com/YousefAbaas/Aidora/pull/13):** moves access/refresh tokens to Android Keystore-backed secure storage and iOS Keychain, adds guarded migration from legacy plaintext storage, and handles refresh-token rotation as a pair. The latest head is `52be870bb41bf3ea3d2b30044ba5699b78dcf8d1`. [Flutter CI run 126](https://github.com/YousefAbaas/Aidora/actions/runs/45557920006) and [Django CI run 109](https://github.com/YousefAbaas/Aidora/actions/runs/45557919689) both completed successfully on that head. PR #13 remains open and under review; do not describe these changes as part of `main` until merged.
+- **Backend tenant isolation and verified-account enforcement — [PR #14](https://github.com/YousefAbaas/Aidora/pull/14):** adds broader organization/refugee ownership checks, verified-account requirements for JWT issuance and protected requests, stronger OTP/PIN controls, and safer task/QR authorization transitions. The latest head is `7d262fa80b084bcece1fc982a759cdb16220ab17`. [Django CI run 227](https://github.com/YousefAbaas/Aidora/actions/runs/45596575688) and [Flutter CI run 205](https://github.com/YousefAbaas/Aidora/actions/runs/45596575672) both completed successfully on that head. PR #14 remains a Draft and is not merged; passing CI is not a substitute for review or an independent security audit.
+
 **Residual issues — do not describe these as resolved:**
 
 1. The production database export remains in Git history. No history rewrite, credential rotation, or repository-wide historical secret audit is recorded here.
 2. The old signing-related strings have not been classified as genuine or placeholder values. If any were genuine, revoke/rotate them and assess any associated exposure.
-3. The Flutter API integration guide notes that tokens are persisted through SharedPreferences, which should not be described as encrypted secure storage. A platform-backed secure-storage migration has not been recorded.
-4. These changes and checks are engineering evidence, not an independent penetration test, privacy assessment, or security certification.
+3. PR #13 proposes platform-backed token storage, but it is still open and unmerged. Do not claim the migration is already present in `main`.
+4. PR #14 contains further backend authorization and account-verification hardening, but it remains a Draft and unmerged. Do not claim those changes are already present in `main`.
+5. The work and CI results documented here are engineering evidence, not an independent penetration test, privacy assessment, or security certification.
 
 The issuer-governance and SQLite registry proposals are separate documentation-only drafts in [PR #10](https://github.com/YousefAbaas/Aidora/pull/10) and [PR #11](https://github.com/YousefAbaas/Aidora/pull/11). They are not merged or implemented. Their unresolved authority, recovery, lifecycle, and transaction questions must be reviewed with the accountable host and affected communities before any runtime implementation.
 
