@@ -273,6 +273,8 @@ class VolunteerTaskTransitionSecurityTests(TestCase):
             password="TestPassword123!",
             role="volunteer",
         )
+        self.other_volunteer.volunteer_profile.profile_completed = True
+        self.other_volunteer.volunteer_profile.save(update_fields=["profile_completed"])
         refugee = User.objects.create_user(
             username="task_transition_refugee",
             email="task-transition-refugee@example.com",
