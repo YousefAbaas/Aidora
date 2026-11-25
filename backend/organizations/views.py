@@ -306,8 +306,10 @@ class AssignTaskAPIView(APIView):
             if Task.objects.filter(service_request_id=service_request).exists():
                 return Response({"error": "Task already assigned"}, status=400)
 
+            # Serialize assignment with organization re-approval, which also
+            # locks and resets this volunteer profile.
             volunteer = get_object_or_404(
-                VolunteerProfile,
+                VolunteerProfile.objects.select_for_update(),
                 id=volunteer_id,
                 organization=organization,
                 profile_completed=True,
